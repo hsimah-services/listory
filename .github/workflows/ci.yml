@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+
+      - run: npm ci
+
+      - run: npm run lint
+
+      - run: npm run build
+        env:
+          VITE_GRAPHQL_URL: /graphql
+
+  e2e-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Teardown previous run
+        working-directory: .
+        run: docker compose -f .github/workflows/e2e-tests/docker-compose.yml down -v 2>/dev/null || true
+
+      - name: Start WordPress stack
+        working-directory: .
+        run: docker compose -f .github/workflows/e2e-tests/docker-compose.yml up -d --build
+
+      - name: Wait for WordPress setup
+        working-directory: .
+        run: |
+          echo "Waiting for WordPress and plugins..."
+          for i in $(seq 1 30); do
+            if docker compose -f .github/workflows/e2e-tests/docker-compose.yml exec -T wordpress wp plugin is-active listory --allow-root 2>/dev/null; then
+              echo "WordPress is ready and listory plugin is active"
+              exit 0
+            fi
+            echo "Attempt $i/30 - waiting 5s..."
+            sleep 5
+          done
+          echo "WordPress setup failed"
+          docker compose -f .github/workflows/e2e-tests/docker-compose.yml logs wordpress
+          exit 1
+
+      - name: Seed test data
+        working-directory: .
+        run: >
+          docker compose -f .github/workflows/e2e-tests/docker-compose.yml
+          exec -T wordpress wp listory seed --allow-root
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+
+      - run: npm ci
+
+      - name: Teardown
+        if: always()
+        working-directory: .
+        run: docker compose -f .github/workflows/e2e-tests/docker-compose.yml down -v

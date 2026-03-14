@@ -1,0 +1,42 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+!.vscode/tasks.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Vite
+/client/.vite
+
+# Playwright
+/client/test-results/
+/client/playwright-report/
+/client/blob-report/
+/client/playwright/.cache/
+
+# Environment
+.env
+.env.prod
+
+# Docker volumes
+db_data/
+client/tsconfig.e2e.tsbuildinfo
