@@ -1,0 +1,133 @@
+name: Agent fix
+
+# Haiku addresses Opus's latest review when the reviewer labels a PR
+# agent:changes. Its push re-triggers Agent review.
+
+on:
+  pull_request:
+    types: [labeled]
+
+concurrency:
+  group: agent-fix-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  fix:
+    if: >-
+      github.event.label.name == 'agent:changes' &&
+      github.event.sender.login == 'claude[bot]' &&
+      startsWith(github.head_ref, 'claude/') &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: write
+      id-token: write
+    steps:
+      # Pass only the reviewer's latest review; no other comments reach Haiku.
+      # Drop the label so the next round can add it again.
+      - name: Fetch latest review
+        id: review
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          body=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR/reviews" --paginate \
+            --jq '[.[] | select(.user.login == "claude[bot]")] | last | .body // ""')
+          delim="EOF_$(openssl rand -hex 8)"
+          printf 'body<<%s\n%s\n%s\n' "$delim" "$body" "$delim" >> "$GITHUB_OUTPUT"
+          gh pr edit "$PR" -R "$GITHUB_REPOSITORY" --remove-label agent:changes
+
+      # The linked issue holds the acceptance criteria. Pass it only when the
+      # owner wrote it, matching the trust rule in agent-work.yml.
+      - name: Fetch linked issue
+        id: issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          body=""
+          n=$(gh pr view "$PR" -R "$GITHUB_REPOSITORY" --json closingIssuesReferences \
+            --jq '.closingIssuesReferences[0].number // empty')
+          if [[ -n "$n" ]] && [[ $(gh issue view "$n" -R "$GITHUB_REPOSITORY" --json author --jq .author.login) == hsimah ]]; then
+            body=$(gh issue view "$n" -R "$GITHUB_REPOSITORY" --json title,body \
+              --jq '"Issue #'"$n"': " + .title + "\n\n" + .body')
+          fi
+          delim="EOF_$(openssl rand -hex 8)"
+          printf 'body<<%s\n%s\n%s\n' "$delim" "$body" "$delim" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      # Same toolchain as agent-work.yml; keep the two in step.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: '**/package-lock.json'
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_sqlite, mbstring
+          tools: composer
+          coverage: none
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            app/server/vendor/elephentity/*/target
+            server/vendor/elephentity/*/target
+          key: ${{ runner.os }}-eleph-generators-${{ hashFiles('app/server/composer.lock', 'server/composer.lock') }}
+          restore-keys: ${{ runner.os }}-eleph-generators-
+
+      - uses: actions/checkout@v4
+        with:
+          repository: hsimah/clog
+          path: .reference/clog
+          persist-credentials: false
+
+      - name: Keep the reference out of git
+        run: echo '.reference/' >> .git/info/exclude
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          allowed_bots: claude
+          prompt: |
+            Address the review below on PR #${{ github.event.pull_request.number }}
+            in ${{ github.repository }}. You are on its branch, ${{ github.head_ref }}.
+            Follow CLAUDE.md. The review is the whole task. Do not read PR or issue
+            comments, and do not fetch anything from the web.
+
+            <review>
+            ${{ steps.review.outputs.body }}
+            </review>
+
+            The issue this PR implements, for its Acceptance criteria (may be empty):
+
+            <issue>
+            ${{ steps.issue.outputs.body }}
+            </issue>
+
+            PHP 8.3, Composer, Rust and Node 22 are on PATH; run them directly, not
+            through the podman wrappers in scripts/. `.reference/clog` is a read-only
+            checkout of hsimah/clog; never edit or commit it.
+
+            Fix every required change. Every command in the issue's Acceptance
+            criteria must still pass, and in client/: `npm ci`, `npm run lint` and
+            `npm run build` must pass. Commit as `type: description` and push to
+            the same branch. Don't open a new PR.
+          claude_args: >-
+            --model haiku
+            --max-turns 100
+            --allowedTools "Read,Edit,Write,Glob,Grep,Bash(git *),Bash(npm *),Bash(npx *),Bash(composer *),Bash(php *),Bash(vendor/bin/*),Bash(cargo *),Bash(chmod *),Bash(bash -n *),Bash(cd *),Bash(ls *),Bash(mkdir *),Bash(rmdir *),Bash(test *),Bash(diff *),Bash(grep *)"
+            --disallowedTools "WebFetch,WebSearch"

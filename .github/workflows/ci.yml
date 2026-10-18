@@ -2,7 +2,7 @@ name: CI
 
 on:
   pull_request:
-    branches: [main]
+    branches: [master]
 
 jobs:
   lint-and-build:
@@ -27,6 +27,88 @@ jobs:
         env:
           VITE_GRAPHQL_URL: /graphql
 
+  # The Elephentity app, wherever it lives: app/ during the rebuild, the
+  # repository root after it is promoted. Skips until it exists.
+  standalone:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Locate the standalone app
+        id: app
+        run: |
+          if [[ -f app/server/composer.json ]]; then root=app/
+          elif [[ -f server/composer.json ]]; then root=
+          else echo "No standalone app yet; skipping."; echo "found=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          has_client=false
+          if [[ -f ${root}client/package.json ]]; then has_client=true; fi
+          {
+            echo "found=true"
+            echo "server=${root}server"
+            echo "client=${root}client"
+            echo "has_client=$has_client"
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: shivammathur/setup-php@v2
+        if: steps.app.outputs.found == 'true'
+        with:
+          php-version: '8.3'
+          extensions: pdo_sqlite, mbstring
+          tools: composer
+          coverage: none
+
+      - uses: dtolnay/rust-toolchain@stable
+        if: steps.app.outputs.found == 'true'
+
+      - uses: actions/cache@v4
+        if: steps.app.outputs.found == 'true'
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ${{ steps.app.outputs.server }}/vendor/elephentity/*/target
+          key: ${{ runner.os }}-eleph-generators-${{ hashFiles('app/server/composer.lock', 'server/composer.lock') }}
+          restore-keys: ${{ runner.os }}-eleph-generators-
+
+      - name: Install locked PHP dependencies
+        if: steps.app.outputs.found == 'true'
+        working-directory: ${{ steps.app.outputs.server }}
+        run: composer validate --strict && composer install --no-interaction --prefer-dist
+
+      - name: Verify specs and generated code
+        if: steps.app.outputs.found == 'true'
+        working-directory: ${{ steps.app.outputs.server }}
+        run: |
+          composer build-generators
+          # check-generated arrives with the first entity spec.
+          if [[ -d spec/entities ]]; then
+            composer check-generated
+            git diff --exit-code -- spec generated
+          fi
+
+      - name: Server tests
+        if: steps.app.outputs.found == 'true'
+        working-directory: ${{ steps.app.outputs.server }}
+        run: |
+          if composer config scripts.test >/dev/null 2>&1; then composer test
+          else echo "No test script yet."
+          fi
+
+      - uses: actions/setup-node@v4
+        if: steps.app.outputs.has_client == 'true'
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ${{ steps.app.outputs.client }}/package-lock.json
+
+      - name: Client checks
+        if: steps.app.outputs.has_client == 'true'
+        working-directory: ${{ steps.app.outputs.client }}
+        run: npm ci && npm run check
+
+  # WordPress stack; retires itself once the plugin is deleted.
   e2e-tests:
     runs-on: ubuntu-latest
     defaults:
@@ -35,15 +117,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Detect WordPress plugin
+        id: wp
+        working-directory: .
+        run: |
+          if [[ -f server/listory.php ]]; then echo "present=true" >> "$GITHUB_OUTPUT"
+          else echo "WordPress plugin removed; skipping."
+          fi
+
       - name: Teardown previous run
+        if: steps.wp.outputs.present == 'true'
         working-directory: .
         run: docker compose -f .github/workflows/e2e-tests/docker-compose.yml down -v 2>/dev/null || true
 
       - name: Start WordPress stack
+        if: steps.wp.outputs.present == 'true'
         working-directory: .
         run: docker compose -f .github/workflows/e2e-tests/docker-compose.yml up -d --build
 
       - name: Wait for WordPress setup
+        if: steps.wp.outputs.present == 'true'
         working-directory: .
         run: |
           echo "Waiting for WordPress and plugins..."
@@ -60,20 +153,23 @@ jobs:
           exit 1
 
       - name: Seed test data
+        if: steps.wp.outputs.present == 'true'
         working-directory: .
         run: >
           docker compose -f .github/workflows/e2e-tests/docker-compose.yml
           exec -T wordpress wp listory seed --allow-root
 
       - uses: actions/setup-node@v4
+        if: steps.wp.outputs.present == 'true'
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: client/package-lock.json
 
       - run: npm ci
+        if: steps.wp.outputs.present == 'true'
 
       - name: Teardown
-        if: always()
+        if: always() && steps.wp.outputs.present == 'true'
         working-directory: .
         run: docker compose -f .github/workflows/e2e-tests/docker-compose.yml down -v

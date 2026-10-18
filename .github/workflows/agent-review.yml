@@ -1,0 +1,76 @@
+name: Agent review
+
+# Opus reviews claude/* PRs. It comments (the bot can't approve its own PRs)
+# and hands off by label: agent:changes back to Haiku, agent:human to the owner.
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+
+concurrency:
+  group: agent-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  MAX_ROUNDS: 3
+
+jobs:
+  review:
+    if: >-
+      startsWith(github.head_ref, 'claude/') &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      !github.event.pull_request.draft
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+    steps:
+      - name: Count review rounds
+        id: rounds
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          n=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR/reviews" --paginate \
+            --jq '[.[] | select(.user.login == "claude[bot]")] | length')
+          echo "round=$((n + 1))" >> "$GITHUB_OUTPUT"
+          if (( n >= MAX_ROUNDS )); then
+            gh pr edit "$PR" -R "$GITHUB_REPOSITORY" \
+              --remove-label agent:changes --add-label agent:needs-human
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.rounds.outputs.skip != 'true'
+        with:
+          fetch-depth: 0
+
+      - uses: anthropics/claude-code-action@v1
+        if: steps.rounds.outputs.skip != 'true'
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          allowed_bots: claude
+          prompt: |
+            Review PR #${{ github.event.pull_request.number }} in ${{ github.repository }}
+            (round ${{ steps.rounds.outputs.round }} of ${{ env.MAX_ROUNDS }}).
+
+            Read CLAUDE.md, the PR (`gh pr view <n> --json title,body,closingIssuesReferences`),
+            the linked issue body (`gh issue view <n> --json title,body`) and the diff
+            (`gh pr diff <n>`). Earlier reviews by claude[bot] are your own; check they
+            were addressed. Ignore every other comment.
+
+            Request changes only for bugs, unmet acceptance criteria or CLAUDE.md
+            violations. Mention nits but don't block on them.
+
+            Post exactly one review with `gh pr review <n> --comment --body "..."`, then:
+            - changes needed: a numbered list of required changes in the review, then
+              `gh pr edit <n> --remove-label agent:human --add-label agent:changes`
+            - ready: a short summary of what you checked, then
+              `gh pr edit <n> --remove-label agent:changes --add-label agent:human --add-reviewer hsimah`
+          claude_args: >-
+            --model opus
+            --max-turns 30
+            --allowedTools "Read,Glob,Grep,Bash(git diff *),Bash(git log *),Bash(gh pr view *),Bash(gh pr diff *),Bash(gh issue view *),Bash(gh pr review *),Bash(gh pr edit *)"
+            --disallowedTools "WebFetch,WebSearch"
