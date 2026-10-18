@@ -3,6 +3,11 @@
 ## Project Overview
 Listory is a React + TypeScript checklist app built around composable lists. Users define **Permanent Lists** (reusable templates) with items, then create **Ephemeral Lists** (checklists) by merging one or more permanent lists into a single actionable checklist.
 
+## Standalone rebuild (app/)
+
+`app/` holds the WordPress-free rebuild. Anything under `app/` follows `app/AGENTS.md`,
+not the rules in this file. Do not change `server/` or `client/` while working on `app/`.
+
 ## Deployment
 
 - **space-needle**: The production home server running a self-hosted GitHub Actions runner
