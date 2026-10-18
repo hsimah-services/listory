@@ -1,24 +1,84 @@
 name: Agent work
 
-# Haiku implements an issue and opens a PR. Runs only when the owner labels
-# agent:ready, on issues written by the owner or filed by claude[bot] (the
+# Haiku implements an issue and opens a PR. Runs only for issues the owner
+# labelled agent:ready, written by the owner or filed by claude[bot] (the
 # test-distill job) — the owner's label is the review of a bot-filed body.
 # Issue comments are never read.
+#
+# Waterfall: an issue with open "blocked by" issues stays queued (label kept).
+# agent-queue.yml dispatches this workflow when its last blocker closes as
+# completed; the gate below re-checks everything on both paths.
 
 on:
   issues:
     types: [labeled]
+  workflow_dispatch:
+    inputs:
+      issue:
+        description: Issue number to implement (must already be labelled agent:ready by the owner)
+        required: true
 
 concurrency:
-  group: agent-issue-${{ github.event.issue.number }}
+  group: agent-issue-${{ inputs.issue || github.event.issue.number }}
   cancel-in-progress: false
 
 jobs:
-  work:
+  gate:
     if: >-
-      github.event.label.name == 'agent:ready' &&
-      github.event.sender.login == 'hsimah' &&
-      (github.event.issue.user.login == 'hsimah' || github.event.issue.user.login == 'claude[bot]')
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.label.name == 'agent:ready' && github.event.sender.login == 'hsimah')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+      pull-requests: read
+    outputs:
+      go: ${{ steps.check.outputs.go }}
+      number: ${{ steps.check.outputs.number }}
+      title: ${{ steps.check.outputs.title }}
+      body: ${{ steps.check.outputs.body }}
+    steps:
+      - name: Check the issue is ready and unblocked
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE: ${{ inputs.issue || github.event.issue.number }}
+        run: |
+          stop() { echo "$1"; echo "go=false" >> "$GITHUB_OUTPUT"; exit 0; }
+          [[ $ISSUE =~ ^[0-9]+$ ]] || stop "Not an issue number: $ISSUE"
+          json=$(gh api "repos/$GITHUB_REPOSITORY/issues/$ISSUE")
+          [[ $(jq -r .state <<<"$json") == open ]] || stop "#$ISSUE is not open."
+          jq -e '.labels | map(.name) | index("agent:ready")' <<<"$json" >/dev/null \
+            || stop "#$ISSUE is not labelled agent:ready."
+          author=$(jq -r .user.login <<<"$json")
+          [[ $author == hsimah || $author == 'claude[bot]' ]] || stop "#$ISSUE was written by $author."
+          # Dispatch carries no label event, so ask the timeline who queued it.
+          labeller=$(gh api --paginate "repos/$GITHUB_REPOSITORY/issues/$ISSUE/events?per_page=100" \
+            --jq '.[] | select(.event == "labeled" and .label.name == "agent:ready") | .actor.login' | tail -n 1)
+          [[ $labeller == hsimah ]] || stop "agent:ready on #$ISSUE was last added by ${labeller:-nobody}."
+          open_pr=$(gh pr list -R "$GITHUB_REPOSITORY" --head "claude/issue-$ISSUE" --state open --json number --jq '.[].number')
+          [[ -z $open_pr ]] || stop "#$ISSUE already has PR #$open_pr."
+          waiting=$(gh api "repos/$GITHUB_REPOSITORY/issues/$ISSUE/dependencies/blocked_by" \
+            --jq '[.[] | select(.state != "closed" or .state_reason != "completed") | "#\(.number)"] | join(", ")')
+          if [[ -n $waiting ]]; then
+            # Say so once, when the owner queues it; agent-queue re-dispatches later.
+            if [[ $GITHUB_EVENT_NAME == issues ]]; then
+              gh issue comment "$ISSUE" -R "$GITHUB_REPOSITORY" \
+                --body "Queued behind $waiting. Work starts automatically when they close as completed."
+            fi
+            stop "#$ISSUE is waiting on $waiting."
+          fi
+          delim="EOF_$(openssl rand -hex 8)"
+          {
+            echo "go=true"
+            echo "number=$ISSUE"
+            echo "title=$(jq -r .title <<<"$json")"
+            printf 'body<<%s\n%s\n%s\n' "$delim" "$(jq -r '.body // ""' <<<"$json")" "$delim"
+          } >> "$GITHUB_OUTPUT"
+
+  work:
+    needs: gate
+    if: needs.gate.outputs.go == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     # Writes go through the Claude App token; id-token mints it.
@@ -72,14 +132,14 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: |
-            Implement issue #${{ github.event.issue.number }} in ${{ github.repository }}.
+            Implement issue #${{ needs.gate.outputs.number }} in ${{ github.repository }}.
             Follow CLAUDE.md. The issue below is the whole task. Do not read issue
             or PR comments, and do not fetch anything from the web.
 
             <issue>
-            Title: ${{ github.event.issue.title }}
+            Title: ${{ needs.gate.outputs.title }}
 
-            ${{ github.event.issue.body }}
+            ${{ needs.gate.outputs.body }}
             </issue>
 
             PHP 8.3, Composer, Rust and Node 22 are on PATH; run them directly, not
@@ -87,17 +147,17 @@ jobs:
             checkout of hsimah/clog for issues that say to port from it; never edit
             or commit it.
 
-            1. `git switch -c claude/issue-${{ github.event.issue.number }}` from master.
+            1. `git switch -c claude/issue-${{ needs.gate.outputs.number }}` from master.
             2. Make the smallest change that satisfies the issue.
             3. Run every command in the issue's Acceptance criteria; all must pass.
                In client/: `npm ci`, `npm run lint` and `npm run build` must also pass.
             4. Commit as `type: description`, push, then open the PR:
-               `gh pr create --base master --title "<type: description>" --body "Closes #${{ github.event.issue.number }}<blank line><what changed and how you verified it>"`
-            5. `gh issue edit ${{ github.event.issue.number }} --remove-label agent:ready`
+               `gh pr create --base master --title "<type: description>" --body "Closes #${{ needs.gate.outputs.number }}<blank line><what changed and how you verified it>"`
+            5. `gh issue edit ${{ needs.gate.outputs.number }} --remove-label agent:ready`
 
             If the issue is ambiguous or too large for one small PR, change nothing.
             Instead comment on the issue saying what is missing and run
-            `gh issue edit ${{ github.event.issue.number }} --remove-label agent:ready --add-label agent:needs-human`.
+            `gh issue edit ${{ needs.gate.outputs.number }} --remove-label agent:ready --add-label agent:needs-human`.
           claude_args: >-
             --model haiku
             --max-turns 100
