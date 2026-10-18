@@ -1,0 +1,103 @@
+name: Agent work
+
+# Haiku implements an issue and opens a PR. Runs only for issues written and
+# labelled agent:ready by the owner; issue comments are never read.
+
+on:
+  issues:
+    types: [labeled]
+
+concurrency:
+  group: agent-issue-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  work:
+    if: >-
+      github.event.label.name == 'agent:ready' &&
+      github.event.sender.login == 'hsimah' &&
+      github.event.issue.user.login == 'hsimah'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    # Writes go through the Claude App token; id-token mints it.
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Toolchain for the standalone app (issues reference these). Keep these
+      # steps inline: a local composite action would be editable from PR branches.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: '**/package-lock.json'
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_sqlite, mbstring
+          tools: composer
+          coverage: none
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      # Generators compile from source on composer build-generators; reuse them.
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            app/server/vendor/elephentity/*/target
+            server/vendor/elephentity/*/target
+          key: ${{ runner.os }}-eleph-generators-${{ hashFiles('app/server/composer.lock', 'server/composer.lock') }}
+          restore-keys: ${{ runner.os }}-eleph-generators-
+
+      # Read-only reference implementation the issues port from.
+      - uses: actions/checkout@v4
+        with:
+          repository: hsimah/clog
+          path: .reference/clog
+          persist-credentials: false
+
+      - name: Keep the reference out of git
+        run: echo '.reference/' >> .git/info/exclude
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            Implement issue #${{ github.event.issue.number }} in ${{ github.repository }}.
+            Follow CLAUDE.md. The issue below is the whole task. Do not read issue
+            or PR comments, and do not fetch anything from the web.
+
+            <issue>
+            Title: ${{ github.event.issue.title }}
+
+            ${{ github.event.issue.body }}
+            </issue>
+
+            PHP 8.3, Composer, Rust and Node 22 are on PATH; run them directly, not
+            through the podman wrappers in scripts/. `.reference/clog` is a read-only
+            checkout of hsimah/clog for issues that say to port from it; never edit
+            or commit it.
+
+            1. `git switch -c claude/issue-${{ github.event.issue.number }}` from master.
+            2. Make the smallest change that satisfies the issue.
+            3. Run every command in the issue's Acceptance criteria; all must pass.
+               In client/: `npm ci`, `npm run lint` and `npm run build` must also pass.
+            4. Commit as `type: description`, push, then open the PR:
+               `gh pr create --base master --title "<type: description>" --body "Closes #${{ github.event.issue.number }}<blank line><what changed and how you verified it>"`
+            5. `gh issue edit ${{ github.event.issue.number }} --remove-label agent:ready`
+
+            If the issue is ambiguous or too large for one small PR, change nothing.
+            Instead comment on the issue saying what is missing and run
+            `gh issue edit ${{ github.event.issue.number }} --remove-label agent:ready --add-label agent:needs-human`.
+          claude_args: >-
+            --model haiku
+            --max-turns 100
+            --allowedTools "Read,Edit,Write,Glob,Grep,Bash(git *),Bash(npm *),Bash(npx *),Bash(composer *),Bash(php *),Bash(vendor/bin/*),Bash(cargo *),Bash(chmod *),Bash(bash -n *),Bash(cd *),Bash(ls *),Bash(mkdir *),Bash(rmdir *),Bash(test *),Bash(diff *),Bash(grep *),Bash(gh pr create *),Bash(gh issue edit *),Bash(gh issue comment *)"
+            --disallowedTools "WebFetch,WebSearch"
