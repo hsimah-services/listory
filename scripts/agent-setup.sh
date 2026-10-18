@@ -13,6 +13,7 @@ label agent:ready       0e8a16 "Owner-approved for Haiku to implement"
 label agent:changes     fbca04 "Reviewer requested changes; Haiku fixes"
 label agent:human       1d76db "Reviewer satisfied; owner reviews and merges"
 label agent:needs-human d93f0b "Agent gave up or hit the round limit"
+label agent:triage      c5def5 "Filed by an agent; owner reviews before agent:ready"
 
 # Repository admin (role 5) is the only bypass, so only the owner can move
 # the default branch or any tag. Agents can push branches and open PRs only.

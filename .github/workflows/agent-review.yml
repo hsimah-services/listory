@@ -64,6 +64,12 @@ jobs:
             Request changes only for bugs, unmet acceptance criteria or CLAUDE.md
             violations. Mention nits but don't block on them.
 
+            A `claude/test-distill-*` PR has no issue; its PR body is the contract.
+            Check every removed or merged scenario against the body's mapping table:
+            each removed assertion must exist, at least as strictly, in a surviving
+            test. Request changes for any behaviour that lost its only check, any
+            weakened assertion, or any change outside test files.
+
             Post exactly one review with `gh pr review <n> --comment --body "..."`, then:
             - changes needed: a numbered list of required changes in the review, then
               `gh pr edit <n> --remove-label agent:human --add-label agent:changes`
