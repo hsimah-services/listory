@@ -1,0 +1,153 @@
+name: Agent test distill
+
+# Sonnet periodically consolidates the test suites: it merges overlapping
+# scenarios and prunes redundant ones in one small area per run, then opens a
+# claude/* PR so Agent review checks that no behaviour lost its coverage.
+# Bugs it finds become agent:triage issues carrying the failing test; the
+# owner labels one agent:ready to have Haiku land the test with its fix, so
+# master never holds a failing test.
+#
+# The schedule is off until the repository variable TEST_DISTILL is set to
+# "on" (the standalone rebuild series counts PASS lines in its acceptance
+# criteria, so distilling mid-series would break later issues). Manual runs
+# always work.
+
+on:
+  schedule:
+    - cron: '0 3 1 * *' # 03:00 UTC on the 1st of each month
+  workflow_dispatch:
+    inputs:
+      focus:
+        description: Optional test file or folder to distill (default - Sonnet picks the most redundant)
+        required: false
+
+concurrency:
+  group: agent-test-distill
+  cancel-in-progress: false
+
+jobs:
+  distill:
+    if: github.event_name == 'workflow_dispatch' || vars.TEST_DISTILL == 'on'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    # Writes go through the Claude App token; id-token mints it.
+    permissions:
+      contents: read
+      pull-requests: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # One distill PR at a time, and none while agent PRs are open: they
+      # touch the same test files and would conflict.
+      - name: Check for open agent PRs
+        id: gate
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          open=$(gh pr list -R "$GITHUB_REPOSITORY" --state open --json headRefName \
+            --jq '[.[] | select(.headRefName | startswith("claude/"))] | length')
+          if (( open > 0 )); then
+            echo "$open open claude/* PR(s); skipping this run."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # The standalone app lives under app/ during the rebuild, then at the root.
+      - name: Locate test suites
+        id: app
+        if: steps.gate.outputs.skip != 'true'
+        run: |
+          if [[ -f app/server/composer.json ]]; then root=app/
+          elif [[ -f server/composer.json ]]; then root=
+          else echo "No standalone app; skipping."; echo "skip=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          if ! compgen -G "${root}server/standalone/tests/*.php" >/dev/null && ! compgen -G "${root}client/e2e/*.spec.ts" >/dev/null; then
+            echo "No tests yet; skipping."; echo "skip=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          {
+            echo "server=${root}server"
+            echo "client=${root}client"
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v4
+        if: steps.gate.outputs.skip != 'true' && steps.app.outputs.skip != 'true'
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: '**/package-lock.json'
+
+      - uses: shivammathur/setup-php@v2
+        if: steps.gate.outputs.skip != 'true' && steps.app.outputs.skip != 'true'
+        with:
+          php-version: '8.3'
+          extensions: pdo_sqlite, mbstring
+          tools: composer
+          coverage: none
+
+      - uses: anthropics/claude-code-action@v1
+        if: steps.gate.outputs.skip != 'true' && steps.app.outputs.skip != 'true'
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            Distill the test suites of ${{ github.repository }}. Follow CLAUDE.md and
+            AGENTS.md. Do not read issue or PR comments, and do not fetch anything
+            from the web. PHP 8.3, Composer and Node 22 are on PATH.
+
+            Server tests: ${{ steps.app.outputs.server }}/standalone/tests (`composer test`
+            in ${{ steps.app.outputs.server }}). Browser tests: ${{ steps.app.outputs.client }}/e2e.
+            Focus requested by the owner (may be empty): "${{ inputs.focus }}"
+
+            Tests written alongside features pile up: many narrow scenarios repeat the
+            same setup and assert overlapping things. Your job is to make one area
+            smaller and clearer while keeping exactly the behaviour it protects.
+
+            1. Install dependencies and run the whole server suite (and the browser
+               suite if you choose browser tests). If anything fails before you
+               change it, change nothing and stop.
+            2. Pick ONE test file, or two closely related files, with the most
+               redundancy (the focus above, if given). Keep the PR small.
+            3. For that area, list every behaviour it asserts. Then:
+               - merge scenarios that share setup into one scenario with several checks;
+               - delete a scenario only when every assertion in it is also made elsewhere;
+               - delete assertions about framework behaviour already proven by another
+                 scenario in the same suite;
+               - keep each surviving scenario's name describing the behaviour it proves.
+            4. Never: change application, spec or generated code; weaken an assertion
+               (an exact check into a looser one); remove the only check of a
+               behaviour; add skips; or change test helpers' meaning.
+            5. Run the whole suite again; it must pass. Record before and after for the
+               area: scenario count (PASS lines or test count) and wall time.
+
+            Bugs you come across. While reading the area you may notice an edge case
+            that is not tested. You may write a scratch test to probe it; never commit
+            a failing test. If the app gets it wrong, file an issue, at most 2 per run:
+            - Only when the expected behaviour is evidenced: a spec in spec/, an issue's
+              acceptance criteria, AGENTS.md, or the legacy WordPress behaviour. Quote it.
+              Not a bug: behaviour you merely think would be nicer.
+            - First check `gh issue list --state open --label bug --search "<keywords>"`
+              and skip anything already filed.
+            - `gh issue create --label bug --label agent:triage --title "fix: <behaviour>" --body "<body>"`
+              where the body has: Goal (one paragraph); the evidence quote; the exact
+              failing test in a code block with the file it belongs in; the command to
+              run it with actual vs expected output; Acceptance criteria: "add this test
+              unchanged and commit it on its own first (it fails); then commit the fix
+              (it passes); the whole suite passes";
+              and Out of scope: refactoring beyond the fix.
+            - Delete the scratch test afterwards.
+
+            Then finish:
+            - If you consolidated nothing, open no PR. Print the issues you filed, if any, and stop.
+            - Otherwise `git switch -c claude/test-distill-${{ github.run_id }}`, commit as
+              `test: <what you consolidated>`, push, and open the PR:
+              `gh pr create --base master --title "test: <summary>" --body "<body>"`
+              where the body has: the before/after scenario counts and timings; a table
+              mapping every removed or merged scenario to the surviving scenario that now
+              holds each of its assertions; "Bugs filed: #n, …" (or "none"); and the exact
+              commands you ran. The suite must pass on this branch.
+          claude_args: >-
+            --model sonnet
+            --max-turns 100
+            --allowedTools "Read,Edit,Write,Glob,Grep,Bash(git *),Bash(npm *),Bash(npx *),Bash(composer *),Bash(php *),Bash(cd *),Bash(ls *),Bash(test *),Bash(diff *),Bash(grep *),Bash(time *),Bash(rm *),Bash(gh pr create *),Bash(gh issue list *),Bash(gh issue create *)"
+            --disallowedTools "WebFetch,WebSearch"

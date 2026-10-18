@@ -40,8 +40,8 @@ jobs:
           printf 'body<<%s\n%s\n%s\n' "$delim" "$body" "$delim" >> "$GITHUB_OUTPUT"
           gh pr edit "$PR" -R "$GITHUB_REPOSITORY" --remove-label agent:changes
 
-      # The linked issue holds the acceptance criteria. Pass it only when the
-      # owner wrote it, matching the trust rule in agent-work.yml.
+      # The linked issue holds the acceptance criteria. Pass it only from the
+      # authors agent-work.yml trusts (the owner labelled it before work began).
       - name: Fetch linked issue
         id: issue
         env:
@@ -51,7 +51,10 @@ jobs:
           body=""
           n=$(gh pr view "$PR" -R "$GITHUB_REPOSITORY" --json closingIssuesReferences \
             --jq '.closingIssuesReferences[0].number // empty')
-          if [[ -n "$n" ]] && [[ $(gh issue view "$n" -R "$GITHUB_REPOSITORY" --json author --jq .author.login) == hsimah ]]; then
+          author=""
+          # REST, not GraphQL: only REST spells the bot unambiguously as claude[bot].
+          [[ -n "$n" ]] && author=$(gh api "repos/$GITHUB_REPOSITORY/issues/$n" --jq .user.login)
+          if [[ "$author" == hsimah || "$author" == 'claude[bot]' ]]; then
             body=$(gh issue view "$n" -R "$GITHUB_REPOSITORY" --json title,body \
               --jq '"Issue #'"$n"': " + .title + "\n\n" + .body')
           fi

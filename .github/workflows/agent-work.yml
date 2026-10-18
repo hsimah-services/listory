@@ -1,7 +1,9 @@
 name: Agent work
 
-# Haiku implements an issue and opens a PR. Runs only for issues written and
-# labelled agent:ready by the owner; issue comments are never read.
+# Haiku implements an issue and opens a PR. Runs only when the owner labels
+# agent:ready, on issues written by the owner or filed by claude[bot] (the
+# test-distill job) — the owner's label is the review of a bot-filed body.
+# Issue comments are never read.
 
 on:
   issues:
@@ -16,7 +18,7 @@ jobs:
     if: >-
       github.event.label.name == 'agent:ready' &&
       github.event.sender.login == 'hsimah' &&
-      github.event.issue.user.login == 'hsimah'
+      (github.event.issue.user.login == 'hsimah' || github.event.issue.user.login == 'claude[bot]')
     runs-on: ubuntu-latest
     timeout-minutes: 60
     # Writes go through the Claude App token; id-token mints it.
