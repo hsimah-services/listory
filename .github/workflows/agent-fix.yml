@@ -22,7 +22,7 @@ jobs:
     timeout-minutes: 60
     permissions:
       contents: read
-      issues: read
+      issues: write
       pull-requests: write
       id-token: write
     steps:
@@ -134,3 +134,13 @@ jobs:
             --max-turns 100
             --allowedTools "Read,Edit,Write,Glob,Grep,Bash(git *),Bash(npm *),Bash(npx *),Bash(composer *),Bash(php *),Bash(vendor/bin/*),Bash(cargo *),Bash(chmod *),Bash(bash -n *),Bash(cd *),Bash(ls *),Bash(mkdir *),Bash(rmdir *),Bash(test *),Bash(diff *),Bash(grep *)"
             --disallowedTools "WebFetch,WebSearch"
+
+      - name: Report failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh pr comment "$PR" -R "$GITHUB_REPOSITORY" --body "Agent fix did not finish ([run]($RUN)); a usage limit is the usual cause. Once quota is back, use **Re-run jobs** on that run."
+          gh pr edit "$PR" -R "$GITHUB_REPOSITORY" --add-label agent:needs-human
