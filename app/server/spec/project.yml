@@ -1,0 +1,6 @@
+project: Listory
+storage:
+  driver: sqlite
+  tablePrefix: app_listory_
+integrations:
+  graphql:

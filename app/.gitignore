@@ -1,0 +1,5 @@
+server/vendor/
+client/node_modules/
+client/dist/
+client/test-results/
+.standalone/

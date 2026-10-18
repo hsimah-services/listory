@@ -1,0 +1,50 @@
+{
+    "name": "hsimah-services/listory",
+    "description": "Listory: standalone checklist application using Elephentity, SQLite and GraphQL.",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.3",
+        "ext-mbstring": "*",
+        "ext-pdo": "*",
+        "ext-pdo_sqlite": "*",
+        "elephentity/graphql": "^0.1.0-alpha.2",
+        "elephentity/runtime": "^0.11.1",
+        "elephentity/sqlite": "^0.1.0-alpha.2",
+        "psr/container": "^2.0",
+        "psr/log": "^3.0",
+        "webonyx/graphql-php": "^15.37"
+    },
+    "require-dev": {
+        "elephentity/cli": "^0.11.0",
+        "elephentity/codegen": "^0.6.0",
+        "elephentity/codegen-graphql-php": "^0.1@alpha",
+        "elephentity/codegen-php": "^0.6.0",
+        "elephentity/codegen-sqlite": "^0.1@alpha"
+    },
+    "scripts": {
+        "build-generators": "sh ../scripts/build-generators.sh",
+        "check-generated": [
+            "eleph fmt",
+            "eleph validate",
+            "eleph generate --check",
+            "eleph check"
+        ]
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "config": {
+        "platform": {
+            "php": "8.3.31"
+        },
+        "sort-packages": true
+    },
+    "autoload": {
+        "psr-4": {
+            "Listory\\Entity\\": "generated/",
+            "Listory\\Type\\": "src/Type/",
+            "Listory\\": "src/",
+            "Listory\\Standalone\\": "standalone/src/"
+        }
+    }
+}
