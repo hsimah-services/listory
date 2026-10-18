@@ -1,0 +1,38 @@
+name: Agent queue
+
+# Waterfall for agent work. When an issue closes as completed (usually its PR
+# merged with "Closes #n"), start Agent work for each issue it was blocking
+# that the owner has already labelled agent:ready. Agent work's gate re-checks
+# the label, its author, every other blocker and open PRs, so this only nudges.
+#
+# Dispatch rather than relabel: events made with the workflow token never
+# start other workflows, except workflow_dispatch.
+
+on:
+  issues:
+    types: [closed]
+
+jobs:
+  release:
+    if: github.event.issue.state_reason == 'completed'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: write
+      issues: read
+    steps:
+      - name: Start unblocked issues
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CLOSED: ${{ github.event.issue.number }}
+        run: |
+          ready=$(gh api "repos/$GITHUB_REPOSITORY/issues/$CLOSED/dependencies/blocking" \
+            --jq '.[] | select(.state == "open" and (.labels | map(.name) | index("agent:ready"))) | .number')
+          if [[ -z $ready ]]; then
+            echo "#$CLOSED was not blocking any queued issue."
+            exit 0
+          fi
+          for n in $ready; do
+            echo "#$CLOSED closed; starting Agent work for #$n."
+            gh workflow run agent-work.yml -R "$GITHUB_REPOSITORY" -f issue="$n"
+          done
