@@ -29,6 +29,9 @@
             "eleph validate",
             "eleph generate --check",
             "eleph check"
+        ],
+        "test": [
+            "@php standalone/tests/integration.php"
         ]
     },
     "minimum-stability": "stable",
