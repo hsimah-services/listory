@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   PermanentList/PermanentListHydrator.php
- * digest: sha256:b9e26b209a77dd722baed5e7613573087660b853203bd23a11d93779ff217856
+ * digest: sha256:85bf15ad83c1d60f349ad02aefd19f3d3af6e94aff3274f8aa8b4b0aeb3567ad
  */
 
 namespace Listory\Entity\PermanentList;
@@ -39,6 +39,7 @@ final readonly class PermanentListHydrator implements Hydrator
     ): PermanentList {
         return PermanentList::of(
             $record->id,
+            $edges,
             $this->createdAt($record),
             $this->updatedAt($record),
             $this->title($record),

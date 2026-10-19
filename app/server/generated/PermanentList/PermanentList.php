@@ -9,13 +9,16 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   PermanentList/PermanentList.php
- * digest: sha256:3655e169a6272ad229e742517c3770eaba482303213ce2d516c00f54a4b8a134
+ * digest: sha256:a5cebf04d6173f7e739090bb36fa8d09bf496441466e4463abb452829172b8ae
  */
 
 namespace Listory\Entity\PermanentList;
 
 use DateTimeImmutable;
 use Eleph\Runtime\Identity\EntityId;
+use Eleph\Runtime\Query\EdgeLoader;
+use Eleph\Runtime\Query\EntityQuery;
+use Listory\Entity\ListItem\ListItem;
 
 /**
  * A reusable template list whose items are copied into checklists.
@@ -24,6 +27,7 @@ final class PermanentList
 {
     private function __construct(
         private readonly EntityId $id,
+        private readonly EdgeLoader $edges,
         private readonly DateTimeImmutable $createdAt,
         private readonly DateTimeImmutable $updatedAt,
         private readonly string $title,
@@ -50,12 +54,25 @@ final class PermanentList
         return $this->title;
     }
 
+    /**
+     * Every ListItem whose "list" points here.
+     *
+     * @return EntityQuery<ListItem>
+     */
+    public function items(): EntityQuery {
+        /** @var EntityQuery<ListItem> $related */
+        $related = $this->edges->inverseToMany('ListItem', 'list', $this->id);
+        
+        return $related;
+    }
+
     public static function of(
         EntityId $id,
+        EdgeLoader $edges,
         DateTimeImmutable $createdAt,
         DateTimeImmutable $updatedAt,
         string $title,
     ): self {
-        return new self($id, $createdAt, $updatedAt, $title);
+        return new self($id, $edges, $createdAt, $updatedAt, $title);
     }
 }

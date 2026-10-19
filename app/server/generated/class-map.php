@@ -9,15 +9,28 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   class-map.php
- * digest: sha256:1cc0704913153dc9f6cc08e84f7d763f6775d66bc0b2b0fc3b075841b029139e
+ * digest: sha256:8e9eed9aaddea0eb4ffbf167609d35dd37f74d0fd1afbf0f10f51a06add36716
  */
 
 return [
     'entities' => [
+        'ListItem' => 'Listory\\Entity\\ListItem\\ListItem',
         'PermanentList' => 'Listory\\Entity\\PermanentList\\PermanentList',
     ],
     'classes' => [
         'Listory\\Entity\\Catalogue' => 'Catalogue.php',
+        'Listory\\Entity\\ListItem\\ListItem' => 'ListItem/ListItem.php',
+        'Listory\\Entity\\ListItem\\ListItemDeleter' => 'ListItem/ListItemDeleter.php',
+        'Listory\\Entity\\ListItem\\ListItemHydrator' => 'ListItem/ListItemHydrator.php',
+        'Listory\\Entity\\ListItem\\ListItemInput' => 'ListItem/ListItemInput.php',
+        'Listory\\Entity\\ListItem\\ListItemMutationContext' => 'ListItem/ListItemMutationContext.php',
+        'Listory\\Entity\\ListItem\\ListItemMutator' => 'ListItem/ListItemMutator.php',
+        'Listory\\Entity\\ListItem\\ListItemPreCommitContext' => 'ListItem/ListItemPreCommitContext.php',
+        'Listory\\Entity\\ListItem\\ListItemReadPolicies' => 'ListItem/ListItemReadPolicies.php',
+        'Listory\\Entity\\ListItem\\ListItemSideEffects' => 'ListItem/ListItemSideEffects.php',
+        'Listory\\Entity\\ListItem\\ListItemVerifiers' => 'ListItem/ListItemVerifiers.php',
+        'Listory\\Entity\\ListItem\\ListItemWriteContext' => 'ListItem/ListItemWriteContext.php',
+        'Listory\\Entity\\ListItem\\ListItemWritePolicies' => 'ListItem/ListItemWritePolicies.php',
         'Listory\\Entity\\PermanentList\\PermanentList' => 'PermanentList/PermanentList.php',
         'Listory\\Entity\\PermanentList\\PermanentListDeleter' => 'PermanentList/PermanentListDeleter.php',
         'Listory\\Entity\\PermanentList\\PermanentListHydrator' => 'PermanentList/PermanentListHydrator.php',

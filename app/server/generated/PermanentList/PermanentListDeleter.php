@@ -9,13 +9,14 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   PermanentList/PermanentListDeleter.php
- * digest: sha256:47956d73f43a2818f32fe8fef5f48310e420dbf36ddab4a87df97d8d044d4e74
+ * digest: sha256:6dbc3cce5d0eaf98c10cf95a0a5ddf7b33ecb4c4141b0dc693c5392334e4e5a8
  */
 
 namespace Listory\Entity\PermanentList;
 
 use Eleph\Runtime\Identity\EntityId;
 use Eleph\Runtime\Mutation\Deletion;
+use Eleph\Runtime\Storage\DeletionPolicy;
 use Eleph\Runtime\Storage\DeletionRule;
 use Eleph\Runtime\UnitOfWork\UnitOfWork;
 
@@ -43,6 +44,8 @@ final class PermanentListDeleter
      * @return list<DeletionRule>
      */
     public static function rules(): array {
-        return [];
+        return [
+            new DeletionRule('ListItem', 'list', 'ListItem', DeletionPolicy::Cascade, false),
+        ];
     }
 }

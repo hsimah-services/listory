@@ -1,0 +1,27 @@
+entity: ListItem
+description: One template item on a permanent list.
+use:
+  - ListoryRecord
+integrations:
+  graphql:
+    singular: ListoryListItem
+    plural: ListoryListItems
+storage:
+  table: list_item
+  handle: listory_list_item
+fields:
+  name:
+    type: string
+    description: The item's text, as it will appear on checklists.
+    required: true
+    maxLength: 200
+edges:
+  list:
+    to: PermanentList
+    cardinality: one
+    description: The permanent list this item belongs to.
+    inverse:
+      name: items
+      unique: false
+    onDelete: cascade
+    required: true

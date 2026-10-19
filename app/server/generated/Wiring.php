@@ -9,13 +9,19 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   Wiring.php
- * digest: sha256:9527c21966c6bdc13e333fb122bb81669095e029580f1efba02464f7389fb306
+ * digest: sha256:6a3df81a1d753c55383008d2ae52ac0e51c3de9e8daede73c6ab98bb5e84b89e
  */
 
 namespace Listory\Entity;
 
 use Closure;
 use Eleph\Runtime\Query\ValueDecoder;
+use Listory\Entity\ListItem\ListItemHydrator;
+use Listory\Entity\ListItem\ListItemInput;
+use Listory\Entity\ListItem\ListItemReadPolicies;
+use Listory\Entity\ListItem\ListItemSideEffects;
+use Listory\Entity\ListItem\ListItemVerifiers;
+use Listory\Entity\ListItem\ListItemWritePolicies;
 use Listory\Entity\PermanentList\PermanentListHydrator;
 use Listory\Entity\PermanentList\PermanentListInput;
 use Listory\Entity\PermanentList\PermanentListReadPolicies;
@@ -37,6 +43,12 @@ final class Wiring
      */
     public static function registrations(): array {
         return [
+            ListItemHydrator::class => static fn (ContainerInterface $c): object => new ListItemHydrator(self::resolve($c, ValueDecoder::class)),
+            ListItemInput::class => static fn (ContainerInterface $c): object => new ListItemInput(self::resolve($c, ValueDecoder::class)),
+            ListItemSideEffects::class => static fn (ContainerInterface $c): object => new ListItemSideEffects(),
+            ListItemVerifiers::class => static fn (ContainerInterface $c): object => new ListItemVerifiers(),
+            ListItemReadPolicies::class => static fn (ContainerInterface $c): object => new ListItemReadPolicies(),
+            ListItemWritePolicies::class => static fn (ContainerInterface $c): object => new ListItemWritePolicies(),
             PermanentListHydrator::class => static fn (ContainerInterface $c): object => new PermanentListHydrator(self::resolve($c, ValueDecoder::class)),
             PermanentListInput::class => static fn (ContainerInterface $c): object => new PermanentListInput(self::resolve($c, ValueDecoder::class)),
             PermanentListSideEffects::class => static fn (ContainerInterface $c): object => new PermanentListSideEffects(),

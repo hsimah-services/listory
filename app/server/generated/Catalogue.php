@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   Catalogue.php
- * digest: sha256:edfd8a67673569c27b21274bdd6fe382dad2b6c3a50ffb59fbccfd0ceca480ac
+ * digest: sha256:4df7cedfec50f88e69211f126d3978141f87de05492b137db954058dbd66ffbb
  */
 
 namespace Listory\Entity;
@@ -24,6 +24,12 @@ use Eleph\Runtime\Policy\NoPolicies;
 use Eleph\Runtime\Query\Hydrator;
 use Eleph\Runtime\Storage\DeletionRule;
 use Eleph\Runtime\Verification\EntityVerifiers;
+use Listory\Entity\ListItem\ListItemDeleter;
+use Listory\Entity\ListItem\ListItemHydrator;
+use Listory\Entity\ListItem\ListItemInput;
+use Listory\Entity\ListItem\ListItemMutator;
+use Listory\Entity\ListItem\ListItemSideEffects;
+use Listory\Entity\ListItem\ListItemVerifiers;
 use Listory\Entity\PermanentList\PermanentListDeleter;
 use Listory\Entity\PermanentList\PermanentListHydrator;
 use Listory\Entity\PermanentList\PermanentListInput;
@@ -48,7 +54,7 @@ final readonly class Catalogue implements EntityCatalogue
      * @return list<string>
      */
     public function entities(): array {
-        return ['PermanentList'];
+        return ['ListItem', 'PermanentList'];
     }
 
     /**
@@ -58,6 +64,7 @@ final readonly class Catalogue implements EntityCatalogue
         string $entity,
     ): Hydrator {
         $service = match ($entity) {
+            'ListItem' => $this->container->get(ListItemHydrator::class),
             'PermanentList' => $this->container->get(PermanentListHydrator::class),
             default => throw new RuntimeException(sprintf('No entity named "%s".', $entity)),
         };
@@ -71,6 +78,7 @@ final readonly class Catalogue implements EntityCatalogue
         string $entity,
     ): EntityVerifiers {
         $service = match ($entity) {
+            'ListItem' => $this->container->get(ListItemVerifiers::class),
             'PermanentList' => $this->container->get(PermanentListVerifiers::class),
             default => throw new RuntimeException(sprintf('No entity named "%s".', $entity)),
         };
@@ -84,6 +92,7 @@ final readonly class Catalogue implements EntityCatalogue
         string $entity,
     ): EntitySideEffects {
         $service = match ($entity) {
+            'ListItem' => $this->container->get(ListItemSideEffects::class),
             'PermanentList' => $this->container->get(PermanentListSideEffects::class),
             default => throw new RuntimeException(sprintf('No entity named "%s".', $entity)),
         };
@@ -97,6 +106,7 @@ final readonly class Catalogue implements EntityCatalogue
         string $entity,
     ): EntityReadPolicies {
         return match ($entity) {
+            'ListItem' => new NoPolicies(),
             'PermanentList' => new NoPolicies(),
             default => throw new RuntimeException(sprintf('No entity named "%s".', $entity)),
         };
@@ -106,6 +116,7 @@ final readonly class Catalogue implements EntityCatalogue
         string $entity,
     ): EntityWritePolicies {
         return match ($entity) {
+            'ListItem' => new NoPolicies(),
             'PermanentList' => new NoPolicies(),
             default => throw new RuntimeException(sprintf('No entity named "%s".', $entity)),
         };
@@ -115,7 +126,9 @@ final readonly class Catalogue implements EntityCatalogue
      * @return array<string, string> "Entity.edge" => target entity
      */
     public function edgeTargets(): array {
-        return [];
+        return [
+            'ListItem.list' => 'PermanentList',
+        ];
     }
 
     /**
@@ -132,6 +145,7 @@ final readonly class Catalogue implements EntityCatalogue
         string $entity,
     ): array {
         return match ($entity) {
+            'ListItem' => ['createdAt', 'updatedAt', 'name'],
             'PermanentList' => ['createdAt', 'updatedAt', 'title'],
             default => [],
         };
@@ -144,6 +158,7 @@ final readonly class Catalogue implements EntityCatalogue
         string $entity,
     ): array {
         return match ($entity) {
+            'ListItem' => ['name'],
             'PermanentList' => ['title'],
             default => [],
         };
@@ -156,6 +171,7 @@ final readonly class Catalogue implements EntityCatalogue
         string $entity,
     ): array {
         return match ($entity) {
+            'ListItem' => ['list'],
             'PermanentList' => [],
             default => [],
         };
@@ -168,6 +184,7 @@ final readonly class Catalogue implements EntityCatalogue
         string $entity,
     ): array {
         return match ($entity) {
+            'ListItem' => [],
             'PermanentList' => [],
             default => [],
         };
@@ -178,6 +195,8 @@ final readonly class Catalogue implements EntityCatalogue
      */
     public function managedFields(): array {
         return [
+            'ListItem.createdAt' => Managed::Created,
+            'ListItem.updatedAt' => Managed::Modified,
             'PermanentList.createdAt' => Managed::Created,
             'PermanentList.updatedAt' => Managed::Modified,
         ];
@@ -190,6 +209,7 @@ final readonly class Catalogue implements EntityCatalogue
         string $entity,
     ): array {
         return match ($entity) {
+            'ListItem' => ListItemDeleter::rules(),
             'PermanentList' => PermanentListDeleter::rules(),
             default => [],
         };
@@ -213,6 +233,7 @@ final readonly class Catalogue implements EntityCatalogue
         MutationBuffer $buffer,
     ): object {
         return match ($entity) {
+            'ListItem' => new ListItemMutator($buffer),
             'PermanentList' => new PermanentListMutator($buffer),
             default => throw new RuntimeException(sprintf('No entity named "%s".', $entity)),
         };
@@ -248,6 +269,21 @@ final readonly class Catalogue implements EntityCatalogue
      * @param array<string, mixed> $args
      * @return array<string, mixed>
      */
+    private function decodeListItemInputActionArguments(
+        string $action,
+        array $args,
+    ): array {
+        $input = $this->container->get(ListItemInput::class);
+        
+        assert($input instanceof ListItemInput);
+        
+        return $input->decodeAction($action, $args);
+    }
+
+    /**
+     * @param array<string, mixed> $args
+     * @return array<string, mixed>
+     */
     private function decodePermanentListInputActionArguments(
         string $action,
         array $args,
@@ -269,6 +305,7 @@ final readonly class Catalogue implements EntityCatalogue
         array $args,
     ): array {
         return match ($entity) {
+            'ListItem' => $this->decodeListItemInputActionArguments($action, $args),
             'PermanentList' => $this->decodePermanentListInputActionArguments($action, $args),
             default => throw new RuntimeException(sprintf('No entity named "%s".', $entity)),
         };
@@ -283,6 +320,7 @@ final readonly class Catalogue implements EntityCatalogue
         array $input,
     ): void {
         $applier = match ($entity) {
+            'ListItem' => $this->container->get(ListItemInput::class),
             'PermanentList' => $this->container->get(PermanentListInput::class),
             default => throw new RuntimeException(sprintf('No entity named "%s".', $entity)),
         };
