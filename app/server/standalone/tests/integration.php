@@ -67,3 +67,28 @@ echo "PASS: deleting a list deletes its items\n";
 
 check($runtime->find('ListItem', $nails->id) !== null, 'Deleting one list keeps the items of other lists');
 echo "PASS: other lists keep their items\n";
+
+$listA = $runtime->create('PermanentList', ['title' => 'A']);
+$listB = $runtime->create('PermanentList', ['title' => 'B']);
+$trip = $runtime->create('Checklist', ['title' => 'Trip', 'sourceLists' => [(string) $listA->id, (string) $listB->id]]);
+check($runtime->find('Checklist', $trip->id)->sourceLists()->count() === 2, 'A checklist records its source lists');
+echo "PASS: create with source lists\n";
+
+check($runtime->find('Checklist', $trip->id)->getCompletedAt() === null, 'A new checklist is not completed');
+echo "PASS: completedAt starts null\n";
+
+$runtime->update('Checklist', $trip->id, ['sourceLists' => [(string) $listA->id]]);
+check($runtime->find('Checklist', $trip->id)->sourceLists()->count() === 1, 'Update replaces the source lists');
+echo "PASS: replace source lists\n";
+
+check($runtime->find('PermanentList', $listA->id)->checklists()->count() === 1, 'A list knows the checklists built from it');
+echo "PASS: inverse\n";
+
+$runtime->delete('PermanentList', $listA->id);
+check($runtime->find('Checklist', $trip->id) !== null, 'Deleting a source list keeps the checklist');
+check($runtime->find('Checklist', $trip->id)->sourceLists()->count() === 0, 'Deleting a source list removes it from the checklist');
+echo "PASS: deleting a source list keeps the checklist\n";
+
+$runtime->delete('Checklist', $trip->id);
+check($runtime->find('PermanentList', $listB->id) !== null, 'Deleting a checklist keeps its source lists');
+echo "PASS: deleting a checklist keeps its lists\n";

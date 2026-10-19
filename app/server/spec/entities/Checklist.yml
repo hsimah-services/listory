@@ -1,0 +1,31 @@
+entity: Checklist
+description: An ephemeral checklist built by merging one or more permanent lists.
+use:
+  - ListoryRecord
+integrations:
+  graphql:
+    singular: ListoryChecklist
+    plural: ListoryChecklists
+storage:
+  table: checklist
+  handle: listory_checklist
+fields:
+  title:
+    type: string
+    description: What the checklist is called.
+    required: true
+    indexed: true
+    maxLength: 200
+  completedAt:
+    type: datetime
+    description: When every item was checked; null while any item is unchecked. Maintained by the server.
+    nullable: true
+edges:
+  sourceLists:
+    to: PermanentList
+    cardinality: many
+    description: The permanent lists whose items were merged into this checklist.
+    inverse:
+      name: checklists
+      unique: false
+    onDelete: nullify

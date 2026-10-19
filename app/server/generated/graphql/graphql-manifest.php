@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   graphql-manifest.php
- * digest: sha256:6086a05a7dca73770d6184fd0a1eb7c1a08aec0da8547627d06983f76295d08c
+ * digest: sha256:ae30e07bb1e2cebb4b97b8a8945de7e586f515d9ec85e24c2be780925212ce3b
  */
 
 namespace Eleph\GraphQL\Manifest;
@@ -22,6 +22,23 @@ namespace Eleph\GraphQL\Manifest;
  */
 return new Manifest(
     objects: [
+        'ListoryChecklist' => new ObjectTypeEntry(
+            'ListoryChecklist',
+            'Checklist',
+            [
+                'id' => new FieldEntry('id', new GraphQLType('ID', true, false), 'getId', 'The globally unique identifier, opaque and safe to use as a cache key.', FieldEncoding::GlobalId, null),
+                'databaseId' => new FieldEntry('databaseId', new GraphQLType('ID', true, false), 'getId', 'The row as storage knows it, unique within its table rather than the schema.', FieldEncoding::Id, null),
+                'createdAt' => new FieldEntry('createdAt', new GraphQLType('String', true, false), 'getCreatedAt', null, FieldEncoding::Datetime, null),
+                'updatedAt' => new FieldEntry('updatedAt', new GraphQLType('String', true, false), 'getUpdatedAt', null, FieldEncoding::Datetime, null),
+                'title' => new FieldEntry('title', new GraphQLType('String', true, false), 'getTitle', 'What the checklist is called.', FieldEncoding::Value, null),
+                'completedAt' => new FieldEntry('completedAt', new GraphQLType('String', false, false), 'getCompletedAt', 'When every item was checked; null while any item is unchecked. Maintained by the server.', FieldEncoding::Datetime, null),
+            ],
+            [
+                'sourceLists' => new ConnectionEntry('sourceLists', 'ListoryChecklist', 'ListoryList', 'sourceLists', 'sourceLists', 'The permanent lists whose items were merged into this checklist.'),
+            ],
+            'An ephemeral checklist built by merging one or more permanent lists.',
+            ['Node'],
+        ),
         'ListoryList' => new ObjectTypeEntry(
             'ListoryList',
             'PermanentList',
@@ -33,6 +50,7 @@ return new Manifest(
                 'title' => new FieldEntry('title', new GraphQLType('String', true, false), 'getTitle', 'What the list is called.', FieldEncoding::Value, null),
             ],
             [
+                'checklists' => new ConnectionEntry('checklists', 'ListoryList', 'ListoryChecklist', 'checklists', 'sourceLists', 'The Checklist pointing here through "sourceLists".'),
                 'items' => new ConnectionEntry('items', 'ListoryList', 'ListoryListItem', 'items', 'list', 'The ListItem pointing here through "list".'),
             ],
             'A reusable template list whose items are copied into checklists.',
@@ -58,6 +76,18 @@ return new Manifest(
 
     ],
     mutations: [
+        'createListoryChecklist' => new MutationEntry(
+            'createListoryChecklist',
+            'create',
+            'Checklist',
+            [
+                'title' => new GraphQLType('String', true, false),
+                'completedAt' => new GraphQLType('String', false, false),
+                'sourceLists' => new GraphQLType('ID', false, true),
+            ],
+            null,
+            'Create a ListoryChecklist.',
+        ),
         'createListoryList' => new MutationEntry(
             'createListoryList',
             'create',
@@ -78,6 +108,19 @@ return new Manifest(
             ],
             null,
             'Create a ListoryListItem.',
+        ),
+        'updateListoryChecklist' => new MutationEntry(
+            'updateListoryChecklist',
+            'update',
+            'Checklist',
+            [
+                'id' => new GraphQLType('ID', true, false),
+                'title' => new GraphQLType('String', false, false),
+                'completedAt' => new GraphQLType('String', false, false),
+                'sourceLists' => new GraphQLType('ID', false, true),
+            ],
+            null,
+            'Update a ListoryChecklist.',
         ),
         'updateListoryList' => new MutationEntry(
             'updateListoryList',
@@ -104,6 +147,7 @@ return new Manifest(
         ),
     ],
     roots: [
+        'ListoryChecklist' => new RootFieldEntry('ListoryChecklist', 'ListoryChecklists', 'Checklist'),
         'ListoryList' => new RootFieldEntry('ListoryList', 'ListoryLists', 'PermanentList'),
         'ListoryListItem' => new RootFieldEntry('ListoryListItem', 'ListoryListItems', 'ListItem'),
     ],
