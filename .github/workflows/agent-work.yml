@@ -134,6 +134,9 @@ jobs:
       - uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # agent-queue.yml dispatches this workflow as github-actions[bot]; the
+          # gate job has already checked the issue and the owner's label.
+          allowed_bots: github-actions
           prompt: |
             Implement issue #${{ needs.gate.outputs.number }} in ${{ github.repository }}.
             Follow CLAUDE.md. The issue below is the whole task. Do not read issue
