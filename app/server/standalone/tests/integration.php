@@ -45,3 +45,25 @@ foreach (['One', 'Two', 'Three'] as $title) {
 }
 check($runtime->all('PermanentList')->count() === 3, 'All counts the lists');
 echo "PASS: count\n";
+
+$shop = $runtime->create('PermanentList', ['title' => 'Shopping']);
+$milk = $runtime->create('ListItem', ['name' => 'Milk', 'list' => (string) $shop->id]);
+$bread = $runtime->create('ListItem', ['name' => 'Bread', 'list' => (string) $shop->id]);
+check($runtime->find('PermanentList', $shop->id)->items()->count() === 2, 'A list holds the items created for it');
+echo "PASS: items belong to a list\n";
+
+fails(fn () => $runtime->create('ListItem', ['name' => 'Orphan']), 'An item requires a list');
+echo "PASS: item requires a list\n";
+
+check($runtime->find('ListItem', $milk->id)->getList()?->getId() == $shop->id, 'An item knows its list');
+echo "PASS: item knows its list\n";
+
+$other = $runtime->create('PermanentList', ['title' => 'Hardware']);
+$nails = $runtime->create('ListItem', ['name' => 'Nails', 'list' => (string) $other->id]);
+
+$runtime->delete('PermanentList', $shop->id);
+check($runtime->find('ListItem', $milk->id) === null, 'Deleting a list deletes its items');
+echo "PASS: deleting a list deletes its items\n";
+
+check($runtime->find('ListItem', $nails->id) !== null, 'Deleting one list keeps the items of other lists');
+echo "PASS: other lists keep their items\n";

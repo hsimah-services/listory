@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   graphql-manifest.php
- * digest: sha256:8125afddb25b9feebcc30586fd22073d70e665f6f373b31c6302580508b0f4ca
+ * digest: sha256:6086a05a7dca73770d6184fd0a1eb7c1a08aec0da8547627d06983f76295d08c
  */
 
 namespace Eleph\GraphQL\Manifest;
@@ -32,8 +32,25 @@ return new Manifest(
                 'updatedAt' => new FieldEntry('updatedAt', new GraphQLType('String', true, false), 'getUpdatedAt', null, FieldEncoding::Datetime, null),
                 'title' => new FieldEntry('title', new GraphQLType('String', true, false), 'getTitle', 'What the list is called.', FieldEncoding::Value, null),
             ],
-            [],
+            [
+                'items' => new ConnectionEntry('items', 'ListoryList', 'ListoryListItem', 'items', 'list', 'The ListItem pointing here through "list".'),
+            ],
             'A reusable template list whose items are copied into checklists.',
+            ['Node'],
+        ),
+        'ListoryListItem' => new ObjectTypeEntry(
+            'ListoryListItem',
+            'ListItem',
+            [
+                'id' => new FieldEntry('id', new GraphQLType('ID', true, false), 'getId', 'The globally unique identifier, opaque and safe to use as a cache key.', FieldEncoding::GlobalId, null),
+                'databaseId' => new FieldEntry('databaseId', new GraphQLType('ID', true, false), 'getId', 'The row as storage knows it, unique within its table rather than the schema.', FieldEncoding::Id, null),
+                'createdAt' => new FieldEntry('createdAt', new GraphQLType('String', true, false), 'getCreatedAt', null, FieldEncoding::Datetime, null),
+                'updatedAt' => new FieldEntry('updatedAt', new GraphQLType('String', true, false), 'getUpdatedAt', null, FieldEncoding::Datetime, null),
+                'name' => new FieldEntry('name', new GraphQLType('String', true, false), 'getName', 'The item\'s text, as it will appear on checklists.', FieldEncoding::Value, null),
+                'list' => new FieldEntry('list', new GraphQLType('ListoryList', false, false), 'getList', 'The permanent list this item belongs to.', FieldEncoding::Value, null),
+            ],
+            [],
+            'One template item on a permanent list.',
             ['Node'],
         ),
     ],
@@ -51,6 +68,17 @@ return new Manifest(
             null,
             'Create a ListoryList.',
         ),
+        'createListoryListItem' => new MutationEntry(
+            'createListoryListItem',
+            'create',
+            'ListItem',
+            [
+                'name' => new GraphQLType('String', true, false),
+                'list' => new GraphQLType('ID', false, false),
+            ],
+            null,
+            'Create a ListoryListItem.',
+        ),
         'updateListoryList' => new MutationEntry(
             'updateListoryList',
             'update',
@@ -62,9 +90,22 @@ return new Manifest(
             null,
             'Update a ListoryList.',
         ),
+        'updateListoryListItem' => new MutationEntry(
+            'updateListoryListItem',
+            'update',
+            'ListItem',
+            [
+                'id' => new GraphQLType('ID', true, false),
+                'name' => new GraphQLType('String', false, false),
+                'list' => new GraphQLType('ID', false, false),
+            ],
+            null,
+            'Update a ListoryListItem.',
+        ),
     ],
     roots: [
         'ListoryList' => new RootFieldEntry('ListoryList', 'ListoryLists', 'PermanentList'),
+        'ListoryListItem' => new RootFieldEntry('ListoryListItem', 'ListoryListItems', 'ListItem'),
     ],
     queries: [
 

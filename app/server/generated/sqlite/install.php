@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   install.php
- * digest: sha256:d4712dd7d66e6ab9969c658bdc6398c526d5a6319b9f5fe63bacfff8255c4e28
+ * digest: sha256:6bc67c8990a9e2c2fd3c557057b316db69e48848ece3d77c01e7246223530810
  */
 
 /**
@@ -30,6 +30,14 @@ return static function (\PDO $database, string $prefix = ''): void {
     $database->exec('PRAGMA foreign_keys = ON');
     $table = static fn (string $name): string => '"' . $prefix . $name . '"';
     $statements = [
+        'CREATE TABLE ' . $table('app_listory_list_item') . ' (
+    ' . '"id" INTEGER PRIMARY KEY AUTOINCREMENT' . ',
+    ' . '"created_at" TEXT NOT NULL' . ',
+    ' . '"updated_at" TEXT NOT NULL' . ',
+    ' . '"name" TEXT NOT NULL CHECK (length("name") <= 200)' . ',
+    ' . '"list_id" INTEGER' . ' REFERENCES ' . $table('app_listory_permanent_list') . '("id") ON DELETE RESTRICT' . '
+)',
+        'CREATE INDEX ' . $table('app_listory_list_item_list_id_idx') . ' ON ' . $table('app_listory_list_item') . ' ("list_id")',
         'CREATE TABLE ' . $table('app_listory_permanent_list') . ' (
     ' . '"id" INTEGER PRIMARY KEY AUTOINCREMENT' . ',
     ' . '"created_at" TEXT NOT NULL' . ',

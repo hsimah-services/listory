@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   storage-manifest.php
- * digest: sha256:0a0ea32e41b59962759e41ff6be73237d6f9c676aac8aef789b059cd09c7da0c
+ * digest: sha256:9dc13145d77eab60de6b51423a21fb4891b7694c3b2751bdbab2463fa1f14d76
  */
 
 namespace Eleph\SQLite\Manifest;
@@ -19,6 +19,20 @@ use Eleph\Runtime\Storage\RelationKind;
 
 return new StorageManifest(
     tables: [
+        'ListItem' => new TableSchema(
+            'app_listory_list_item',
+            [
+                'id' => new Column('id', 'INTEGER', false, true, null),
+                'created_at' => new Column('created_at', 'TEXT', false, false, null),
+                'updated_at' => new Column('updated_at', 'TEXT', false, false, null),
+                'name' => new Column('name', 'TEXT', false, false, null),
+                'list_id' => new Column('list_id', 'INTEGER', true, false, null),
+            ],
+            [
+                'app_listory_list_item_list_id_idx' => new Index('app_listory_list_item_list_id_idx', ['list_id'], false),
+            ],
+            'id',
+        ),
         'PermanentList' => new TableSchema(
             'app_listory_permanent_list',
             [
@@ -34,9 +48,10 @@ return new StorageManifest(
         ),
     ],
     placements: [
-
+        'ListItem.list' => new EdgePlacement('ListItem', 'list', 'PermanentList', RelationKind::ManyToOne, 'app_listory_list_item', 'list_id', null, 'app_listory_permanent_list'),
     ],
     columns: [
+        'ListItem' => ['createdAt' => 'created_at', 'updatedAt' => 'updated_at', 'name' => 'name'],
         'PermanentList' => ['createdAt' => 'created_at', 'updatedAt' => 'updated_at', 'title' => 'title'],
     ],
     joinTables: [
