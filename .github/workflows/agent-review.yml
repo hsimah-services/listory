@@ -82,6 +82,19 @@ jobs:
             --allowedTools "Read,Glob,Grep,Bash(git diff *),Bash(git log *),Bash(gh pr view *),Bash(gh pr diff *),Bash(gh issue view *),Bash(gh pr review *),Bash(gh pr edit *)"
             --disallowedTools "WebFetch,WebSearch"
 
+      # The action can exit 0 without reviewing (a workflow validation skip,
+      # or a run that stops early), so check the review exists.
+      - name: Check a review was posted
+        if: steps.rounds.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          ROUND: ${{ steps.rounds.outputs.round }}
+        run: |
+          n=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR/reviews" --paginate \
+            --jq '[.[] | select(.user.login == "claude[bot]")] | length')
+          (( n >= ROUND )) || { echo "No review posted for round $ROUND."; exit 1; }
+
       # A review that never ran must not look like a quiet pass.
       - name: Report failure
         if: failure() && steps.rounds.outputs.skip != 'true'
