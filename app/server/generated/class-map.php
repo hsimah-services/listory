@@ -9,16 +9,29 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   class-map.php
- * digest: sha256:8e9eed9aaddea0eb4ffbf167609d35dd37f74d0fd1afbf0f10f51a06add36716
+ * digest: sha256:e0e9febe6fc363254bb00a013d618c037298359b0f10433f6856a003628bffef
  */
 
 return [
     'entities' => [
+        'Checklist' => 'Listory\\Entity\\Checklist\\Checklist',
         'ListItem' => 'Listory\\Entity\\ListItem\\ListItem',
         'PermanentList' => 'Listory\\Entity\\PermanentList\\PermanentList',
     ],
     'classes' => [
         'Listory\\Entity\\Catalogue' => 'Catalogue.php',
+        'Listory\\Entity\\Checklist\\Checklist' => 'Checklist/Checklist.php',
+        'Listory\\Entity\\Checklist\\ChecklistDeleter' => 'Checklist/ChecklistDeleter.php',
+        'Listory\\Entity\\Checklist\\ChecklistHydrator' => 'Checklist/ChecklistHydrator.php',
+        'Listory\\Entity\\Checklist\\ChecklistInput' => 'Checklist/ChecklistInput.php',
+        'Listory\\Entity\\Checklist\\ChecklistMutationContext' => 'Checklist/ChecklistMutationContext.php',
+        'Listory\\Entity\\Checklist\\ChecklistMutator' => 'Checklist/ChecklistMutator.php',
+        'Listory\\Entity\\Checklist\\ChecklistPreCommitContext' => 'Checklist/ChecklistPreCommitContext.php',
+        'Listory\\Entity\\Checklist\\ChecklistReadPolicies' => 'Checklist/ChecklistReadPolicies.php',
+        'Listory\\Entity\\Checklist\\ChecklistSideEffects' => 'Checklist/ChecklistSideEffects.php',
+        'Listory\\Entity\\Checklist\\ChecklistVerifiers' => 'Checklist/ChecklistVerifiers.php',
+        'Listory\\Entity\\Checklist\\ChecklistWriteContext' => 'Checklist/ChecklistWriteContext.php',
+        'Listory\\Entity\\Checklist\\ChecklistWritePolicies' => 'Checklist/ChecklistWritePolicies.php',
         'Listory\\Entity\\ListItem\\ListItem' => 'ListItem/ListItem.php',
         'Listory\\Entity\\ListItem\\ListItemDeleter' => 'ListItem/ListItemDeleter.php',
         'Listory\\Entity\\ListItem\\ListItemHydrator' => 'ListItem/ListItemHydrator.php',

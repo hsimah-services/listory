@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   storage-manifest.php
- * digest: sha256:9dc13145d77eab60de6b51423a21fb4891b7694c3b2751bdbab2463fa1f14d76
+ * digest: sha256:51d33303d5c9e1950b262b22512a3d9ae0b9e30423701adc42be4cd59f4c152e
  */
 
 namespace Eleph\SQLite\Manifest;
@@ -19,6 +19,20 @@ use Eleph\Runtime\Storage\RelationKind;
 
 return new StorageManifest(
     tables: [
+        'Checklist' => new TableSchema(
+            'app_listory_checklist',
+            [
+                'id' => new Column('id', 'INTEGER', false, true, null),
+                'created_at' => new Column('created_at', 'TEXT', false, false, null),
+                'updated_at' => new Column('updated_at', 'TEXT', false, false, null),
+                'title' => new Column('title', 'TEXT', false, false, null),
+                'completed_at' => new Column('completed_at', 'TEXT', true, false, null),
+            ],
+            [
+                'app_listory_checklist_title_idx' => new Index('app_listory_checklist_title_idx', ['title'], false),
+            ],
+            'id',
+        ),
         'ListItem' => new TableSchema(
             'app_listory_list_item',
             [
@@ -48,13 +62,26 @@ return new StorageManifest(
         ),
     ],
     placements: [
+        'Checklist.sourceLists' => new EdgePlacement('Checklist', 'sourceLists', 'PermanentList', RelationKind::ManyToMany, 'app_listory_checklist_source_lists', 'checklist_id', 'permanent_list_id', 'app_listory_permanent_list'),
         'ListItem.list' => new EdgePlacement('ListItem', 'list', 'PermanentList', RelationKind::ManyToOne, 'app_listory_list_item', 'list_id', null, 'app_listory_permanent_list'),
     ],
     columns: [
+        'Checklist' => ['createdAt' => 'created_at', 'updatedAt' => 'updated_at', 'title' => 'title', 'completedAt' => 'completed_at'],
         'ListItem' => ['createdAt' => 'created_at', 'updatedAt' => 'updated_at', 'name' => 'name'],
         'PermanentList' => ['createdAt' => 'created_at', 'updatedAt' => 'updated_at', 'title' => 'title'],
     ],
     joinTables: [
-
+        'app_listory_checklist_source_lists' => new TableSchema(
+            'app_listory_checklist_source_lists',
+            [
+                'checklist_id' => new Column('checklist_id', 'INTEGER', false, false, null),
+                'permanent_list_id' => new Column('permanent_list_id', 'INTEGER', false, false, null),
+            ],
+            [
+                'app_listory_checklist_source_lists_pair_uniq' => new Index('app_listory_checklist_source_lists_pair_uniq', ['checklist_id', 'permanent_list_id'], true),
+                'app_listory_checklist_source_lists_permanent_list_id_idx' => new Index('app_listory_checklist_source_lists_permanent_list_id_idx', ['permanent_list_id'], false),
+            ],
+            '',
+        ),
     ],
 );

@@ -9,13 +9,19 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   Wiring.php
- * digest: sha256:6a3df81a1d753c55383008d2ae52ac0e51c3de9e8daede73c6ab98bb5e84b89e
+ * digest: sha256:6f7306f194644995b964e764e1bd3c7e7038142d67dcbce3aebcb8e270ba27ce
  */
 
 namespace Listory\Entity;
 
 use Closure;
 use Eleph\Runtime\Query\ValueDecoder;
+use Listory\Entity\Checklist\ChecklistHydrator;
+use Listory\Entity\Checklist\ChecklistInput;
+use Listory\Entity\Checklist\ChecklistReadPolicies;
+use Listory\Entity\Checklist\ChecklistSideEffects;
+use Listory\Entity\Checklist\ChecklistVerifiers;
+use Listory\Entity\Checklist\ChecklistWritePolicies;
 use Listory\Entity\ListItem\ListItemHydrator;
 use Listory\Entity\ListItem\ListItemInput;
 use Listory\Entity\ListItem\ListItemReadPolicies;
@@ -43,6 +49,12 @@ final class Wiring
      */
     public static function registrations(): array {
         return [
+            ChecklistHydrator::class => static fn (ContainerInterface $c): object => new ChecklistHydrator(self::resolve($c, ValueDecoder::class)),
+            ChecklistInput::class => static fn (ContainerInterface $c): object => new ChecklistInput(self::resolve($c, ValueDecoder::class)),
+            ChecklistSideEffects::class => static fn (ContainerInterface $c): object => new ChecklistSideEffects(),
+            ChecklistVerifiers::class => static fn (ContainerInterface $c): object => new ChecklistVerifiers(),
+            ChecklistReadPolicies::class => static fn (ContainerInterface $c): object => new ChecklistReadPolicies(),
+            ChecklistWritePolicies::class => static fn (ContainerInterface $c): object => new ChecklistWritePolicies(),
             ListItemHydrator::class => static fn (ContainerInterface $c): object => new ListItemHydrator(self::resolve($c, ValueDecoder::class)),
             ListItemInput::class => static fn (ContainerInterface $c): object => new ListItemInput(self::resolve($c, ValueDecoder::class)),
             ListItemSideEffects::class => static fn (ContainerInterface $c): object => new ListItemSideEffects(),
