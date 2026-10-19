@@ -24,6 +24,7 @@ jobs:
     timeout-minutes: 30
     permissions:
       contents: read
+      issues: write
       pull-requests: write
       id-token: write
     steps:
@@ -72,11 +73,22 @@ jobs:
 
             Post exactly one review with `gh pr review <n> --comment --body "..."`, then:
             - changes needed: a numbered list of required changes in the review, then
-              `gh pr edit <n> --remove-label agent:human --add-label agent:changes`
+              `gh pr edit <n> --remove-label agent:human --remove-label agent:needs-human --add-label agent:changes`
             - ready: a short summary of what you checked, then
-              `gh pr edit <n> --remove-label agent:changes --add-label agent:human --add-reviewer hsimah`
+              `gh pr edit <n> --remove-label agent:changes --remove-label agent:needs-human --add-label agent:human --add-reviewer hsimah`
           claude_args: >-
             --model opus
             --max-turns 30
             --allowedTools "Read,Glob,Grep,Bash(git diff *),Bash(git log *),Bash(gh pr view *),Bash(gh pr diff *),Bash(gh issue view *),Bash(gh pr review *),Bash(gh pr edit *)"
             --disallowedTools "WebFetch,WebSearch"
+
+      # A review that never ran must not look like a quiet pass.
+      - name: Report failure
+        if: failure() && steps.rounds.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh pr comment "$PR" -R "$GITHUB_REPOSITORY" --body "Agent review did not run ([run]($RUN)); a usage limit is the usual cause. Do not merge on CI alone: once quota is back, use **Re-run jobs** on that run."
+          gh pr edit "$PR" -R "$GITHUB_REPOSITORY" --remove-label agent:human --add-label agent:needs-human
