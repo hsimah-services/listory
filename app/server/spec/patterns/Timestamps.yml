@@ -1,0 +1,9 @@
+pattern: Timestamps
+description: Creation and modification stamps.
+fields:
+  createdAt:
+    type: datetime
+    managed: created
+  updatedAt:
+    type: datetime
+    managed: modified

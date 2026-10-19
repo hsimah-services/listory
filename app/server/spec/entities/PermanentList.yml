@@ -1,0 +1,18 @@
+entity: PermanentList
+description: A reusable template list whose items are copied into checklists.
+use:
+  - ListoryRecord
+integrations:
+  graphql:
+    singular: ListoryList
+    plural: ListoryLists
+storage:
+  table: permanent_list
+  handle: listory_permanent_list
+fields:
+  title:
+    type: string
+    description: What the list is called.
+    required: true
+    indexed: true
+    maxLength: 200
