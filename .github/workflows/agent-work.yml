@@ -82,10 +82,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     # Writes go through the Claude App token; id-token mints it. The workflow
-    # token only reports failures.
+    # token only checks the outcome and reports failures.
     permissions:
       contents: read
       issues: write
+      pull-requests: read
       id-token: write
     steps:
       - uses: actions/checkout@v4
@@ -165,6 +166,19 @@ jobs:
             --max-turns 100
             --allowedTools "Read,Edit,Write,Glob,Grep,Bash(git *),Bash(npm *),Bash(npx *),Bash(composer *),Bash(php *),Bash(vendor/bin/*),Bash(cargo *),Bash(chmod *),Bash(bash -n *),Bash(cd *),Bash(ls *),Bash(mkdir *),Bash(rmdir *),Bash(test *),Bash(diff *),Bash(grep *),Bash(gh pr create *),Bash(gh issue edit *),Bash(gh issue comment *)"
             --disallowedTools "WebFetch,WebSearch"
+
+      # The action can exit 0 having done nothing. A finished run leaves a PR
+      # or an agent:needs-human label; anything else would stall the waterfall.
+      - name: Check the work landed
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE: ${{ needs.gate.outputs.number }}
+        run: |
+          pr=$(gh pr list -R "$GITHUB_REPOSITORY" --head "claude/issue-$ISSUE" --state open --json number --jq '.[].number')
+          [[ -n $pr ]] && exit 0
+          flagged=$(gh issue view "$ISSUE" -R "$GITHUB_REPOSITORY" --json labels \
+            --jq '.labels | map(.name) | index("agent:needs-human") != null')
+          [[ $flagged == true ]] || { echo "No PR and no agent:needs-human on #$ISSUE."; exit 1; }
 
       # Usage limits and API errors end the run with no PR. Say so and stop
       # the waterfall rather than leave the issue silently queued.
