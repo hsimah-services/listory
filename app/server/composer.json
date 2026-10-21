@@ -31,7 +31,8 @@
             "eleph check"
         ],
         "test": [
-            "@php standalone/tests/integration.php"
+            "@php standalone/tests/integration.php",
+            "@php standalone/tests/checklist-sync.php"
         ]
     },
     "minimum-stability": "stable",

@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   Catalogue.php
- * digest: sha256:bf96b287601a4a9a6b0f70a1a166234c7c7aef19b06f83f119b8e0c37c88edca
+ * digest: sha256:276d0c1a9c6f9cfe73cefa4fd1246c00338c23a2e3d43316aeeb2c0767b29745
  */
 
 namespace Listory\Entity;
@@ -411,6 +411,6 @@ final readonly class Catalogue implements EntityCatalogue
      * @return list<string>
      */
     public function contracts(): array {
-        return [];
+        return ['Listory\\Entity\\Checklist\\Contract\\ChecklistSyncItemsSideEffect'];
     }
 }

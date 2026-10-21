@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   Wiring.php
- * digest: sha256:e5d4c60a3ba3f22cb5f500569f20a733e0ac75ab3ddc8dbed95060f743ef5250
+ * digest: sha256:a5e883479d444adfab23d05601267cc0c13c1d393f194f8c3b50710a16980765
  */
 
 namespace Listory\Entity;
@@ -28,6 +28,7 @@ use Listory\Entity\Checklist\ChecklistReadPolicies;
 use Listory\Entity\Checklist\ChecklistSideEffects;
 use Listory\Entity\Checklist\ChecklistVerifiers;
 use Listory\Entity\Checklist\ChecklistWritePolicies;
+use Listory\Entity\Checklist\Contract\ChecklistSyncItemsSideEffect;
 use Listory\Entity\ListItem\ListItemHydrator;
 use Listory\Entity\ListItem\ListItemInput;
 use Listory\Entity\ListItem\ListItemReadPolicies;
@@ -57,7 +58,7 @@ final class Wiring
         return [
             ChecklistHydrator::class => static fn (ContainerInterface $c): object => new ChecklistHydrator(self::resolve($c, ValueDecoder::class)),
             ChecklistInput::class => static fn (ContainerInterface $c): object => new ChecklistInput(self::resolve($c, ValueDecoder::class)),
-            ChecklistSideEffects::class => static fn (ContainerInterface $c): object => new ChecklistSideEffects(),
+            ChecklistSideEffects::class => static fn (ContainerInterface $c): object => new ChecklistSideEffects(self::resolve($c, ChecklistSyncItemsSideEffect::class)),
             ChecklistVerifiers::class => static fn (ContainerInterface $c): object => new ChecklistVerifiers(),
             ChecklistReadPolicies::class => static fn (ContainerInterface $c): object => new ChecklistReadPolicies(),
             ChecklistWritePolicies::class => static fn (ContainerInterface $c): object => new ChecklistWritePolicies(),

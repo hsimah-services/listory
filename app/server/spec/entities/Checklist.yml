@@ -29,3 +29,9 @@ edges:
       name: checklists
       unique: false
     onDelete: nullify
+sideEffects:
+  syncItems:
+    description: Copy items from newly added source lists and remove items from removed ones.
+    on: [create, update]
+    phase: postCommit
+    handler: true

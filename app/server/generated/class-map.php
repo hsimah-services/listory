@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   class-map.php
- * digest: sha256:70d0a0152500bc7022f8d2faf17b7cbceb94cf50e68ff8d6514e4604faf8c261
+ * digest: sha256:b93202244bf32911dce323bbcaafc03f80b533bf5b37b70a0a6db433c6d6bd7a
  */
 
 return [
@@ -45,6 +45,7 @@ return [
         'Listory\\Entity\\Checklist\\ChecklistVerifiers' => 'Checklist/ChecklistVerifiers.php',
         'Listory\\Entity\\Checklist\\ChecklistWriteContext' => 'Checklist/ChecklistWriteContext.php',
         'Listory\\Entity\\Checklist\\ChecklistWritePolicies' => 'Checklist/ChecklistWritePolicies.php',
+        'Listory\\Entity\\Checklist\\Contract\\ChecklistSyncItemsSideEffect' => 'Checklist/Contract/ChecklistSyncItemsSideEffect.php',
         'Listory\\Entity\\ListItem\\ListItem' => 'ListItem/ListItem.php',
         'Listory\\Entity\\ListItem\\ListItemDeleter' => 'ListItem/ListItemDeleter.php',
         'Listory\\Entity\\ListItem\\ListItemHydrator' => 'ListItem/ListItemHydrator.php',
