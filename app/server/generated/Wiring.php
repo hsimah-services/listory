@@ -9,13 +9,19 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   Wiring.php
- * digest: sha256:6f7306f194644995b964e764e1bd3c7e7038142d67dcbce3aebcb8e270ba27ce
+ * digest: sha256:e5d4c60a3ba3f22cb5f500569f20a733e0ac75ab3ddc8dbed95060f743ef5250
  */
 
 namespace Listory\Entity;
 
 use Closure;
 use Eleph\Runtime\Query\ValueDecoder;
+use Listory\Entity\ChecklistItem\ChecklistItemHydrator;
+use Listory\Entity\ChecklistItem\ChecklistItemInput;
+use Listory\Entity\ChecklistItem\ChecklistItemReadPolicies;
+use Listory\Entity\ChecklistItem\ChecklistItemSideEffects;
+use Listory\Entity\ChecklistItem\ChecklistItemVerifiers;
+use Listory\Entity\ChecklistItem\ChecklistItemWritePolicies;
 use Listory\Entity\Checklist\ChecklistHydrator;
 use Listory\Entity\Checklist\ChecklistInput;
 use Listory\Entity\Checklist\ChecklistReadPolicies;
@@ -55,6 +61,12 @@ final class Wiring
             ChecklistVerifiers::class => static fn (ContainerInterface $c): object => new ChecklistVerifiers(),
             ChecklistReadPolicies::class => static fn (ContainerInterface $c): object => new ChecklistReadPolicies(),
             ChecklistWritePolicies::class => static fn (ContainerInterface $c): object => new ChecklistWritePolicies(),
+            ChecklistItemHydrator::class => static fn (ContainerInterface $c): object => new ChecklistItemHydrator(self::resolve($c, ValueDecoder::class)),
+            ChecklistItemInput::class => static fn (ContainerInterface $c): object => new ChecklistItemInput(self::resolve($c, ValueDecoder::class)),
+            ChecklistItemSideEffects::class => static fn (ContainerInterface $c): object => new ChecklistItemSideEffects(),
+            ChecklistItemVerifiers::class => static fn (ContainerInterface $c): object => new ChecklistItemVerifiers(),
+            ChecklistItemReadPolicies::class => static fn (ContainerInterface $c): object => new ChecklistItemReadPolicies(),
+            ChecklistItemWritePolicies::class => static fn (ContainerInterface $c): object => new ChecklistItemWritePolicies(),
             ListItemHydrator::class => static fn (ContainerInterface $c): object => new ListItemHydrator(self::resolve($c, ValueDecoder::class)),
             ListItemInput::class => static fn (ContainerInterface $c): object => new ListItemInput(self::resolve($c, ValueDecoder::class)),
             ListItemSideEffects::class => static fn (ContainerInterface $c): object => new ListItemSideEffects(),

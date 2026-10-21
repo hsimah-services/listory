@@ -9,17 +9,30 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   class-map.php
- * digest: sha256:e0e9febe6fc363254bb00a013d618c037298359b0f10433f6856a003628bffef
+ * digest: sha256:70d0a0152500bc7022f8d2faf17b7cbceb94cf50e68ff8d6514e4604faf8c261
  */
 
 return [
     'entities' => [
         'Checklist' => 'Listory\\Entity\\Checklist\\Checklist',
+        'ChecklistItem' => 'Listory\\Entity\\ChecklistItem\\ChecklistItem',
         'ListItem' => 'Listory\\Entity\\ListItem\\ListItem',
         'PermanentList' => 'Listory\\Entity\\PermanentList\\PermanentList',
     ],
     'classes' => [
         'Listory\\Entity\\Catalogue' => 'Catalogue.php',
+        'Listory\\Entity\\ChecklistItem\\ChecklistItem' => 'ChecklistItem/ChecklistItem.php',
+        'Listory\\Entity\\ChecklistItem\\ChecklistItemDeleter' => 'ChecklistItem/ChecklistItemDeleter.php',
+        'Listory\\Entity\\ChecklistItem\\ChecklistItemHydrator' => 'ChecklistItem/ChecklistItemHydrator.php',
+        'Listory\\Entity\\ChecklistItem\\ChecklistItemInput' => 'ChecklistItem/ChecklistItemInput.php',
+        'Listory\\Entity\\ChecklistItem\\ChecklistItemMutationContext' => 'ChecklistItem/ChecklistItemMutationContext.php',
+        'Listory\\Entity\\ChecklistItem\\ChecklistItemMutator' => 'ChecklistItem/ChecklistItemMutator.php',
+        'Listory\\Entity\\ChecklistItem\\ChecklistItemPreCommitContext' => 'ChecklistItem/ChecklistItemPreCommitContext.php',
+        'Listory\\Entity\\ChecklistItem\\ChecklistItemReadPolicies' => 'ChecklistItem/ChecklistItemReadPolicies.php',
+        'Listory\\Entity\\ChecklistItem\\ChecklistItemSideEffects' => 'ChecklistItem/ChecklistItemSideEffects.php',
+        'Listory\\Entity\\ChecklistItem\\ChecklistItemVerifiers' => 'ChecklistItem/ChecklistItemVerifiers.php',
+        'Listory\\Entity\\ChecklistItem\\ChecklistItemWriteContext' => 'ChecklistItem/ChecklistItemWriteContext.php',
+        'Listory\\Entity\\ChecklistItem\\ChecklistItemWritePolicies' => 'ChecklistItem/ChecklistItemWritePolicies.php',
         'Listory\\Entity\\Checklist\\Checklist' => 'Checklist/Checklist.php',
         'Listory\\Entity\\Checklist\\ChecklistDeleter' => 'Checklist/ChecklistDeleter.php',
         'Listory\\Entity\\Checklist\\ChecklistHydrator' => 'Checklist/ChecklistHydrator.php',

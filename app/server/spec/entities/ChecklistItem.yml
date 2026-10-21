@@ -1,0 +1,39 @@
+entity: ChecklistItem
+description: One line on a checklist that can be checked off.
+use:
+  - ListoryRecord
+integrations:
+  graphql:
+    singular: ListoryChecklistItem
+    plural: ListoryChecklistItems
+storage:
+  table: checklist_item
+  handle: listory_checklist_item
+fields:
+  name:
+    type: string
+    description: The item's text.
+    required: true
+    maxLength: 200
+  checked:
+    type: bool
+    description: Whether the item has been checked off.
+    default: false
+edges:
+  checklist:
+    to: Checklist
+    cardinality: one
+    description: The checklist this item is on.
+    inverse:
+      name: items
+      unique: false
+    onDelete: cascade
+    required: true
+  sourceList:
+    to: PermanentList
+    cardinality: one
+    description: The permanent list this item was copied from; null for ad-hoc items or once that list is deleted.
+    inverse:
+      name: checklistItems
+      unique: false
+    onDelete: nullify

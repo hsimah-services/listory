@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   PermanentList/PermanentListDeleter.php
- * digest: sha256:edb9e7374a556dedb338a38e0eaea479620dfc7b94be8ffd1744b02be4841627
+ * digest: sha256:84675a8403f125609c9be7d48cfc656016364091f134bcafa1ee3456582ea840
  */
 
 namespace Listory\Entity\PermanentList;
@@ -46,6 +46,7 @@ final class PermanentListDeleter
     public static function rules(): array {
         return [
             new DeletionRule('Checklist', 'sourceLists', 'Checklist', DeletionPolicy::Nullify, true),
+            new DeletionRule('ChecklistItem', 'sourceList', 'ChecklistItem', DeletionPolicy::Nullify, false),
             new DeletionRule('ListItem', 'list', 'ListItem', DeletionPolicy::Cascade, false),
         ];
     }

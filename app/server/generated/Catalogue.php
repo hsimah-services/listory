@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   Catalogue.php
- * digest: sha256:e00a07e3cf0769dd25d61473e5f12ef2dc52d35bb73d3b5fe3d92a36ff1919c4
+ * digest: sha256:bf96b287601a4a9a6b0f70a1a166234c7c7aef19b06f83f119b8e0c37c88edca
  */
 
 namespace Listory\Entity;
@@ -24,6 +24,12 @@ use Eleph\Runtime\Policy\NoPolicies;
 use Eleph\Runtime\Query\Hydrator;
 use Eleph\Runtime\Storage\DeletionRule;
 use Eleph\Runtime\Verification\EntityVerifiers;
+use Listory\Entity\ChecklistItem\ChecklistItemDeleter;
+use Listory\Entity\ChecklistItem\ChecklistItemHydrator;
+use Listory\Entity\ChecklistItem\ChecklistItemInput;
+use Listory\Entity\ChecklistItem\ChecklistItemMutator;
+use Listory\Entity\ChecklistItem\ChecklistItemSideEffects;
+use Listory\Entity\ChecklistItem\ChecklistItemVerifiers;
 use Listory\Entity\Checklist\ChecklistDeleter;
 use Listory\Entity\Checklist\ChecklistHydrator;
 use Listory\Entity\Checklist\ChecklistInput;
@@ -60,7 +66,7 @@ final readonly class Catalogue implements EntityCatalogue
      * @return list<string>
      */
     public function entities(): array {
-        return ['Checklist', 'ListItem', 'PermanentList'];
+        return ['Checklist', 'ChecklistItem', 'ListItem', 'PermanentList'];
     }
 
     /**
@@ -71,6 +77,7 @@ final readonly class Catalogue implements EntityCatalogue
     ): Hydrator {
         $service = match ($entity) {
             'Checklist' => $this->container->get(ChecklistHydrator::class),
+            'ChecklistItem' => $this->container->get(ChecklistItemHydrator::class),
             'ListItem' => $this->container->get(ListItemHydrator::class),
             'PermanentList' => $this->container->get(PermanentListHydrator::class),
             default => throw new RuntimeException(sprintf('No entity named "%s".', $entity)),
@@ -86,6 +93,7 @@ final readonly class Catalogue implements EntityCatalogue
     ): EntityVerifiers {
         $service = match ($entity) {
             'Checklist' => $this->container->get(ChecklistVerifiers::class),
+            'ChecklistItem' => $this->container->get(ChecklistItemVerifiers::class),
             'ListItem' => $this->container->get(ListItemVerifiers::class),
             'PermanentList' => $this->container->get(PermanentListVerifiers::class),
             default => throw new RuntimeException(sprintf('No entity named "%s".', $entity)),
@@ -101,6 +109,7 @@ final readonly class Catalogue implements EntityCatalogue
     ): EntitySideEffects {
         $service = match ($entity) {
             'Checklist' => $this->container->get(ChecklistSideEffects::class),
+            'ChecklistItem' => $this->container->get(ChecklistItemSideEffects::class),
             'ListItem' => $this->container->get(ListItemSideEffects::class),
             'PermanentList' => $this->container->get(PermanentListSideEffects::class),
             default => throw new RuntimeException(sprintf('No entity named "%s".', $entity)),
@@ -116,6 +125,7 @@ final readonly class Catalogue implements EntityCatalogue
     ): EntityReadPolicies {
         return match ($entity) {
             'Checklist' => new NoPolicies(),
+            'ChecklistItem' => new NoPolicies(),
             'ListItem' => new NoPolicies(),
             'PermanentList' => new NoPolicies(),
             default => throw new RuntimeException(sprintf('No entity named "%s".', $entity)),
@@ -127,6 +137,7 @@ final readonly class Catalogue implements EntityCatalogue
     ): EntityWritePolicies {
         return match ($entity) {
             'Checklist' => new NoPolicies(),
+            'ChecklistItem' => new NoPolicies(),
             'ListItem' => new NoPolicies(),
             'PermanentList' => new NoPolicies(),
             default => throw new RuntimeException(sprintf('No entity named "%s".', $entity)),
@@ -139,6 +150,8 @@ final readonly class Catalogue implements EntityCatalogue
     public function edgeTargets(): array {
         return [
             'Checklist.sourceLists' => 'PermanentList',
+            'ChecklistItem.checklist' => 'Checklist',
+            'ChecklistItem.sourceList' => 'PermanentList',
             'ListItem.list' => 'PermanentList',
         ];
     }
@@ -158,6 +171,7 @@ final readonly class Catalogue implements EntityCatalogue
     ): array {
         return match ($entity) {
             'Checklist' => ['createdAt', 'updatedAt', 'title', 'completedAt'],
+            'ChecklistItem' => ['createdAt', 'updatedAt', 'name', 'checked'],
             'ListItem' => ['createdAt', 'updatedAt', 'name'],
             'PermanentList' => ['createdAt', 'updatedAt', 'title'],
             default => [],
@@ -172,6 +186,7 @@ final readonly class Catalogue implements EntityCatalogue
     ): array {
         return match ($entity) {
             'Checklist' => ['title'],
+            'ChecklistItem' => ['name'],
             'ListItem' => ['name'],
             'PermanentList' => ['title'],
             default => [],
@@ -186,6 +201,7 @@ final readonly class Catalogue implements EntityCatalogue
     ): array {
         return match ($entity) {
             'Checklist' => [],
+            'ChecklistItem' => ['checklist'],
             'ListItem' => ['list'],
             'PermanentList' => [],
             default => [],
@@ -200,6 +216,7 @@ final readonly class Catalogue implements EntityCatalogue
     ): array {
         return match ($entity) {
             'Checklist' => [],
+            'ChecklistItem' => [],
             'ListItem' => [],
             'PermanentList' => [],
             default => [],
@@ -213,6 +230,8 @@ final readonly class Catalogue implements EntityCatalogue
         return [
             'Checklist.createdAt' => Managed::Created,
             'Checklist.updatedAt' => Managed::Modified,
+            'ChecklistItem.createdAt' => Managed::Created,
+            'ChecklistItem.updatedAt' => Managed::Modified,
             'ListItem.createdAt' => Managed::Created,
             'ListItem.updatedAt' => Managed::Modified,
             'PermanentList.createdAt' => Managed::Created,
@@ -228,6 +247,7 @@ final readonly class Catalogue implements EntityCatalogue
     ): array {
         return match ($entity) {
             'Checklist' => ChecklistDeleter::rules(),
+            'ChecklistItem' => ChecklistItemDeleter::rules(),
             'ListItem' => ListItemDeleter::rules(),
             'PermanentList' => PermanentListDeleter::rules(),
             default => [],
@@ -253,6 +273,7 @@ final readonly class Catalogue implements EntityCatalogue
     ): object {
         return match ($entity) {
             'Checklist' => new ChecklistMutator($buffer),
+            'ChecklistItem' => new ChecklistItemMutator($buffer),
             'ListItem' => new ListItemMutator($buffer),
             'PermanentList' => new PermanentListMutator($buffer),
             default => throw new RuntimeException(sprintf('No entity named "%s".', $entity)),
@@ -304,6 +325,21 @@ final readonly class Catalogue implements EntityCatalogue
      * @param array<string, mixed> $args
      * @return array<string, mixed>
      */
+    private function decodeChecklistItemInputActionArguments(
+        string $action,
+        array $args,
+    ): array {
+        $input = $this->container->get(ChecklistItemInput::class);
+        
+        assert($input instanceof ChecklistItemInput);
+        
+        return $input->decodeAction($action, $args);
+    }
+
+    /**
+     * @param array<string, mixed> $args
+     * @return array<string, mixed>
+     */
     private function decodeListItemInputActionArguments(
         string $action,
         array $args,
@@ -341,6 +377,7 @@ final readonly class Catalogue implements EntityCatalogue
     ): array {
         return match ($entity) {
             'Checklist' => $this->decodeChecklistInputActionArguments($action, $args),
+            'ChecklistItem' => $this->decodeChecklistItemInputActionArguments($action, $args),
             'ListItem' => $this->decodeListItemInputActionArguments($action, $args),
             'PermanentList' => $this->decodePermanentListInputActionArguments($action, $args),
             default => throw new RuntimeException(sprintf('No entity named "%s".', $entity)),
@@ -357,6 +394,7 @@ final readonly class Catalogue implements EntityCatalogue
     ): void {
         $applier = match ($entity) {
             'Checklist' => $this->container->get(ChecklistInput::class),
+            'ChecklistItem' => $this->container->get(ChecklistItemInput::class),
             'ListItem' => $this->container->get(ListItemInput::class),
             'PermanentList' => $this->container->get(PermanentListInput::class),
             default => throw new RuntimeException(sprintf('No entity named "%s".', $entity)),

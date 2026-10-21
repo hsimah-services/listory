@@ -92,3 +92,31 @@ echo "PASS: deleting a source list keeps the checklist\n";
 $runtime->delete('Checklist', $trip->id);
 check($runtime->find('PermanentList', $listB->id) !== null, 'Deleting a checklist keeps its source lists');
 echo "PASS: deleting a checklist keeps its lists\n";
+
+$packing = $runtime->create('Checklist', ['title' => 'Packing']);
+$tent = $runtime->create('ChecklistItem', ['name' => 'Tent', 'checklist' => (string) $packing->id]);
+check($runtime->find('ChecklistItem', $tent->id)->getChecked() === false, 'A new item is unchecked');
+echo "PASS: unchecked by default\n";
+
+$runtime->update('ChecklistItem', $tent->id, ['checked' => true]);
+check($runtime->find('ChecklistItem', $tent->id)->getChecked() === true, 'Update checks the item');
+echo "PASS: check an item\n";
+
+$stove = $runtime->create('ChecklistItem', ['name' => 'Stove', 'checklist' => (string) $packing->id]);
+check($runtime->find('Checklist', $packing->id)->items()->count() === 2, 'A checklist holds the items created for it');
+echo "PASS: items on a checklist\n";
+
+fails(fn () => $runtime->create('ChecklistItem', ['name' => 'Orphan']), 'An item requires a checklist');
+echo "PASS: item requires a checklist\n";
+
+$camping = $runtime->create('PermanentList', ['title' => 'Camping']);
+$lantern = $runtime->create('ChecklistItem', ['name' => 'Lantern', 'checklist' => (string) $packing->id, 'sourceList' => (string) $camping->id]);
+$runtime->delete('PermanentList', $camping->id);
+check($runtime->find('ChecklistItem', $lantern->id) !== null, 'Deleting a source list keeps the item');
+check($runtime->find('ChecklistItem', $lantern->id)->getSourceList() === null, 'Deleting a source list clears the item\'s source');
+echo "PASS: deleting a source list nullifies\n";
+
+$runtime->delete('Checklist', $packing->id);
+check($runtime->find('ChecklistItem', $tent->id) === null, 'Deleting a checklist deletes its items');
+check($runtime->find('ChecklistItem', $stove->id) === null, 'Deleting a checklist deletes all of its items');
+echo "PASS: deleting a checklist deletes its items\n";
