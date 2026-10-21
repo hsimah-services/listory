@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   ChecklistItem/ChecklistItemSideEffects.php
- * digest: sha256:fbcfa9d145416bd76bea55444e179ecbba0dc430e9082818cbf682e0825e005b
+ * digest: sha256:9c939c55cd6b885e0b8a50b85ea8c6bbfd0226bf8b74de0851d41a674a0ee954
  */
 
 namespace Listory\Entity\ChecklistItem;
@@ -18,13 +18,16 @@ use Eleph\Runtime\Mutation\EntitySideEffects;
 use Eleph\Runtime\Mutation\MutableMutationContext;
 use Eleph\Runtime\SideEffect\SideEffectEvent;
 use Eleph\Runtime\SideEffect\SideEffectPhase;
+use Listory\Entity\ChecklistItem\Contract\ChecklistItemCompletionSideEffect;
 
 /**
  * Runs ChecklistItem's sideEffects, in the order the spec declares them.
  */
 final readonly class ChecklistItemSideEffects implements EntitySideEffects
 {
-    public function __construct() {
+    public function __construct(
+        private ChecklistItemCompletionSideEffect $completionSideEffect,
+    ) {
 
     }
 
@@ -37,6 +40,10 @@ final readonly class ChecklistItemSideEffects implements EntitySideEffects
         MutableMutationContext $context,
     ): iterable {
         $handlers = [];
+        if (SideEffectPhase::PostCommit === $phase && in_array($event, [SideEffectEvent::Create, SideEffectEvent::Update], true)) {
+            $handlers[] = fn () => $this->completionSideEffect->handle(ChecklistItemMutationContext::of($context));
+        }
+        
         return $handlers;
     }
 }

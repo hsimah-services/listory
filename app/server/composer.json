@@ -32,7 +32,8 @@
         ],
         "test": [
             "@php standalone/tests/integration.php",
-            "@php standalone/tests/checklist-sync.php"
+            "@php standalone/tests/checklist-sync.php",
+            "@php standalone/tests/checklist-completion.php"
         ]
     },
     "minimum-stability": "stable",
