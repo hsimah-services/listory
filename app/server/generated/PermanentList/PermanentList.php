@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   PermanentList/PermanentList.php
- * digest: sha256:807a40b45fc777d5e9832bda1be4707bcb4f0ee1a9303715417e9331d9cf5990
+ * digest: sha256:73ffe03f63e8fc6b6e6bd593c626868bfeb3e257f6907f9534997aa122a0cb0a
  */
 
 namespace Listory\Entity\PermanentList;
@@ -18,6 +18,7 @@ use DateTimeImmutable;
 use Eleph\Runtime\Identity\EntityId;
 use Eleph\Runtime\Query\EdgeLoader;
 use Eleph\Runtime\Query\EntityQuery;
+use Listory\Entity\ChecklistItem\ChecklistItem;
 use Listory\Entity\Checklist\Checklist;
 use Listory\Entity\ListItem\ListItem;
 
@@ -63,6 +64,18 @@ final class PermanentList
     public function checklists(): EntityQuery {
         /** @var EntityQuery<Checklist> $related */
         $related = $this->edges->inverseToMany('Checklist', 'sourceLists', $this->id);
+        
+        return $related;
+    }
+
+    /**
+     * Every ChecklistItem whose "sourceList" points here.
+     *
+     * @return EntityQuery<ChecklistItem>
+     */
+    public function checklistItems(): EntityQuery {
+        /** @var EntityQuery<ChecklistItem> $related */
+        $related = $this->edges->inverseToMany('ChecklistItem', 'sourceList', $this->id);
         
         return $related;
     }

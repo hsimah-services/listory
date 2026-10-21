@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   storage-manifest.php
- * digest: sha256:51d33303d5c9e1950b262b22512a3d9ae0b9e30423701adc42be4cd59f4c152e
+ * digest: sha256:63b4c0a6eb9ec176551d1c794f6c9752520c70b82818b9295902ec8dbadf729a
  */
 
 namespace Eleph\SQLite\Manifest;
@@ -30,6 +30,23 @@ return new StorageManifest(
             ],
             [
                 'app_listory_checklist_title_idx' => new Index('app_listory_checklist_title_idx', ['title'], false),
+            ],
+            'id',
+        ),
+        'ChecklistItem' => new TableSchema(
+            'app_listory_checklist_item',
+            [
+                'id' => new Column('id', 'INTEGER', false, true, null),
+                'created_at' => new Column('created_at', 'TEXT', false, false, null),
+                'updated_at' => new Column('updated_at', 'TEXT', false, false, null),
+                'name' => new Column('name', 'TEXT', false, false, null),
+                'checked' => new Column('checked', 'INTEGER', false, false, '0'),
+                'checklist_id' => new Column('checklist_id', 'INTEGER', true, false, null),
+                'source_list_id' => new Column('source_list_id', 'INTEGER', true, false, null),
+            ],
+            [
+                'app_listory_checklist_item_checklist_id_idx' => new Index('app_listory_checklist_item_checklist_id_idx', ['checklist_id'], false),
+                'app_listory_checklist_item_source_list_id_idx' => new Index('app_listory_checklist_item_source_list_id_idx', ['source_list_id'], false),
             ],
             'id',
         ),
@@ -63,10 +80,13 @@ return new StorageManifest(
     ],
     placements: [
         'Checklist.sourceLists' => new EdgePlacement('Checklist', 'sourceLists', 'PermanentList', RelationKind::ManyToMany, 'app_listory_checklist_source_lists', 'checklist_id', 'permanent_list_id', 'app_listory_permanent_list'),
+        'ChecklistItem.checklist' => new EdgePlacement('ChecklistItem', 'checklist', 'Checklist', RelationKind::ManyToOne, 'app_listory_checklist_item', 'checklist_id', null, 'app_listory_checklist'),
+        'ChecklistItem.sourceList' => new EdgePlacement('ChecklistItem', 'sourceList', 'PermanentList', RelationKind::ManyToOne, 'app_listory_checklist_item', 'source_list_id', null, 'app_listory_permanent_list'),
         'ListItem.list' => new EdgePlacement('ListItem', 'list', 'PermanentList', RelationKind::ManyToOne, 'app_listory_list_item', 'list_id', null, 'app_listory_permanent_list'),
     ],
     columns: [
         'Checklist' => ['createdAt' => 'created_at', 'updatedAt' => 'updated_at', 'title' => 'title', 'completedAt' => 'completed_at'],
+        'ChecklistItem' => ['createdAt' => 'created_at', 'updatedAt' => 'updated_at', 'name' => 'name', 'checked' => 'checked'],
         'ListItem' => ['createdAt' => 'created_at', 'updatedAt' => 'updated_at', 'name' => 'name'],
         'PermanentList' => ['createdAt' => 'created_at', 'updatedAt' => 'updated_at', 'title' => 'title'],
     ],

@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   graphql-manifest.php
- * digest: sha256:ae30e07bb1e2cebb4b97b8a8945de7e586f515d9ec85e24c2be780925212ce3b
+ * digest: sha256:bdf42698b40e75da685811ecaf1f0087374fba45c775580946e9ef27de955438
  */
 
 namespace Eleph\GraphQL\Manifest;
@@ -35,8 +35,26 @@ return new Manifest(
             ],
             [
                 'sourceLists' => new ConnectionEntry('sourceLists', 'ListoryChecklist', 'ListoryList', 'sourceLists', 'sourceLists', 'The permanent lists whose items were merged into this checklist.'),
+                'items' => new ConnectionEntry('items', 'ListoryChecklist', 'ListoryChecklistItem', 'items', 'checklist', 'The ChecklistItem pointing here through "checklist".'),
             ],
             'An ephemeral checklist built by merging one or more permanent lists.',
+            ['Node'],
+        ),
+        'ListoryChecklistItem' => new ObjectTypeEntry(
+            'ListoryChecklistItem',
+            'ChecklistItem',
+            [
+                'id' => new FieldEntry('id', new GraphQLType('ID', true, false), 'getId', 'The globally unique identifier, opaque and safe to use as a cache key.', FieldEncoding::GlobalId, null),
+                'databaseId' => new FieldEntry('databaseId', new GraphQLType('ID', true, false), 'getId', 'The row as storage knows it, unique within its table rather than the schema.', FieldEncoding::Id, null),
+                'createdAt' => new FieldEntry('createdAt', new GraphQLType('String', true, false), 'getCreatedAt', null, FieldEncoding::Datetime, null),
+                'updatedAt' => new FieldEntry('updatedAt', new GraphQLType('String', true, false), 'getUpdatedAt', null, FieldEncoding::Datetime, null),
+                'name' => new FieldEntry('name', new GraphQLType('String', true, false), 'getName', 'The item\'s text.', FieldEncoding::Value, null),
+                'checked' => new FieldEntry('checked', new GraphQLType('Boolean', true, false), 'getChecked', 'Whether the item has been checked off.', FieldEncoding::Value, null),
+                'checklist' => new FieldEntry('checklist', new GraphQLType('ListoryChecklist', false, false), 'getChecklist', 'The checklist this item is on.', FieldEncoding::Value, null),
+                'sourceList' => new FieldEntry('sourceList', new GraphQLType('ListoryList', false, false), 'getSourceList', 'The permanent list this item was copied from; null for ad-hoc items or once that list is deleted.', FieldEncoding::Value, null),
+            ],
+            [],
+            'One line on a checklist that can be checked off.',
             ['Node'],
         ),
         'ListoryList' => new ObjectTypeEntry(
@@ -51,6 +69,7 @@ return new Manifest(
             ],
             [
                 'checklists' => new ConnectionEntry('checklists', 'ListoryList', 'ListoryChecklist', 'checklists', 'sourceLists', 'The Checklist pointing here through "sourceLists".'),
+                'checklistItems' => new ConnectionEntry('checklistItems', 'ListoryList', 'ListoryChecklistItem', 'checklistItems', 'sourceList', 'The ChecklistItem pointing here through "sourceList".'),
                 'items' => new ConnectionEntry('items', 'ListoryList', 'ListoryListItem', 'items', 'list', 'The ListItem pointing here through "list".'),
             ],
             'A reusable template list whose items are copied into checklists.',
@@ -88,6 +107,19 @@ return new Manifest(
             null,
             'Create a ListoryChecklist.',
         ),
+        'createListoryChecklistItem' => new MutationEntry(
+            'createListoryChecklistItem',
+            'create',
+            'ChecklistItem',
+            [
+                'name' => new GraphQLType('String', true, false),
+                'checked' => new GraphQLType('Boolean', false, false),
+                'checklist' => new GraphQLType('ID', false, false),
+                'sourceList' => new GraphQLType('ID', false, false),
+            ],
+            null,
+            'Create a ListoryChecklistItem.',
+        ),
         'createListoryList' => new MutationEntry(
             'createListoryList',
             'create',
@@ -122,6 +154,20 @@ return new Manifest(
             null,
             'Update a ListoryChecklist.',
         ),
+        'updateListoryChecklistItem' => new MutationEntry(
+            'updateListoryChecklistItem',
+            'update',
+            'ChecklistItem',
+            [
+                'id' => new GraphQLType('ID', true, false),
+                'name' => new GraphQLType('String', false, false),
+                'checked' => new GraphQLType('Boolean', false, false),
+                'checklist' => new GraphQLType('ID', false, false),
+                'sourceList' => new GraphQLType('ID', false, false),
+            ],
+            null,
+            'Update a ListoryChecklistItem.',
+        ),
         'updateListoryList' => new MutationEntry(
             'updateListoryList',
             'update',
@@ -148,6 +194,7 @@ return new Manifest(
     ],
     roots: [
         'ListoryChecklist' => new RootFieldEntry('ListoryChecklist', 'ListoryChecklists', 'Checklist'),
+        'ListoryChecklistItem' => new RootFieldEntry('ListoryChecklistItem', 'ListoryChecklistItems', 'ChecklistItem'),
         'ListoryList' => new RootFieldEntry('ListoryList', 'ListoryLists', 'PermanentList'),
         'ListoryListItem' => new RootFieldEntry('ListoryListItem', 'ListoryListItems', 'ListItem'),
     ],

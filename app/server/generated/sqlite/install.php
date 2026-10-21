@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   install.php
- * digest: sha256:243d6ced11a6f16289befc51365493e485a63a5d3c9bc0b2a460076404013095
+ * digest: sha256:a18f39a4c07f276cbacd9a4059a53e8237e211524c5c07df0eb53fbba7709060
  */
 
 /**
@@ -38,6 +38,17 @@ return static function (\PDO $database, string $prefix = ''): void {
     ' . '"completed_at" TEXT' . '
 )',
         'CREATE INDEX ' . $table('app_listory_checklist_title_idx') . ' ON ' . $table('app_listory_checklist') . ' ("title")',
+        'CREATE TABLE ' . $table('app_listory_checklist_item') . ' (
+    ' . '"id" INTEGER PRIMARY KEY AUTOINCREMENT' . ',
+    ' . '"created_at" TEXT NOT NULL' . ',
+    ' . '"updated_at" TEXT NOT NULL' . ',
+    ' . '"name" TEXT NOT NULL CHECK (length("name") <= 200)' . ',
+    ' . '"checked" INTEGER NOT NULL DEFAULT 0 CHECK ("checked" IN (0, 1))' . ',
+    ' . '"checklist_id" INTEGER' . ' REFERENCES ' . $table('app_listory_checklist') . '("id") ON DELETE RESTRICT' . ',
+    ' . '"source_list_id" INTEGER' . ' REFERENCES ' . $table('app_listory_permanent_list') . '("id") ON DELETE RESTRICT' . '
+)',
+        'CREATE INDEX ' . $table('app_listory_checklist_item_checklist_id_idx') . ' ON ' . $table('app_listory_checklist_item') . ' ("checklist_id")',
+        'CREATE INDEX ' . $table('app_listory_checklist_item_source_list_id_idx') . ' ON ' . $table('app_listory_checklist_item') . ' ("source_list_id")',
         'CREATE TABLE ' . $table('app_listory_checklist_source_lists') . ' (
     ' . '"checklist_id" INTEGER NOT NULL' . ' REFERENCES ' . $table('app_listory_checklist') . '("id") ON DELETE RESTRICT' . ',
     ' . '"permanent_list_id" INTEGER NOT NULL' . ' REFERENCES ' . $table('app_listory_permanent_list') . '("id") ON DELETE RESTRICT' . '
