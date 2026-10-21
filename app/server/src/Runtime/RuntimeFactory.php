@@ -37,6 +37,7 @@ final class RuntimeFactory
         );
 
         // Register handlers for generated contracts here, before the boot check.
+        $container->set(\Listory\Entity\Checklist\Contract\ChecklistSyncItemsSideEffect::class, new \Listory\Contract\ChecklistSyncItems($runtime));
 
         (new BootCheck($catalogue, $container))->run();
 
