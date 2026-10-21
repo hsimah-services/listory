@@ -1,0 +1,406 @@
+schema {
+  query: RootQuery
+  mutation: RootMutation
+}
+
+type RootQuery {
+  "One ListoryChecklist by id."
+  listoryChecklist(id: ID!): ListoryChecklist
+
+  "One ListoryChecklistItem by id."
+  listoryChecklistItem(id: ID!): ListoryChecklistItem
+
+  "One ListoryList by id."
+  listoryList(id: ID!): ListoryList
+
+  "One ListoryListItem by id."
+  listoryListItem(id: ID!): ListoryListItem
+
+  listoryChecklists(first: Int, after: String, last: Int, before: String): RootQueryToListoryChecklistConnection
+  listoryChecklistItems(first: Int, after: String, last: Int, before: String): RootQueryToListoryChecklistItemConnection
+  listoryLists(first: Int, after: String, last: Int, before: String): RootQueryToListoryListConnection
+  listoryListItems(first: Int, after: String, last: Int, before: String): RootQueryToListoryListItemConnection
+  node(id: ID!): Node
+}
+
+interface Node {
+  id: ID!
+}
+
+type RootMutation {
+  createListoryChecklist(input: CreateListoryChecklistInput!): CreateListoryChecklistPayload
+  createListoryChecklistItem(input: CreateListoryChecklistItemInput!): CreateListoryChecklistItemPayload
+  createListoryList(input: CreateListoryListInput!): CreateListoryListPayload
+  createListoryListItem(input: CreateListoryListItemInput!): CreateListoryListItemPayload
+  deleteListoryChecklist(input: DeleteListoryChecklistInput!): DeleteListoryChecklistPayload
+  deleteListoryChecklistItem(input: DeleteListoryChecklistItemInput!): DeleteListoryChecklistItemPayload
+  deleteListoryList(input: DeleteListoryListInput!): DeleteListoryListPayload
+  deleteListoryListItem(input: DeleteListoryListItemInput!): DeleteListoryListItemPayload
+  updateListoryChecklist(input: UpdateListoryChecklistInput!): UpdateListoryChecklistPayload
+  updateListoryChecklistItem(input: UpdateListoryChecklistItemInput!): UpdateListoryChecklistItemPayload
+  updateListoryList(input: UpdateListoryListInput!): UpdateListoryListPayload
+  updateListoryListItem(input: UpdateListoryListItemInput!): UpdateListoryListItemPayload
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+"An ephemeral checklist built by merging one or more permanent lists."
+type ListoryChecklist implements Node {
+  "The globally unique identifier, opaque and safe to use as a cache key."
+  id: ID!
+
+  "The row as storage knows it, unique within its table rather than the schema."
+  databaseId: ID!
+
+  ""
+  createdAt: String!
+
+  ""
+  updatedAt: String!
+
+  "What the checklist is called."
+  title: String!
+
+  "When every item was checked; null while any item is unchecked. Maintained by the server."
+  completedAt: String
+
+  sourceLists(first: Int, after: String, last: Int, before: String): ListoryChecklistToListoryListConnection
+  items(first: Int, after: String, last: Int, before: String): ListoryChecklistToListoryChecklistItemConnection
+}
+
+"One line on a checklist that can be checked off."
+type ListoryChecklistItem implements Node {
+  "The globally unique identifier, opaque and safe to use as a cache key."
+  id: ID!
+
+  "The row as storage knows it, unique within its table rather than the schema."
+  databaseId: ID!
+
+  ""
+  createdAt: String!
+
+  ""
+  updatedAt: String!
+
+  "The item's text."
+  name: String!
+
+  "Whether the item has been checked off."
+  checked: Boolean!
+
+  "The checklist this item is on."
+  checklist: ListoryChecklist
+
+  "The permanent list this item was copied from; null for ad-hoc items or once that list is deleted."
+  sourceList: ListoryList
+}
+
+"A reusable template list whose items are copied into checklists."
+type ListoryList implements Node {
+  "The globally unique identifier, opaque and safe to use as a cache key."
+  id: ID!
+
+  "The row as storage knows it, unique within its table rather than the schema."
+  databaseId: ID!
+
+  ""
+  createdAt: String!
+
+  ""
+  updatedAt: String!
+
+  "What the list is called."
+  title: String!
+
+  checklists(first: Int, after: String, last: Int, before: String): ListoryListToListoryChecklistConnection
+  checklistItems(first: Int, after: String, last: Int, before: String): ListoryListToListoryChecklistItemConnection
+  items(first: Int, after: String, last: Int, before: String): ListoryListToListoryListItemConnection
+}
+
+"One template item on a permanent list."
+type ListoryListItem implements Node {
+  "The globally unique identifier, opaque and safe to use as a cache key."
+  id: ID!
+
+  "The row as storage knows it, unique within its table rather than the schema."
+  databaseId: ID!
+
+  ""
+  createdAt: String!
+
+  ""
+  updatedAt: String!
+
+  "The item's text, as it will appear on checklists."
+  name: String!
+
+  "The permanent list this item belongs to."
+  list: ListoryList
+}
+
+type ListoryChecklistToListoryListConnectionEdge {
+  cursor: String
+  node: ListoryList
+}
+
+type ListoryChecklistToListoryListConnection {
+  nodes: [ListoryList]
+  edges: [ListoryChecklistToListoryListConnectionEdge]
+  pageInfo: PageInfo!
+
+  "How many match, ignoring pagination."
+  totalCount: Int
+}
+
+type ListoryChecklistToListoryChecklistItemConnectionEdge {
+  cursor: String
+  node: ListoryChecklistItem
+}
+
+type ListoryChecklistToListoryChecklistItemConnection {
+  nodes: [ListoryChecklistItem]
+  edges: [ListoryChecklistToListoryChecklistItemConnectionEdge]
+  pageInfo: PageInfo!
+
+  "How many match, ignoring pagination."
+  totalCount: Int
+}
+
+type ListoryListToListoryChecklistConnectionEdge {
+  cursor: String
+  node: ListoryChecklist
+}
+
+type ListoryListToListoryChecklistConnection {
+  nodes: [ListoryChecklist]
+  edges: [ListoryListToListoryChecklistConnectionEdge]
+  pageInfo: PageInfo!
+
+  "How many match, ignoring pagination."
+  totalCount: Int
+}
+
+type ListoryListToListoryChecklistItemConnectionEdge {
+  cursor: String
+  node: ListoryChecklistItem
+}
+
+type ListoryListToListoryChecklistItemConnection {
+  nodes: [ListoryChecklistItem]
+  edges: [ListoryListToListoryChecklistItemConnectionEdge]
+  pageInfo: PageInfo!
+
+  "How many match, ignoring pagination."
+  totalCount: Int
+}
+
+type ListoryListToListoryListItemConnectionEdge {
+  cursor: String
+  node: ListoryListItem
+}
+
+type ListoryListToListoryListItemConnection {
+  nodes: [ListoryListItem]
+  edges: [ListoryListToListoryListItemConnectionEdge]
+  pageInfo: PageInfo!
+
+  "How many match, ignoring pagination."
+  totalCount: Int
+}
+
+type RootQueryToListoryChecklistConnectionEdge {
+  cursor: String
+  node: ListoryChecklist
+}
+
+type RootQueryToListoryChecklistConnection {
+  nodes: [ListoryChecklist]
+  edges: [RootQueryToListoryChecklistConnectionEdge]
+  pageInfo: PageInfo!
+
+  "How many match, ignoring pagination."
+  totalCount: Int
+}
+
+type RootQueryToListoryChecklistItemConnectionEdge {
+  cursor: String
+  node: ListoryChecklistItem
+}
+
+type RootQueryToListoryChecklistItemConnection {
+  nodes: [ListoryChecklistItem]
+  edges: [RootQueryToListoryChecklistItemConnectionEdge]
+  pageInfo: PageInfo!
+
+  "How many match, ignoring pagination."
+  totalCount: Int
+}
+
+type RootQueryToListoryListConnectionEdge {
+  cursor: String
+  node: ListoryList
+}
+
+type RootQueryToListoryListConnection {
+  nodes: [ListoryList]
+  edges: [RootQueryToListoryListConnectionEdge]
+  pageInfo: PageInfo!
+
+  "How many match, ignoring pagination."
+  totalCount: Int
+}
+
+type RootQueryToListoryListItemConnectionEdge {
+  cursor: String
+  node: ListoryListItem
+}
+
+type RootQueryToListoryListItemConnection {
+  nodes: [ListoryListItem]
+  edges: [RootQueryToListoryListItemConnectionEdge]
+  pageInfo: PageInfo!
+
+  "How many match, ignoring pagination."
+  totalCount: Int
+}
+
+input CreateListoryChecklistInput {
+  title: String!
+  completedAt: String
+  sourceLists: [ID]
+  clientMutationId: String
+}
+
+type CreateListoryChecklistPayload {
+  listoryChecklist: ListoryChecklist
+  clientMutationId: String
+}
+
+input CreateListoryChecklistItemInput {
+  name: String!
+  checked: Boolean
+  checklist: ID
+  sourceList: ID
+  clientMutationId: String
+}
+
+type CreateListoryChecklistItemPayload {
+  listoryChecklistItem: ListoryChecklistItem
+  clientMutationId: String
+}
+
+input CreateListoryListInput {
+  title: String!
+  clientMutationId: String
+}
+
+type CreateListoryListPayload {
+  listoryList: ListoryList
+  clientMutationId: String
+}
+
+input CreateListoryListItemInput {
+  name: String!
+  list: ID
+  clientMutationId: String
+}
+
+type CreateListoryListItemPayload {
+  listoryListItem: ListoryListItem
+  clientMutationId: String
+}
+
+input DeleteListoryChecklistInput {
+  id: ID!
+  clientMutationId: String
+}
+
+type DeleteListoryChecklistPayload {
+  deletedId: ID
+  clientMutationId: String
+}
+
+input DeleteListoryChecklistItemInput {
+  id: ID!
+  clientMutationId: String
+}
+
+type DeleteListoryChecklistItemPayload {
+  deletedId: ID
+  clientMutationId: String
+}
+
+input DeleteListoryListInput {
+  id: ID!
+  clientMutationId: String
+}
+
+type DeleteListoryListPayload {
+  deletedId: ID
+  clientMutationId: String
+}
+
+input DeleteListoryListItemInput {
+  id: ID!
+  clientMutationId: String
+}
+
+type DeleteListoryListItemPayload {
+  deletedId: ID
+  clientMutationId: String
+}
+
+input UpdateListoryChecklistInput {
+  id: ID!
+  title: String
+  completedAt: String
+  sourceLists: [ID]
+  clientMutationId: String
+}
+
+type UpdateListoryChecklistPayload {
+  listoryChecklist: ListoryChecklist
+  clientMutationId: String
+}
+
+input UpdateListoryChecklistItemInput {
+  id: ID!
+  name: String
+  checked: Boolean
+  checklist: ID
+  sourceList: ID
+  clientMutationId: String
+}
+
+type UpdateListoryChecklistItemPayload {
+  listoryChecklistItem: ListoryChecklistItem
+  clientMutationId: String
+}
+
+input UpdateListoryListInput {
+  id: ID!
+  title: String
+  clientMutationId: String
+}
+
+type UpdateListoryListPayload {
+  listoryList: ListoryList
+  clientMutationId: String
+}
+
+input UpdateListoryListItemInput {
+  id: ID!
+  name: String
+  list: ID
+  clientMutationId: String
+}
+
+type UpdateListoryListItemPayload {
+  listoryListItem: ListoryListItem
+  clientMutationId: String
+}
