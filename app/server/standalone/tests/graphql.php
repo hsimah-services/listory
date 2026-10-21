@@ -1,10 +1,16 @@
 <?php
+
+declare(strict_types=1);
 require dirname(__DIR__) . '/bootstrap.php';
 
 use Listory\Standalone\{Application, GraphQL, Viewer, Schema};
 use Eleph\SQLite\Database;
 
 function check(bool $condition, string $message): void { if (!$condition) throw new RuntimeException($message); }
+function fails(callable $fn, string $message): void {
+    try { $fn(); } catch (Throwable) { return; }
+    throw new RuntimeException($message);
+}
 $db = new Database(':memory:');
 Schema::install($db);
 $app = new Application($db, new Viewer('1', 'editor'));
@@ -58,6 +64,5 @@ $page = gql('{listoryLists(first:2){totalCount pageInfo{hasNextPage}}}')['listor
 check($page['pageInfo']['hasNextPage'] === true, 'First page of two lists reports a next page');
 echo "PASS: pagination\n";
 
-$result = \GraphQL\GraphQL::executeQuery($schema, 'query($id:ID!){listoryChecklist(id:$id){id}}', variableValues: ['id' => $listId])->toArray();
-check(isset($result['errors']) && $result['errors'] !== [], 'A ListoryList id is rejected by listoryChecklist');
+fails(fn () => gql('query($id:ID!){listoryChecklist(id:$id){id}}', ['id' => $listId]), 'A ListoryList id is rejected by listoryChecklist');
 echo "PASS: wrong id type rejected\n";
