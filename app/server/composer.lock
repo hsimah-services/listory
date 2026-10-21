@@ -473,16 +473,16 @@
         },
         {
             "name": "elephentity/codegen-sqlite",
-            "version": "v0.1.0-alpha.3",
+            "version": "v0.1.0-alpha.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/hsimah-services/elephentity-codegen-sqlite.git",
-                "reference": "7c641dc4eb517d095662da33a0f14969f7914cfd"
+                "reference": "919e1cf6ee6c3445a6967a470926269784788c4c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hsimah-services/elephentity-codegen-sqlite/zipball/7c641dc4eb517d095662da33a0f14969f7914cfd",
-                "reference": "7c641dc4eb517d095662da33a0f14969f7914cfd",
+                "url": "https://api.github.com/repos/hsimah-services/elephentity-codegen-sqlite/zipball/919e1cf6ee6c3445a6967a470926269784788c4c",
+                "reference": "919e1cf6ee6c3445a6967a470926269784788c4c",
                 "shasum": ""
             },
             "require": {
@@ -494,14 +494,14 @@
             "type": "library",
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "Apache-2.0"
+                "MIT"
             ],
             "description": "SQLite storage manifest and schema generator for Elephentity. Build-time only.",
             "support": {
                 "issues": "https://github.com/hsimah-services/elephentity-codegen-sqlite/issues",
-                "source": "https://github.com/hsimah-services/elephentity-codegen-sqlite/tree/v0.1.0-alpha.3"
+                "source": "https://github.com/hsimah-services/elephentity-codegen-sqlite/tree/v0.1.0-alpha.5"
             },
-            "time": "2026-10-10T20:07:35+00:00"
+            "time": "2026-10-21T16:41:28+00:00"
         },
         {
             "name": "elephentity/schema",
