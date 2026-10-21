@@ -37,3 +37,9 @@ edges:
       name: checklistItems
       unique: false
     onDelete: nullify
+sideEffects:
+  completion:
+    description: Recompute the parent checklist's completedAt.
+    on: [create, update]
+    phase: postCommit
+    handler: true

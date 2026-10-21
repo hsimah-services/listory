@@ -6,6 +6,7 @@ namespace Listory\Contract;
 
 use Eleph\Runtime\Gateway\EntityGateway;
 use Eleph\Runtime\Identity\EntityId;
+use Listory\Checklist\ChecklistCompletion;
 use Listory\Entity\Checklist\Checklist;
 use Listory\Entity\Checklist\ChecklistMutationContext;
 use Listory\Entity\Checklist\Contract\ChecklistSyncItemsSideEffect;
@@ -22,8 +23,10 @@ use LogicException;
  */
 final readonly class ChecklistSyncItems implements ChecklistSyncItemsSideEffect
 {
-    public function __construct(private EntityGateway $gateway)
-    {
+    public function __construct(
+        private EntityGateway $gateway,
+        private ChecklistCompletion $completion,
+    ) {
     }
 
     public function handle(ChecklistMutationContext $context): void
@@ -87,6 +90,9 @@ final readonly class ChecklistSyncItems implements ChecklistSyncItemsSideEffect
                 ]);
             }
         }
+
+        // Removing items can complete a checklist or leave it incomplete, so recompute last.
+        $this->completion->refresh($id);
     }
 
     /**
