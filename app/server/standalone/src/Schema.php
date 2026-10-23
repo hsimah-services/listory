@@ -22,6 +22,16 @@ final class Schema
         $install = require dirname(__DIR__, 2) . '/generated/sqlite/install.php';
         // The generated installer owns its transaction.
         $install($db->pdo);
+        $db->transaction(static fn () => $db->pdo->exec(<<<'SQL'
+            CREATE TABLE listory_users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT COLLATE NOCASE NOT NULL UNIQUE,
+                password_hash TEXT NOT NULL,
+                role TEXT NOT NULL CHECK(role IN ('reader', 'editor')),
+                enabled INTEGER NOT NULL DEFAULT 1,
+                session_version INTEGER NOT NULL DEFAULT 0
+            )
+            SQL));
         $db->pdo->exec('PRAGMA user_version = ' . self::VERSION);
     }
 

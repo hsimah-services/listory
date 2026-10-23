@@ -36,7 +36,8 @@
             "@php standalone/tests/checklist-completion.php",
             "@php standalone/tests/graphql.php",
             "@php standalone/tests/export-schema.php --check",
-            "@php standalone/tests/http.php"
+            "@php standalone/tests/http.php",
+            "@php standalone/tests/accounts.php"
         ]
     },
     "minimum-stability": "stable",
