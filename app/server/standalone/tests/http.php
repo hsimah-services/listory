@@ -22,7 +22,9 @@ $command = [PHP_BINARY, '-S', $address, 'standalone/public/router.php'];
 $process = proc_open($command, [0=>['pipe','r'],1=>['file',$dir.'/http.log','a'],2=>['file',$dir.'/http.log','a']], $pipes, dirname(__DIR__, 2),
     [...getenv(), 'LISTORY_DB'=>$dir.'/listory.sqlite','LISTORY_SESSION_PATH'=>$dir,'LISTORY_ORIGIN'=>'http://'.$address]);
 try {
-    for ($i=0;$i<100;$i++) { $ready=@stream_socket_client('tcp://'.$address,$errno,$error,.1); if ($ready) { fclose($ready); break; } usleep(20000); }
+    $started = false;
+    for ($i=0;$i<100 && !$started;$i++) { $ready=@stream_socket_client('tcp://'.$address,$errno,$error,.1); if ($ready) { fclose($ready); $started = true; } else usleep(20000); }
+    ensure($started, 'Server did not start on ' . $address);
 
     [$status, $body] = request($address, '/healthz');
     ensure($status === 200 && json_decode($body, true) === ['ok' => true], 'Health endpoint: ' . $body);

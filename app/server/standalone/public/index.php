@@ -34,8 +34,12 @@ try {
         catch (JsonException) { jsonResponse(['error' => 'Invalid JSON.'], 400); }
         if (!is_array($body) || !is_string($body['query'] ?? null) || (isset($body['variables']) && !is_array($body['variables'])) || (isset($body['operationName']) && !is_string($body['operationName']))) jsonResponse(['error' => 'Invalid GraphQL request.'], 400);
         $app = new Application($db, $viewer);
-        $result = GraphQL::executeQuery(ListoryGraphQL::schema($app), $body['query'], variableValues: $body['variables'] ?? null,
-            operationName: $body['operationName'] ?? null, validationRules: [...\GraphQL\Validator\DocumentValidator::allRules(), new QueryDepth(12), new QueryComplexity(500)]);
+        $schema = ListoryGraphQL::schema($app);
+        // Resolve every type before execution. Without this, php -S crashed (SIGSEGV) inside executeQuery.
+        $schema->assertValid();
+        $result = GraphQL::executeQuery($schema, $body['query'], variableValues: $body['variables'] ?? null,
+            operationName: $body['operationName'] ?? null,
+            validationRules: [...\GraphQL\Validator\DocumentValidator::allRules(), new QueryDepth(12), new QueryComplexity(500)]);
         jsonResponse($result->toArray());
     }
     jsonResponse(['error' => 'Not found.'], 404);
