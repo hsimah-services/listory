@@ -35,7 +35,8 @@
             "@php standalone/tests/checklist-sync.php",
             "@php standalone/tests/checklist-completion.php",
             "@php standalone/tests/graphql.php",
-            "@php standalone/tests/export-schema.php --check"
+            "@php standalone/tests/export-schema.php --check",
+            "@php standalone/tests/http.php"
         ]
     },
     "minimum-stability": "stable",
