@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   graphql-manifest.php
- * digest: sha256:bdf42698b40e75da685811ecaf1f0087374fba45c775580946e9ef27de955438
+ * digest: sha256:5f62b0dd7439f53126d8c8a5c6b994759a04ecbf6eb1fd1d28a3695d1cd37cf5
  */
 
 namespace Eleph\GraphQL\Manifest;
@@ -199,6 +199,23 @@ return new Manifest(
         'ListoryListItem' => new RootFieldEntry('ListoryListItem', 'ListoryListItems', 'ListItem'),
     ],
     queries: [
-
+        'listoryChecklistSearch' => new QueryFieldEntry(
+            'listoryChecklistSearch',
+            'ListoryChecklist',
+            true,
+            'Checklist',
+            'search',
+            ['term' => new GraphQLType('String', false, false), 'completed' => new GraphQLType('Boolean', false, false)],
+            'Stable paginated title search with authoritative counts.',
+        ),
+        'listoryListSearch' => new QueryFieldEntry(
+            'listoryListSearch',
+            'ListoryList',
+            true,
+            'PermanentList',
+            'search',
+            ['term' => new GraphQLType('String', false, false)],
+            'Stable paginated title search with authoritative counts.',
+        ),
     ],
 );

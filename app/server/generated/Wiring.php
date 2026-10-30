@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   Wiring.php
- * digest: sha256:ea14bcebe6136b68fa489391d0081a07e75dac254a42d907edea9c2381ed072b
+ * digest: sha256:00709e31794a2a44110035dc438acff0a7efe1db451356e8d358e8ce1df1c879
  */
 
 namespace Listory\Entity;
@@ -23,12 +23,14 @@ use Listory\Entity\ChecklistItem\ChecklistItemSideEffects;
 use Listory\Entity\ChecklistItem\ChecklistItemVerifiers;
 use Listory\Entity\ChecklistItem\ChecklistItemWritePolicies;
 use Listory\Entity\ChecklistItem\Contract\ChecklistItemCompletionSideEffect;
+use Listory\Entity\Checklist\ChecklistFinder;
 use Listory\Entity\Checklist\ChecklistHydrator;
 use Listory\Entity\Checklist\ChecklistInput;
 use Listory\Entity\Checklist\ChecklistReadPolicies;
 use Listory\Entity\Checklist\ChecklistSideEffects;
 use Listory\Entity\Checklist\ChecklistVerifiers;
 use Listory\Entity\Checklist\ChecklistWritePolicies;
+use Listory\Entity\Checklist\Contract\ChecklistSearchQuery;
 use Listory\Entity\Checklist\Contract\ChecklistSyncItemsSideEffect;
 use Listory\Entity\ListItem\ListItemHydrator;
 use Listory\Entity\ListItem\ListItemInput;
@@ -38,6 +40,8 @@ use Listory\Entity\ListItem\ListItemVerifiers;
 use Listory\Entity\ListItem\ListItemWritePolicies;
 use Listory\Entity\Pattern\ListoryRecord\Contract\ListoryRecordEditorWritePolicy;
 use Listory\Entity\Pattern\ListoryRecord\Contract\ListoryRecordSignedInReadPolicy;
+use Listory\Entity\PermanentList\Contract\PermanentListSearchQuery;
+use Listory\Entity\PermanentList\PermanentListFinder;
 use Listory\Entity\PermanentList\PermanentListHydrator;
 use Listory\Entity\PermanentList\PermanentListInput;
 use Listory\Entity\PermanentList\PermanentListReadPolicies;
@@ -65,6 +69,7 @@ final class Wiring
             ChecklistVerifiers::class => static fn (ContainerInterface $c): object => new ChecklistVerifiers(),
             ChecklistReadPolicies::class => static fn (ContainerInterface $c): object => new ChecklistReadPolicies(self::resolve($c, ListoryRecordSignedInReadPolicy::class)),
             ChecklistWritePolicies::class => static fn (ContainerInterface $c): object => new ChecklistWritePolicies(self::resolve($c, ListoryRecordEditorWritePolicy::class)),
+            ChecklistFinder::class => static fn (ContainerInterface $c): object => new ChecklistFinder(self::resolve($c, ChecklistSearchQuery::class)),
             ChecklistItemHydrator::class => static fn (ContainerInterface $c): object => new ChecklistItemHydrator(self::resolve($c, ValueDecoder::class)),
             ChecklistItemInput::class => static fn (ContainerInterface $c): object => new ChecklistItemInput(self::resolve($c, ValueDecoder::class)),
             ChecklistItemSideEffects::class => static fn (ContainerInterface $c): object => new ChecklistItemSideEffects(self::resolve($c, ChecklistItemCompletionSideEffect::class)),
@@ -83,6 +88,7 @@ final class Wiring
             PermanentListVerifiers::class => static fn (ContainerInterface $c): object => new PermanentListVerifiers(),
             PermanentListReadPolicies::class => static fn (ContainerInterface $c): object => new PermanentListReadPolicies(self::resolve($c, ListoryRecordSignedInReadPolicy::class)),
             PermanentListWritePolicies::class => static fn (ContainerInterface $c): object => new PermanentListWritePolicies(self::resolve($c, ListoryRecordEditorWritePolicy::class)),
+            PermanentListFinder::class => static fn (ContainerInterface $c): object => new PermanentListFinder(self::resolve($c, PermanentListSearchQuery::class)),
         ];
     }
 

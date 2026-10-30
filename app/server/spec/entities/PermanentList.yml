@@ -16,3 +16,15 @@ fields:
     required: true
     indexed: true
     maxLength: 200
+queries:
+  search:
+    description: Stable paginated title search with authoritative counts.
+    args:
+      term: { type: string, nullable: true }
+    returns:
+      type: PermanentList
+      cardinality: many
+    integrations:
+      graphql:
+        field: listoryListSearch
+    handler: true

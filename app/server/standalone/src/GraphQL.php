@@ -52,7 +52,8 @@ final class GraphQL
             $resolve = $config['resolve'];
             $config['resolve'] = static function ($source, array $args) use ($resolve) {
                 self::assertForwardPage($args);
-                return $resolve($source, $args);
+                // Search filters arrive under `where`; the resolver reads them as top-level args.
+                return $resolve($source, array_replace($args, $args['where'] ?? []));
             };
             $builder->connection($config);
         }

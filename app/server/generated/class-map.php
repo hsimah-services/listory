@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   class-map.php
- * digest: sha256:703847b34a596a2448394c7340e00ea10be799da24f6be370de65a634b3d4550
+ * digest: sha256:3acb7009965e10ca314c61633ddd9bcb78eb1d2b5d6763b2518e8331a2fa55a7
  */
 
 return [
@@ -36,6 +36,7 @@ return [
         'Listory\\Entity\\ChecklistItem\\Contract\\ChecklistItemCompletionSideEffect' => 'ChecklistItem/Contract/ChecklistItemCompletionSideEffect.php',
         'Listory\\Entity\\Checklist\\Checklist' => 'Checklist/Checklist.php',
         'Listory\\Entity\\Checklist\\ChecklistDeleter' => 'Checklist/ChecklistDeleter.php',
+        'Listory\\Entity\\Checklist\\ChecklistFinder' => 'Checklist/ChecklistFinder.php',
         'Listory\\Entity\\Checklist\\ChecklistHydrator' => 'Checklist/ChecklistHydrator.php',
         'Listory\\Entity\\Checklist\\ChecklistInput' => 'Checklist/ChecklistInput.php',
         'Listory\\Entity\\Checklist\\ChecklistMutationContext' => 'Checklist/ChecklistMutationContext.php',
@@ -46,6 +47,7 @@ return [
         'Listory\\Entity\\Checklist\\ChecklistVerifiers' => 'Checklist/ChecklistVerifiers.php',
         'Listory\\Entity\\Checklist\\ChecklistWriteContext' => 'Checklist/ChecklistWriteContext.php',
         'Listory\\Entity\\Checklist\\ChecklistWritePolicies' => 'Checklist/ChecklistWritePolicies.php',
+        'Listory\\Entity\\Checklist\\Contract\\ChecklistSearchQuery' => 'Checklist/Contract/ChecklistSearchQuery.php',
         'Listory\\Entity\\Checklist\\Contract\\ChecklistSyncItemsSideEffect' => 'Checklist/Contract/ChecklistSyncItemsSideEffect.php',
         'Listory\\Entity\\ListItem\\ListItem' => 'ListItem/ListItem.php',
         'Listory\\Entity\\ListItem\\ListItemDeleter' => 'ListItem/ListItemDeleter.php',
@@ -63,8 +65,10 @@ return [
         'Listory\\Entity\\Pattern\\ListoryRecord\\Contract\\ListoryRecordSignedInReadPolicy' => 'Pattern/ListoryRecord/Contract/ListoryRecordSignedInReadPolicy.php',
         'Listory\\Entity\\Pattern\\ListoryRecord\\ListoryRecord' => 'Pattern/ListoryRecord/ListoryRecord.php',
         'Listory\\Entity\\Pattern\\ListoryRecord\\ListoryRecordMutatorTrait' => 'Pattern/ListoryRecord/ListoryRecordMutatorTrait.php',
+        'Listory\\Entity\\PermanentList\\Contract\\PermanentListSearchQuery' => 'PermanentList/Contract/PermanentListSearchQuery.php',
         'Listory\\Entity\\PermanentList\\PermanentList' => 'PermanentList/PermanentList.php',
         'Listory\\Entity\\PermanentList\\PermanentListDeleter' => 'PermanentList/PermanentListDeleter.php',
+        'Listory\\Entity\\PermanentList\\PermanentListFinder' => 'PermanentList/PermanentListFinder.php',
         'Listory\\Entity\\PermanentList\\PermanentListHydrator' => 'PermanentList/PermanentListHydrator.php',
         'Listory\\Entity\\PermanentList\\PermanentListInput' => 'PermanentList/PermanentListInput.php',
         'Listory\\Entity\\PermanentList\\PermanentListMutationContext' => 'PermanentList/PermanentListMutationContext.php',

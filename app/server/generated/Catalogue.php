@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   Catalogue.php
- * digest: sha256:7eb0d1ccc06c889cb31c976190c4660a6068909259be7baaff55532203c78f09
+ * digest: sha256:11c3496ea9089a308477af971c7b77a8592d2ce3dbf9a7853074ae08716c1b26
  */
 
 namespace Listory\Entity;
@@ -33,6 +33,7 @@ use Listory\Entity\ChecklistItem\ChecklistItemSideEffects;
 use Listory\Entity\ChecklistItem\ChecklistItemVerifiers;
 use Listory\Entity\ChecklistItem\ChecklistItemWritePolicies;
 use Listory\Entity\Checklist\ChecklistDeleter;
+use Listory\Entity\Checklist\ChecklistFinder;
 use Listory\Entity\Checklist\ChecklistHydrator;
 use Listory\Entity\Checklist\ChecklistInput;
 use Listory\Entity\Checklist\ChecklistMutator;
@@ -49,6 +50,7 @@ use Listory\Entity\ListItem\ListItemSideEffects;
 use Listory\Entity\ListItem\ListItemVerifiers;
 use Listory\Entity\ListItem\ListItemWritePolicies;
 use Listory\Entity\PermanentList\PermanentListDeleter;
+use Listory\Entity\PermanentList\PermanentListFinder;
 use Listory\Entity\PermanentList\PermanentListHydrator;
 use Listory\Entity\PermanentList\PermanentListInput;
 use Listory\Entity\PermanentList\PermanentListMutator;
@@ -330,7 +332,8 @@ final readonly class Catalogue implements EntityCatalogue
         string $entity,
     ): object {
         $finder = match ($entity) {
-        
+            'Checklist' => $this->container->get(ChecklistFinder::class),
+            'PermanentList' => $this->container->get(PermanentListFinder::class),
             default => throw new RuntimeException(sprintf('%s declares no queries.', $entity)),
         };
         
@@ -360,7 +363,8 @@ final readonly class Catalogue implements EntityCatalogue
         string $query,
     ): array {
         return match ($entity . '.' . $query) {
-        
+            'Checklist.search' => ['term', 'completed'],
+            'PermanentList.search' => ['term'],
             default => [],
         };
     }
@@ -483,6 +487,6 @@ final readonly class Catalogue implements EntityCatalogue
      * @return list<string>
      */
     public function contracts(): array {
-        return ['Listory\\Entity\\ChecklistItem\\Contract\\ChecklistItemCompletionSideEffect', 'Listory\\Entity\\Checklist\\Contract\\ChecklistSyncItemsSideEffect', 'Listory\\Entity\\Pattern\\ListoryRecord\\Contract\\ListoryRecordEditorWritePolicy', 'Listory\\Entity\\Pattern\\ListoryRecord\\Contract\\ListoryRecordSignedInReadPolicy'];
+        return ['Listory\\Entity\\ChecklistItem\\Contract\\ChecklistItemCompletionSideEffect', 'Listory\\Entity\\Checklist\\Contract\\ChecklistSearchQuery', 'Listory\\Entity\\Checklist\\Contract\\ChecklistSyncItemsSideEffect', 'Listory\\Entity\\Pattern\\ListoryRecord\\Contract\\ListoryRecordEditorWritePolicy', 'Listory\\Entity\\Pattern\\ListoryRecord\\Contract\\ListoryRecordSignedInReadPolicy', 'Listory\\Entity\\PermanentList\\Contract\\PermanentListSearchQuery'];
     }
 }
