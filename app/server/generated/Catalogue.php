@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   Catalogue.php
- * digest: sha256:10a4b9254a1b0d9007cdf7a63c63f85e2c9240c339f9693e7ac3d6440a9b2640
+ * digest: sha256:7eb0d1ccc06c889cb31c976190c4660a6068909259be7baaff55532203c78f09
  */
 
 namespace Listory\Entity;
@@ -28,26 +28,34 @@ use Listory\Entity\ChecklistItem\ChecklistItemDeleter;
 use Listory\Entity\ChecklistItem\ChecklistItemHydrator;
 use Listory\Entity\ChecklistItem\ChecklistItemInput;
 use Listory\Entity\ChecklistItem\ChecklistItemMutator;
+use Listory\Entity\ChecklistItem\ChecklistItemReadPolicies;
 use Listory\Entity\ChecklistItem\ChecklistItemSideEffects;
 use Listory\Entity\ChecklistItem\ChecklistItemVerifiers;
+use Listory\Entity\ChecklistItem\ChecklistItemWritePolicies;
 use Listory\Entity\Checklist\ChecklistDeleter;
 use Listory\Entity\Checklist\ChecklistHydrator;
 use Listory\Entity\Checklist\ChecklistInput;
 use Listory\Entity\Checklist\ChecklistMutator;
+use Listory\Entity\Checklist\ChecklistReadPolicies;
 use Listory\Entity\Checklist\ChecklistSideEffects;
 use Listory\Entity\Checklist\ChecklistVerifiers;
+use Listory\Entity\Checklist\ChecklistWritePolicies;
 use Listory\Entity\ListItem\ListItemDeleter;
 use Listory\Entity\ListItem\ListItemHydrator;
 use Listory\Entity\ListItem\ListItemInput;
 use Listory\Entity\ListItem\ListItemMutator;
+use Listory\Entity\ListItem\ListItemReadPolicies;
 use Listory\Entity\ListItem\ListItemSideEffects;
 use Listory\Entity\ListItem\ListItemVerifiers;
+use Listory\Entity\ListItem\ListItemWritePolicies;
 use Listory\Entity\PermanentList\PermanentListDeleter;
 use Listory\Entity\PermanentList\PermanentListHydrator;
 use Listory\Entity\PermanentList\PermanentListInput;
 use Listory\Entity\PermanentList\PermanentListMutator;
+use Listory\Entity\PermanentList\PermanentListReadPolicies;
 use Listory\Entity\PermanentList\PermanentListSideEffects;
 use Listory\Entity\PermanentList\PermanentListVerifiers;
+use Listory\Entity\PermanentList\PermanentListWritePolicies;
 use Psr\Container\ContainerInterface;
 use RuntimeException;
 
@@ -120,26 +128,90 @@ final readonly class Catalogue implements EntityCatalogue
         return $service;
     }
 
+    private function readPoliciesChecklistReadPolicies(): EntityReadPolicies {
+        $policies = $this->container->get(ChecklistReadPolicies::class);
+        
+        assert($policies instanceof ChecklistReadPolicies);
+        
+        return $policies;
+    }
+
+    private function readPoliciesChecklistItemReadPolicies(): EntityReadPolicies {
+        $policies = $this->container->get(ChecklistItemReadPolicies::class);
+        
+        assert($policies instanceof ChecklistItemReadPolicies);
+        
+        return $policies;
+    }
+
+    private function readPoliciesListItemReadPolicies(): EntityReadPolicies {
+        $policies = $this->container->get(ListItemReadPolicies::class);
+        
+        assert($policies instanceof ListItemReadPolicies);
+        
+        return $policies;
+    }
+
+    private function readPoliciesPermanentListReadPolicies(): EntityReadPolicies {
+        $policies = $this->container->get(PermanentListReadPolicies::class);
+        
+        assert($policies instanceof PermanentListReadPolicies);
+        
+        return $policies;
+    }
+
     public function readPolicies(
         string $entity,
     ): EntityReadPolicies {
         return match ($entity) {
-            'Checklist' => new NoPolicies(),
-            'ChecklistItem' => new NoPolicies(),
-            'ListItem' => new NoPolicies(),
-            'PermanentList' => new NoPolicies(),
+            'Checklist' => $this->readPoliciesChecklistReadPolicies(),
+            'ChecklistItem' => $this->readPoliciesChecklistItemReadPolicies(),
+            'ListItem' => $this->readPoliciesListItemReadPolicies(),
+            'PermanentList' => $this->readPoliciesPermanentListReadPolicies(),
             default => throw new RuntimeException(sprintf('No entity named "%s".', $entity)),
         };
+    }
+
+    private function writePoliciesChecklistWritePolicies(): EntityWritePolicies {
+        $policies = $this->container->get(ChecklistWritePolicies::class);
+        
+        assert($policies instanceof ChecklistWritePolicies);
+        
+        return $policies;
+    }
+
+    private function writePoliciesChecklistItemWritePolicies(): EntityWritePolicies {
+        $policies = $this->container->get(ChecklistItemWritePolicies::class);
+        
+        assert($policies instanceof ChecklistItemWritePolicies);
+        
+        return $policies;
+    }
+
+    private function writePoliciesListItemWritePolicies(): EntityWritePolicies {
+        $policies = $this->container->get(ListItemWritePolicies::class);
+        
+        assert($policies instanceof ListItemWritePolicies);
+        
+        return $policies;
+    }
+
+    private function writePoliciesPermanentListWritePolicies(): EntityWritePolicies {
+        $policies = $this->container->get(PermanentListWritePolicies::class);
+        
+        assert($policies instanceof PermanentListWritePolicies);
+        
+        return $policies;
     }
 
     public function writePolicies(
         string $entity,
     ): EntityWritePolicies {
         return match ($entity) {
-            'Checklist' => new NoPolicies(),
-            'ChecklistItem' => new NoPolicies(),
-            'ListItem' => new NoPolicies(),
-            'PermanentList' => new NoPolicies(),
+            'Checklist' => $this->writePoliciesChecklistWritePolicies(),
+            'ChecklistItem' => $this->writePoliciesChecklistItemWritePolicies(),
+            'ListItem' => $this->writePoliciesListItemWritePolicies(),
+            'PermanentList' => $this->writePoliciesPermanentListWritePolicies(),
             default => throw new RuntimeException(sprintf('No entity named "%s".', $entity)),
         };
     }
@@ -411,6 +483,6 @@ final readonly class Catalogue implements EntityCatalogue
      * @return list<string>
      */
     public function contracts(): array {
-        return ['Listory\\Entity\\ChecklistItem\\Contract\\ChecklistItemCompletionSideEffect', 'Listory\\Entity\\Checklist\\Contract\\ChecklistSyncItemsSideEffect'];
+        return ['Listory\\Entity\\ChecklistItem\\Contract\\ChecklistItemCompletionSideEffect', 'Listory\\Entity\\Checklist\\Contract\\ChecklistSyncItemsSideEffect', 'Listory\\Entity\\Pattern\\ListoryRecord\\Contract\\ListoryRecordEditorWritePolicy', 'Listory\\Entity\\Pattern\\ListoryRecord\\Contract\\ListoryRecordSignedInReadPolicy'];
     }
 }

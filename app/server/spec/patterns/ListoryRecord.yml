@@ -1,4 +1,11 @@
 pattern: ListoryRecord
-description: Shared timestamps for every Listory entity. Access policies are added later.
+description: Shared timestamps and access policies for every Listory entity.
 use:
   - Timestamps
+readPolicies:
+  signedIn:
+    handler: true
+writePolicies:
+  editor:
+    handler: true
+interface: true

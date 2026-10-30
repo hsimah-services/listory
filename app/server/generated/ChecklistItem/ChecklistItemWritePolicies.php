@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   ChecklistItem/ChecklistItemWritePolicies.php
- * digest: sha256:35de2160a06592f5438bda27d28556aff5f50def2dabe7db5c9ec2597d97af2a
+ * digest: sha256:e6108d7b67e5384ee338e99d56e30296f3fc5207998c18a4ce21c9525e3625c7
  */
 
 namespace Listory\Entity\ChecklistItem;
@@ -19,15 +19,18 @@ use Eleph\Runtime\Policy\PolicyDecision;
 use Eleph\Runtime\Policy\PolicyOutcome;
 use Eleph\Runtime\Policy\Viewer;
 use Eleph\Runtime\Policy\WriteContext;
+use Listory\Entity\Pattern\ListoryRecord\Contract\ListoryRecordEditorWritePolicy;
 
 final readonly class ChecklistItemWritePolicies implements EntityWritePolicies
 {
-    public function __construct() {
+    public function __construct(
+        private ListoryRecordEditorWritePolicy $editorPolicy,
+    ) {
 
     }
 
     public function isEmpty(): bool {
-        return true;
+        return false;
     }
 
     public function decide(
@@ -35,6 +38,12 @@ final readonly class ChecklistItemWritePolicies implements EntityWritePolicies
         WriteContext $context,
         Viewer $viewer,
     ): PolicyDecision {
-        return PolicyDecision::allow();
+        assert(null === $entity || $entity instanceof ChecklistItem);
+        $decision = $this->editorPolicy->decide($entity, $context, $viewer);
+        if (PolicyOutcome::Skip !== $decision->outcome) {
+            return $decision->withPolicy('editor');
+        }
+        
+        return PolicyDecision::deny('No policy allowed this write.')->withPolicy('terminal');
     }
 }

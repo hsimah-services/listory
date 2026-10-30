@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   ListItem/ListItem.php
- * digest: sha256:23f0a8b62de3848bf2c02cdd00699566c426da829f49eedc19c222f84c8a1be7
+ * digest: sha256:90b49eb0cc6f777e1233450f015cd9f7db574db39ae230a9e2ac3d2c42f255de
  */
 
 namespace Listory\Entity\ListItem;
@@ -17,12 +17,13 @@ namespace Listory\Entity\ListItem;
 use DateTimeImmutable;
 use Eleph\Runtime\Identity\EntityId;
 use Eleph\Runtime\Query\EdgeLoader;
+use Listory\Entity\Pattern\ListoryRecord\ListoryRecord;
 use Listory\Entity\PermanentList\PermanentList;
 
 /**
  * One template item on a permanent list.
  */
-final class ListItem
+final class ListItem implements ListoryRecord
 {
     private function __construct(
         private readonly EntityId $id,

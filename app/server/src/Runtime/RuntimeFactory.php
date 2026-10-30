@@ -40,6 +40,8 @@ final class RuntimeFactory
         $completion = new \Listory\Checklist\ChecklistCompletion($runtime);
         $container->set(\Listory\Entity\Checklist\Contract\ChecklistSyncItemsSideEffect::class, new \Listory\Contract\ChecklistSyncItems($runtime, $completion));
         $container->set(\Listory\Entity\ChecklistItem\Contract\ChecklistItemCompletionSideEffect::class, new \Listory\Contract\ChecklistItemCompletion($runtime, $completion));
+        $container->set(\Listory\Entity\Pattern\ListoryRecord\Contract\ListoryRecordSignedInReadPolicy::class, new \Listory\Contract\SignedInUsers());
+        $container->set(\Listory\Entity\Pattern\ListoryRecord\Contract\ListoryRecordEditorWritePolicy::class, new \Listory\Contract\EditorsMayWrite());
 
         (new BootCheck($catalogue, $container))->run();
 

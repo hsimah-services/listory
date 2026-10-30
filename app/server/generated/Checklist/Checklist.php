@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   Checklist/Checklist.php
- * digest: sha256:7cfa5d4b00c4ba8ef10811882eb7fea0d87b64c7f485efd043891ec92155b8e1
+ * digest: sha256:1c52f0efc83692ecfd93c585035d02456251507f6093b6c79f7cb36cde5bbff7
  */
 
 namespace Listory\Entity\Checklist;
@@ -19,12 +19,13 @@ use Eleph\Runtime\Identity\EntityId;
 use Eleph\Runtime\Query\EdgeLoader;
 use Eleph\Runtime\Query\EntityQuery;
 use Listory\Entity\ChecklistItem\ChecklistItem;
+use Listory\Entity\Pattern\ListoryRecord\ListoryRecord;
 use Listory\Entity\PermanentList\PermanentList;
 
 /**
  * An ephemeral checklist built by merging one or more permanent lists.
  */
-final class Checklist
+final class Checklist implements ListoryRecord
 {
     private function __construct(
         private readonly EntityId $id,

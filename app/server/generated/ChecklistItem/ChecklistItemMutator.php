@@ -9,19 +9,22 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   ChecklistItem/ChecklistItemMutator.php
- * digest: sha256:10a388d8a59c57fe527edd39cdda0ec8541214426b989f418676c054ed960124
+ * digest: sha256:3495bc4c48ae834f8eba30b9ea417294c794f323281247c0daf589ce76eb5f6f
  */
 
 namespace Listory\Entity\ChecklistItem;
 
 use Eleph\Runtime\Identity\Identifier;
 use Eleph\Runtime\Mutation\MutationBuffer;
+use Listory\Entity\Pattern\ListoryRecord\ListoryRecordMutatorTrait;
 
 /**
  * Pending changes to a ChecklistItem.
  */
 final class ChecklistItemMutator
 {
+    use ListoryRecordMutatorTrait;
+
     public function __construct(
         private readonly MutationBuffer $buffer,
     ) {
