@@ -3,7 +3,7 @@
 declare(strict_types=1);
 require dirname(__DIR__) . '/bootstrap.php';
 
-use Listory\Standalone\{Application, GraphQL as ListoryGraphQL, Schema, Viewer};
+use Listory\Standalone\{Application, GraphQL as ListoryGraphQL, Schema, Session};
 use Eleph\SQLite\Database;
 use GraphQL\GraphQL;
 use GraphQL\Validator\Rules\{QueryDepth, QueryComplexity};
@@ -23,10 +23,36 @@ try {
     $db = new Database(getenv('LISTORY_DB') ?: '/var/lib/listory/listory.sqlite');
     Schema::requireReady($db);
     if ($path === '/healthz') jsonResponse(['ok' => true]);
-    // TODO(auth): replaced by Session::viewer() in the sessions issue.
-    $viewer = new Viewer('1', 'editor');
+    Session::start();
+    $viewer = Session::viewer($db);
+    if ($path === '/auth/session' && $method === 'GET') {
+        $body = ['userId' => $viewer->id() ?? '0', 'nonce' => $viewer->isAuthenticated() ? $_SESSION['csrf'] : null, 'canWrite' => $viewer->can('listory.write')];
+        session_write_close(); jsonResponse($body);
+    }
+    if ($path === '/auth/logout' && $method === 'POST') {
+        if (!Session::validCsrf($_SERVER['HTTP_X_LISTORY_CSRF'] ?? null)) jsonResponse(['error' => 'Invalid session token.'], 403);
+        Session::logout(); jsonResponse(['success' => true]);
+    }
+    if ($path === '/auth/login') {
+        if (!in_array($method, ['GET', 'POST'], true)) jsonResponse(['error' => 'Method not allowed.'], 405);
+        $error = '';
+        if ($method === 'POST') {
+            if (!Session::validCsrf($_POST['csrf'] ?? null)) jsonResponse(['error' => 'Invalid session token.'], 403);
+            if (Session::login($db, (string) ($_POST['username'] ?? ''), (string) ($_POST['password'] ?? ''))) {
+                session_write_close(); header('Location: /', true, 303); exit;
+            }
+            http_response_code(401); $error = 'Could not sign in. Check your username and password.';
+        }
+        $csrf = escape($_SESSION['csrf']); session_write_close();
+        header('Content-Type: text/html; charset=utf-8');
+        echo '<!doctype html><html lang="en" data-theme="dark"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sign in · Listory</title><style>:root{color-scheme:dark;background:#121212;color:#f5f5f5}body{font:1rem system-ui;max-width:24rem;margin:10vh auto;padding:1rem}label,input,button{display:block;margin:.7rem 0}input,button{font:inherit;padding:.6rem;box-sizing:border-box;width:100%;border:1px solid #626262;border-radius:.4rem}input{background:#121212;color:#f5f5f5}button{background:#6366f1;color:#121212;border-color:#6366f1;font-weight:600;cursor:pointer}button:hover{filter:brightness(1.08)}:focus-visible{outline:2px solid #6366f1;outline-offset:3px}[role=alert]{color:#ff8a80}</style><main><h1>Sign in to Listory</h1><p role="alert">' . escape($error) . '</p><form method="post" action="/auth/login"><input type="hidden" name="csrf" value="' . $csrf . '"><label for="username">Username</label><input id="username" name="username" autocomplete="username" required maxlength="100"><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required><button>Sign in</button></form></main></html>';
+        exit;
+    }
     if ($path === '/graphql') {
         if ($method !== 'POST') jsonResponse(['error' => 'POST required.'], 405);
+        if (!$viewer->isAuthenticated()) jsonResponse(['error' => 'Sign in to continue.'], 401);
+        if (!Session::validCsrf($_SERVER['HTTP_X_LISTORY_CSRF'] ?? null)) jsonResponse(['error' => 'Invalid session token.'], 403);
+        session_write_close(); // Do not serialize a browser's concurrent GraphQL requests.
         if (!str_starts_with($_SERVER['CONTENT_TYPE'] ?? '', 'application/json')) jsonResponse(['error' => 'JSON required.'], 415);
         $raw = file_get_contents('php://input', length: 65537);
         if (strlen($raw) > 65536) jsonResponse(['error' => 'Request too large.'], 413);
