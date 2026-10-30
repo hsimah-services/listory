@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   PermanentList/PermanentListWritePolicies.php
- * digest: sha256:bb9722af6039294006416351ef15cadd9183ca823e3589112b0a446c0ede4f67
+ * digest: sha256:b0d1ace039392c6936debda934cfe2a3135fa762d91388edf514473888e43b0c
  */
 
 namespace Listory\Entity\PermanentList;
@@ -19,15 +19,18 @@ use Eleph\Runtime\Policy\PolicyDecision;
 use Eleph\Runtime\Policy\PolicyOutcome;
 use Eleph\Runtime\Policy\Viewer;
 use Eleph\Runtime\Policy\WriteContext;
+use Listory\Entity\Pattern\ListoryRecord\Contract\ListoryRecordEditorWritePolicy;
 
 final readonly class PermanentListWritePolicies implements EntityWritePolicies
 {
-    public function __construct() {
+    public function __construct(
+        private ListoryRecordEditorWritePolicy $editorPolicy,
+    ) {
 
     }
 
     public function isEmpty(): bool {
-        return true;
+        return false;
     }
 
     public function decide(
@@ -35,6 +38,12 @@ final readonly class PermanentListWritePolicies implements EntityWritePolicies
         WriteContext $context,
         Viewer $viewer,
     ): PolicyDecision {
-        return PolicyDecision::allow();
+        assert(null === $entity || $entity instanceof PermanentList);
+        $decision = $this->editorPolicy->decide($entity, $context, $viewer);
+        if (PolicyOutcome::Skip !== $decision->outcome) {
+            return $decision->withPolicy('editor');
+        }
+        
+        return PolicyDecision::deny('No policy allowed this write.')->withPolicy('terminal');
     }
 }

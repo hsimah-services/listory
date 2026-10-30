@@ -9,18 +9,21 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   PermanentList/PermanentListMutator.php
- * digest: sha256:a81bff79af01a5e4d0716097efbd5c0782dc12506a9b2397ff4e114dd23b274b
+ * digest: sha256:d74a1526cdc529cc2701e4a7c13b08c507290745bd7333d587e35dc16d4d86e8
  */
 
 namespace Listory\Entity\PermanentList;
 
 use Eleph\Runtime\Mutation\MutationBuffer;
+use Listory\Entity\Pattern\ListoryRecord\ListoryRecordMutatorTrait;
 
 /**
  * Pending changes to a PermanentList.
  */
 final class PermanentListMutator
 {
+    use ListoryRecordMutatorTrait;
+
     public function __construct(
         private readonly MutationBuffer $buffer,
     ) {

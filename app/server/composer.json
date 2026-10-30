@@ -37,7 +37,8 @@
             "@php standalone/tests/graphql.php",
             "@php standalone/tests/export-schema.php --check",
             "@php standalone/tests/http.php",
-            "@php standalone/tests/accounts.php"
+            "@php standalone/tests/accounts.php",
+            "@php standalone/tests/policies.php"
         ]
     },
     "minimum-stability": "stable",

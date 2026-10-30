@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   ListItem/ListItemWritePolicies.php
- * digest: sha256:6b478abafb952008ca3359ce275ad557fad39885f5c3c791b2c31cec1383925c
+ * digest: sha256:d97ee615aff93de2187391710093e76626f25963454c76214c0cd92aaf4b2859
  */
 
 namespace Listory\Entity\ListItem;
@@ -19,15 +19,18 @@ use Eleph\Runtime\Policy\PolicyDecision;
 use Eleph\Runtime\Policy\PolicyOutcome;
 use Eleph\Runtime\Policy\Viewer;
 use Eleph\Runtime\Policy\WriteContext;
+use Listory\Entity\Pattern\ListoryRecord\Contract\ListoryRecordEditorWritePolicy;
 
 final readonly class ListItemWritePolicies implements EntityWritePolicies
 {
-    public function __construct() {
+    public function __construct(
+        private ListoryRecordEditorWritePolicy $editorPolicy,
+    ) {
 
     }
 
     public function isEmpty(): bool {
-        return true;
+        return false;
     }
 
     public function decide(
@@ -35,6 +38,12 @@ final readonly class ListItemWritePolicies implements EntityWritePolicies
         WriteContext $context,
         Viewer $viewer,
     ): PolicyDecision {
-        return PolicyDecision::allow();
+        assert(null === $entity || $entity instanceof ListItem);
+        $decision = $this->editorPolicy->decide($entity, $context, $viewer);
+        if (PolicyOutcome::Skip !== $decision->outcome) {
+            return $decision->withPolicy('editor');
+        }
+        
+        return PolicyDecision::deny('No policy allowed this write.')->withPolicy('terminal');
     }
 }

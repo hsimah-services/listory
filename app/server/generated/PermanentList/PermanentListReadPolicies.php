@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   PermanentList/PermanentListReadPolicies.php
- * digest: sha256:aef3fb1bf9d20a7e4c99b7377657176bcff9e7c5b97499050eff0112f4626a79
+ * digest: sha256:db8216e9d802efd960bf3902f06e1cfc45cbea3f52bfdabfd2d6ff3a771eacdf
  */
 
 namespace Listory\Entity\PermanentList;
@@ -18,21 +18,30 @@ use Eleph\Runtime\Policy\EntityReadPolicies;
 use Eleph\Runtime\Policy\PolicyDecision;
 use Eleph\Runtime\Policy\PolicyOutcome;
 use Eleph\Runtime\Policy\Viewer;
+use Listory\Entity\Pattern\ListoryRecord\Contract\ListoryRecordSignedInReadPolicy;
 
 final readonly class PermanentListReadPolicies implements EntityReadPolicies
 {
-    public function __construct() {
+    public function __construct(
+        private ListoryRecordSignedInReadPolicy $signedInPolicy,
+    ) {
 
     }
 
     public function isEmpty(): bool {
-        return true;
+        return false;
     }
 
     public function decide(
         object $entity,
         Viewer $viewer,
     ): PolicyDecision {
-        return PolicyDecision::allow();
+        assert($entity instanceof PermanentList);
+        $decision = $this->signedInPolicy->decide($entity, $viewer);
+        if (PolicyOutcome::Skip !== $decision->outcome) {
+            return $decision->withPolicy('signedIn');
+        }
+        
+        return PolicyDecision::deny('No policy allowed this read.')->withPolicy('terminal');
     }
 }

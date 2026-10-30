@@ -9,19 +9,22 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   ListItem/ListItemMutator.php
- * digest: sha256:55398acf61063fd125a2297e67aadbf1e138421f8ba96f7f578065f0c8f076da
+ * digest: sha256:227387503044fd5ba1003cb2b8933f7ab2e6d967bb03cc04bf8544d82cbd9fab
  */
 
 namespace Listory\Entity\ListItem;
 
 use Eleph\Runtime\Identity\Identifier;
 use Eleph\Runtime\Mutation\MutationBuffer;
+use Listory\Entity\Pattern\ListoryRecord\ListoryRecordMutatorTrait;
 
 /**
  * Pending changes to a ListItem.
  */
 final class ListItemMutator
 {
+    use ListoryRecordMutatorTrait;
+
     public function __construct(
         private readonly MutationBuffer $buffer,
     ) {

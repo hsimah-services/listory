@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   ChecklistItem/ChecklistItemReadPolicies.php
- * digest: sha256:eb045464e25423a908709ea72442ee7eea22466cce8f6955b997882d487bb794
+ * digest: sha256:5830fab9b8dfa298ac893fb5b1f02d74cd316beff11f0ef80c9adb8c70effe71
  */
 
 namespace Listory\Entity\ChecklistItem;
@@ -18,21 +18,30 @@ use Eleph\Runtime\Policy\EntityReadPolicies;
 use Eleph\Runtime\Policy\PolicyDecision;
 use Eleph\Runtime\Policy\PolicyOutcome;
 use Eleph\Runtime\Policy\Viewer;
+use Listory\Entity\Pattern\ListoryRecord\Contract\ListoryRecordSignedInReadPolicy;
 
 final readonly class ChecklistItemReadPolicies implements EntityReadPolicies
 {
-    public function __construct() {
+    public function __construct(
+        private ListoryRecordSignedInReadPolicy $signedInPolicy,
+    ) {
 
     }
 
     public function isEmpty(): bool {
-        return true;
+        return false;
     }
 
     public function decide(
         object $entity,
         Viewer $viewer,
     ): PolicyDecision {
-        return PolicyDecision::allow();
+        assert($entity instanceof ChecklistItem);
+        $decision = $this->signedInPolicy->decide($entity, $viewer);
+        if (PolicyOutcome::Skip !== $decision->outcome) {
+            return $decision->withPolicy('signedIn');
+        }
+        
+        return PolicyDecision::deny('No policy allowed this read.')->withPolicy('terminal');
     }
 }

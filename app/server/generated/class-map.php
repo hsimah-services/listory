@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   class-map.php
- * digest: sha256:d23f7a49a20775b07ce47ce73e55525ab64af66597bfb3960dbe00d1a2fd6e38
+ * digest: sha256:703847b34a596a2448394c7340e00ea10be799da24f6be370de65a634b3d4550
  */
 
 return [
@@ -59,6 +59,10 @@ return [
         'Listory\\Entity\\ListItem\\ListItemVerifiers' => 'ListItem/ListItemVerifiers.php',
         'Listory\\Entity\\ListItem\\ListItemWriteContext' => 'ListItem/ListItemWriteContext.php',
         'Listory\\Entity\\ListItem\\ListItemWritePolicies' => 'ListItem/ListItemWritePolicies.php',
+        'Listory\\Entity\\Pattern\\ListoryRecord\\Contract\\ListoryRecordEditorWritePolicy' => 'Pattern/ListoryRecord/Contract/ListoryRecordEditorWritePolicy.php',
+        'Listory\\Entity\\Pattern\\ListoryRecord\\Contract\\ListoryRecordSignedInReadPolicy' => 'Pattern/ListoryRecord/Contract/ListoryRecordSignedInReadPolicy.php',
+        'Listory\\Entity\\Pattern\\ListoryRecord\\ListoryRecord' => 'Pattern/ListoryRecord/ListoryRecord.php',
+        'Listory\\Entity\\Pattern\\ListoryRecord\\ListoryRecordMutatorTrait' => 'Pattern/ListoryRecord/ListoryRecordMutatorTrait.php',
         'Listory\\Entity\\PermanentList\\PermanentList' => 'PermanentList/PermanentList.php',
         'Listory\\Entity\\PermanentList\\PermanentListDeleter' => 'PermanentList/PermanentListDeleter.php',
         'Listory\\Entity\\PermanentList\\PermanentListHydrator' => 'PermanentList/PermanentListHydrator.php',

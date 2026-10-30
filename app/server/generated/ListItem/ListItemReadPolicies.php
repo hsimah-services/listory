@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   ListItem/ListItemReadPolicies.php
- * digest: sha256:876fe874e96084713d78413556cccaa7423aea0610abf81c44e0fadb9f075f8f
+ * digest: sha256:de06d58ab1440a7b01daae75841e50b573b3e2afae7135796eac58b939c03cf1
  */
 
 namespace Listory\Entity\ListItem;
@@ -18,21 +18,30 @@ use Eleph\Runtime\Policy\EntityReadPolicies;
 use Eleph\Runtime\Policy\PolicyDecision;
 use Eleph\Runtime\Policy\PolicyOutcome;
 use Eleph\Runtime\Policy\Viewer;
+use Listory\Entity\Pattern\ListoryRecord\Contract\ListoryRecordSignedInReadPolicy;
 
 final readonly class ListItemReadPolicies implements EntityReadPolicies
 {
-    public function __construct() {
+    public function __construct(
+        private ListoryRecordSignedInReadPolicy $signedInPolicy,
+    ) {
 
     }
 
     public function isEmpty(): bool {
-        return true;
+        return false;
     }
 
     public function decide(
         object $entity,
         Viewer $viewer,
     ): PolicyDecision {
-        return PolicyDecision::allow();
+        assert($entity instanceof ListItem);
+        $decision = $this->signedInPolicy->decide($entity, $viewer);
+        if (PolicyOutcome::Skip !== $decision->outcome) {
+            return $decision->withPolicy('signedIn');
+        }
+        
+        return PolicyDecision::deny('No policy allowed this read.')->withPolicy('terminal');
     }
 }

@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   Wiring.php
- * digest: sha256:4605c91eb909d35fc2dca025e6c2d45f87dc2c36b4800dc05a44559fb7eb869b
+ * digest: sha256:ea14bcebe6136b68fa489391d0081a07e75dac254a42d907edea9c2381ed072b
  */
 
 namespace Listory\Entity;
@@ -36,6 +36,8 @@ use Listory\Entity\ListItem\ListItemReadPolicies;
 use Listory\Entity\ListItem\ListItemSideEffects;
 use Listory\Entity\ListItem\ListItemVerifiers;
 use Listory\Entity\ListItem\ListItemWritePolicies;
+use Listory\Entity\Pattern\ListoryRecord\Contract\ListoryRecordEditorWritePolicy;
+use Listory\Entity\Pattern\ListoryRecord\Contract\ListoryRecordSignedInReadPolicy;
 use Listory\Entity\PermanentList\PermanentListHydrator;
 use Listory\Entity\PermanentList\PermanentListInput;
 use Listory\Entity\PermanentList\PermanentListReadPolicies;
@@ -61,26 +63,26 @@ final class Wiring
             ChecklistInput::class => static fn (ContainerInterface $c): object => new ChecklistInput(self::resolve($c, ValueDecoder::class)),
             ChecklistSideEffects::class => static fn (ContainerInterface $c): object => new ChecklistSideEffects(self::resolve($c, ChecklistSyncItemsSideEffect::class)),
             ChecklistVerifiers::class => static fn (ContainerInterface $c): object => new ChecklistVerifiers(),
-            ChecklistReadPolicies::class => static fn (ContainerInterface $c): object => new ChecklistReadPolicies(),
-            ChecklistWritePolicies::class => static fn (ContainerInterface $c): object => new ChecklistWritePolicies(),
+            ChecklistReadPolicies::class => static fn (ContainerInterface $c): object => new ChecklistReadPolicies(self::resolve($c, ListoryRecordSignedInReadPolicy::class)),
+            ChecklistWritePolicies::class => static fn (ContainerInterface $c): object => new ChecklistWritePolicies(self::resolve($c, ListoryRecordEditorWritePolicy::class)),
             ChecklistItemHydrator::class => static fn (ContainerInterface $c): object => new ChecklistItemHydrator(self::resolve($c, ValueDecoder::class)),
             ChecklistItemInput::class => static fn (ContainerInterface $c): object => new ChecklistItemInput(self::resolve($c, ValueDecoder::class)),
             ChecklistItemSideEffects::class => static fn (ContainerInterface $c): object => new ChecklistItemSideEffects(self::resolve($c, ChecklistItemCompletionSideEffect::class)),
             ChecklistItemVerifiers::class => static fn (ContainerInterface $c): object => new ChecklistItemVerifiers(),
-            ChecklistItemReadPolicies::class => static fn (ContainerInterface $c): object => new ChecklistItemReadPolicies(),
-            ChecklistItemWritePolicies::class => static fn (ContainerInterface $c): object => new ChecklistItemWritePolicies(),
+            ChecklistItemReadPolicies::class => static fn (ContainerInterface $c): object => new ChecklistItemReadPolicies(self::resolve($c, ListoryRecordSignedInReadPolicy::class)),
+            ChecklistItemWritePolicies::class => static fn (ContainerInterface $c): object => new ChecklistItemWritePolicies(self::resolve($c, ListoryRecordEditorWritePolicy::class)),
             ListItemHydrator::class => static fn (ContainerInterface $c): object => new ListItemHydrator(self::resolve($c, ValueDecoder::class)),
             ListItemInput::class => static fn (ContainerInterface $c): object => new ListItemInput(self::resolve($c, ValueDecoder::class)),
             ListItemSideEffects::class => static fn (ContainerInterface $c): object => new ListItemSideEffects(),
             ListItemVerifiers::class => static fn (ContainerInterface $c): object => new ListItemVerifiers(),
-            ListItemReadPolicies::class => static fn (ContainerInterface $c): object => new ListItemReadPolicies(),
-            ListItemWritePolicies::class => static fn (ContainerInterface $c): object => new ListItemWritePolicies(),
+            ListItemReadPolicies::class => static fn (ContainerInterface $c): object => new ListItemReadPolicies(self::resolve($c, ListoryRecordSignedInReadPolicy::class)),
+            ListItemWritePolicies::class => static fn (ContainerInterface $c): object => new ListItemWritePolicies(self::resolve($c, ListoryRecordEditorWritePolicy::class)),
             PermanentListHydrator::class => static fn (ContainerInterface $c): object => new PermanentListHydrator(self::resolve($c, ValueDecoder::class)),
             PermanentListInput::class => static fn (ContainerInterface $c): object => new PermanentListInput(self::resolve($c, ValueDecoder::class)),
             PermanentListSideEffects::class => static fn (ContainerInterface $c): object => new PermanentListSideEffects(),
             PermanentListVerifiers::class => static fn (ContainerInterface $c): object => new PermanentListVerifiers(),
-            PermanentListReadPolicies::class => static fn (ContainerInterface $c): object => new PermanentListReadPolicies(),
-            PermanentListWritePolicies::class => static fn (ContainerInterface $c): object => new PermanentListWritePolicies(),
+            PermanentListReadPolicies::class => static fn (ContainerInterface $c): object => new PermanentListReadPolicies(self::resolve($c, ListoryRecordSignedInReadPolicy::class)),
+            PermanentListWritePolicies::class => static fn (ContainerInterface $c): object => new PermanentListWritePolicies(self::resolve($c, ListoryRecordEditorWritePolicy::class)),
         ];
     }
 

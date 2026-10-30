@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   ChecklistItem/ChecklistItem.php
- * digest: sha256:c1000eb8bd26187cf283c7805a63fa95e7bba455212b76bbb0fe0b6e634147b1
+ * digest: sha256:7822cf5aba5ff56294a1b9eaacfede4a491efb55e58bb9daa2d5517efa7a0e0b
  */
 
 namespace Listory\Entity\ChecklistItem;
@@ -18,12 +18,13 @@ use DateTimeImmutable;
 use Eleph\Runtime\Identity\EntityId;
 use Eleph\Runtime\Query\EdgeLoader;
 use Listory\Entity\Checklist\Checklist;
+use Listory\Entity\Pattern\ListoryRecord\ListoryRecord;
 use Listory\Entity\PermanentList\PermanentList;
 
 /**
  * One line on a checklist that can be checked off.
  */
-final class ChecklistItem
+final class ChecklistItem implements ListoryRecord
 {
     private function __construct(
         private readonly EntityId $id,

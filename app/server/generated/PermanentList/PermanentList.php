@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   PermanentList/PermanentList.php
- * digest: sha256:73ffe03f63e8fc6b6e6bd593c626868bfeb3e257f6907f9534997aa122a0cb0a
+ * digest: sha256:d004b51ecb00d77872032584ec6da6ce52c6015cda441fb0adef582d9055a5a2
  */
 
 namespace Listory\Entity\PermanentList;
@@ -21,11 +21,12 @@ use Eleph\Runtime\Query\EntityQuery;
 use Listory\Entity\ChecklistItem\ChecklistItem;
 use Listory\Entity\Checklist\Checklist;
 use Listory\Entity\ListItem\ListItem;
+use Listory\Entity\Pattern\ListoryRecord\ListoryRecord;
 
 /**
  * A reusable template list whose items are copied into checklists.
  */
-final class PermanentList
+final class PermanentList implements ListoryRecord
 {
     private function __construct(
         private readonly EntityId $id,
