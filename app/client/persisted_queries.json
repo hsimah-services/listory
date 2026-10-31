@@ -1,0 +1,3 @@
+{
+  "16d39c6c5035435c9980c4131011b209": "query HomePageQuery {\n  listoryLists(first: 1) {\n    totalCount\n  }\n}\n"
+}

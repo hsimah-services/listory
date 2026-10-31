@@ -1,0 +1,13 @@
+{
+  "runtime": "@tsquid/routes",
+  "routes": [
+    {
+      "name": "Home",
+      "entryPoint": "src/components/home/Home.entrypoint.ts",
+      "path": "/",
+      "fields": {},
+      "query": "HomePageQuery"
+    }
+  ],
+  "persistedQueries": "persisted_queries.json"
+}
