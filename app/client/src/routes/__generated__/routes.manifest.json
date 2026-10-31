@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "routes": [
+    {
+      "name": "Home",
+      "path": "/",
+      "ssr": true,
+      "fields": {},
+      "query": {
+        "operation": "HomePageQuery",
+        "id": "16d39c6c5035435c9980c4131011b209",
+        "text": "query HomePageQuery {\n  listoryLists(first: 1) {\n    totalCount\n  }\n}\n",
+        "variables": {}
+      }
+    }
+  ]
+}
