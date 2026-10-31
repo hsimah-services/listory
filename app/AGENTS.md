@@ -50,6 +50,8 @@ prefix each command with `../scripts/php.sh`.
 | Prove specs and generated code agree | `composer check-generated` |
 | Server tests | `composer test` |
 
+After changing client queries or routes: `npm run relay && npm run routes` in `app/client`, then `vendor/bin/eleph generate` in `app/server`, then commit both.
+
 Run client commands from `app/client/`: `npm ci`, then `npm run check`.
 
 ## Definition of done (every PR)

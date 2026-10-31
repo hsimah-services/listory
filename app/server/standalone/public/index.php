@@ -3,8 +3,9 @@
 declare(strict_types=1);
 require dirname(__DIR__) . '/bootstrap.php';
 
-use Listory\Standalone\{Application, GraphQL as ListoryGraphQL, Schema, Session};
+use Listory\Standalone\{Application, GraphQL as ListoryGraphQL, InitialRouteData, Schema, Session};
 use Eleph\SQLite\Database;
+use Eleph\Tsquid\{InitialData, Manifest};
 use GraphQL\GraphQL;
 use GraphQL\Validator\Rules\{QueryDepth, QueryComplexity};
 
@@ -67,6 +68,35 @@ try {
             operationName: $body['operationName'] ?? null,
             validationRules: [...\GraphQL\Validator\DocumentValidator::allRules(), new QueryDepth(12), new QueryComplexity(500)]);
         jsonResponse($result->toArray());
+    }
+    session_write_close();
+    if (preg_match('~^/(?:|lists(?:/[^/]+(?:/edit)?)?|checklists(?:/[^/]+(?:/edit)?)?)$~', $path) && $method === 'GET') {
+        $dist = dirname(__DIR__, 3) . '/client/dist';
+        $manifest = json_decode(file_get_contents($dist . '/.vite/manifest.json'), true, flags: JSON_THROW_ON_ERROR);
+        $entry = $manifest['index.html'];
+        // The StyleX sheet exists only once a component calls stylex.create, so include it when present.
+        $styles = array_unique([...($entry['css'] ?? []), ...(is_file($dist . '/assets/stylex.css') ? ['assets/stylex.css'] : [])]);
+        $html = '<!doctype html><html lang="en" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Listory</title>';
+        foreach ($styles as $css) {
+            if (!is_file($dist . '/' . $css)) throw new RuntimeException('Missing stylesheet. Build the client first.');
+            $html .= '<link rel="stylesheet" href="/' . escape($css) . '?v=' . substr(hash_file('sha256', $dist . '/' . $css), 0, 12) . '">';
+        }
+        $html .= '</head><body><div id="root"></div><script type="module" src="/' . escape($entry['file']) . '"></script></body></html>';
+        if ($viewer->isAuthenticated()) {
+            try {
+                $initial = new InitialData(
+                    Manifest::fromFile(dirname(__DIR__, 2) . '/generated/tsquid/tsquid-manifest.php'),
+                    static fn ($text, $variables, $operation, $id) => InitialRouteData::execute($db, $viewer, $text, $variables, $operation),
+                );
+                $response = $initial->render($_SERVER['REQUEST_URI'], $html);
+                foreach ($response->headers as $name => $value) header($name . ': ' . $value);
+                $html = $response->body;
+            } catch (Throwable $error) {
+                error_log('Initial route data: ' . $error->getMessage());
+            }
+        }
+        header('Content-Type: text/html; charset=utf-8');
+        echo $html; exit;
     }
     jsonResponse(['error' => 'Not found.'], 404);
 } catch (Throwable $error) {
