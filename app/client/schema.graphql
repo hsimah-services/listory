@@ -20,6 +20,8 @@ type RootQuery {
   listoryChecklistItems(first: Int, after: String, last: Int, before: String): RootQueryToListoryChecklistItemConnection
   listoryLists(first: Int, after: String, last: Int, before: String): RootQueryToListoryListConnection
   listoryListItems(first: Int, after: String, last: Int, before: String): RootQueryToListoryListItemConnection
+  listoryChecklistSearch(first: Int, after: String, last: Int, before: String, where: RootQueryToListoryChecklistSearchConnectionWhereArgs): RootQueryToListoryChecklistSearchConnection
+  listoryListSearch(first: Int, after: String, last: Int, before: String, where: RootQueryToListoryListSearchConnectionWhereArgs): RootQueryToListoryListSearchConnection
   node(id: ID!): Node
 }
 
@@ -267,6 +269,43 @@ type RootQueryToListoryListItemConnection {
 
   "How many match, ignoring pagination."
   totalCount: Int
+}
+
+type RootQueryToListoryChecklistSearchConnectionEdge {
+  cursor: String
+  node: ListoryChecklist
+}
+
+type RootQueryToListoryChecklistSearchConnection {
+  nodes: [ListoryChecklist]
+  edges: [RootQueryToListoryChecklistSearchConnectionEdge]
+  pageInfo: PageInfo!
+
+  "How many match, ignoring pagination."
+  totalCount: Int
+}
+
+input RootQueryToListoryChecklistSearchConnectionWhereArgs {
+  term: String
+  completed: Boolean
+}
+
+type RootQueryToListoryListSearchConnectionEdge {
+  cursor: String
+  node: ListoryList
+}
+
+type RootQueryToListoryListSearchConnection {
+  nodes: [ListoryList]
+  edges: [RootQueryToListoryListSearchConnectionEdge]
+  pageInfo: PageInfo!
+
+  "How many match, ignoring pagination."
+  totalCount: Int
+}
+
+input RootQueryToListoryListSearchConnectionWhereArgs {
+  term: String
 }
 
 input CreateListoryChecklistInput {

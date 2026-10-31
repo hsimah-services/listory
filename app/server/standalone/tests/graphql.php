@@ -66,3 +66,30 @@ echo "PASS: pagination\n";
 
 fails(fn () => gql('query($id:ID!){listoryChecklist(id:$id){id}}', ['id' => $listId]), 'A ListoryList id is rejected by listoryChecklist');
 echo "PASS: wrong id type rejected\n";
+
+$search = 'query($term:String){listoryListSearch(where:{term:$term}){totalCount nodes{title}}}';
+foreach (['Garden', 'Camping', '100% done'] as $title) {
+    gql('mutation($title:String!){createListoryList(input:{title:$title}){listoryList{id}}}', ['title' => $title]);
+}
+$ga = gql($search, ['term' => 'ga'])['listoryListSearch'];
+check($ga['totalCount'] === 1 && array_column($ga['nodes'], 'title') === ['Garden'], 'Searching "ga" finds only Garden');
+echo "PASS: list search by title\n";
+
+$percent = gql($search, ['term' => '100%'])['listoryListSearch'];
+check(array_column($percent['nodes'], 'title') === ['100% done'], 'Searching "100%" finds the literal title');
+$wildcard = gql($search, ['term' => '%'])['listoryListSearch'];
+check($wildcard['totalCount'] === 1 && array_column($wildcard['nodes'], 'title') === ['100% done'], 'Searching "%" matches only the literal percent sign');
+echo "PASS: literal wildcards\n";
+
+$firstTwo = gql('{listoryListSearch(first:2){totalCount pageInfo{hasNextPage} nodes{title}}}')['listoryListSearch'];
+check(array_column($firstTwo['nodes'], 'title') === ['100% done', 'Cafe'], 'Search pages in case-insensitive title order');
+check($firstTwo['pageInfo']['hasNextPage'] === true, 'First page of search reports a next page');
+echo "PASS: search ordering and paging\n";
+
+gql('mutation($title:String!,$lists:[ID]){createListoryChecklist(input:{title:$title,sourceLists:$lists}){listoryChecklist{id}}}', ['title' => 'Trip prep', 'lists' => [$listId]]);
+$checklistSearch = 'query($completed:Boolean){listoryChecklistSearch(where:{completed:$completed}){totalCount}}';
+$done = gql($checklistSearch, ['completed' => true])['listoryChecklistSearch']['totalCount'];
+$open = gql($checklistSearch, ['completed' => false])['listoryChecklistSearch']['totalCount'];
+$everything = gql($checklistSearch, ['completed' => null])['listoryChecklistSearch']['totalCount'];
+check($done === 1 && $open === 1 && $everything === 2, 'Checklist completed filter returns 1 complete, 1 active and 2 in total');
+echo "PASS: checklist completed filter\n";

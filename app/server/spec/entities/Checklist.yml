@@ -29,6 +29,19 @@ edges:
       name: checklists
       unique: false
     onDelete: nullify
+queries:
+  search:
+    description: Stable paginated title search with authoritative counts.
+    args:
+      term: { type: string, nullable: true }
+      completed: { type: bool, nullable: true }
+    returns:
+      type: Checklist
+      cardinality: many
+    integrations:
+      graphql:
+        field: listoryChecklistSearch
+    handler: true
 sideEffects:
   syncItems:
     description: Copy items from newly added source lists and remove items from removed ones.

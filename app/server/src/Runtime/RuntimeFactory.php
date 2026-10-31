@@ -42,6 +42,9 @@ final class RuntimeFactory
         $container->set(\Listory\Entity\ChecklistItem\Contract\ChecklistItemCompletionSideEffect::class, new \Listory\Contract\ChecklistItemCompletion($runtime, $completion));
         $container->set(\Listory\Entity\Pattern\ListoryRecord\Contract\ListoryRecordSignedInReadPolicy::class, new \Listory\Contract\SignedInUsers());
         $container->set(\Listory\Entity\Pattern\ListoryRecord\Contract\ListoryRecordEditorWritePolicy::class, new \Listory\Contract\EditorsMayWrite());
+        $queries = new \Listory\Query\ListoryQueries($database, $runtime, $viewers);
+        $container->set(\Listory\Entity\PermanentList\Contract\PermanentListSearchQuery::class, new \Listory\Contract\PermanentListSearch($queries));
+        $container->set(\Listory\Entity\Checklist\Contract\ChecklistSearchQuery::class, new \Listory\Contract\ChecklistSearch($queries));
 
         (new BootCheck($catalogue, $container))->run();
 
