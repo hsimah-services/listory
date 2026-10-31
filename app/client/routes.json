@@ -7,6 +7,20 @@
       "path": "/",
       "fields": {},
       "query": "HomePageQuery"
+    },
+    {
+      "name": "ListIndex",
+      "entryPoint": "src/components/list/List.entrypoint.ts",
+      "path": "/lists",
+      "fields": {},
+      "query": null
+    },
+    {
+      "name": "ChecklistIndex",
+      "entryPoint": "src/components/checklist/Checklist.entrypoint.ts",
+      "path": "/checklists",
+      "fields": {},
+      "query": null
     }
   ],
   "persistedQueries": "persisted_queries.json"

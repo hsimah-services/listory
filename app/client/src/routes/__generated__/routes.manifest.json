@@ -12,6 +12,18 @@
         "text": "query HomePageQuery {\n  listoryLists(first: 1) {\n    totalCount\n  }\n}\n",
         "variables": {}
       }
+    },
+    {
+      "name": "ListIndex",
+      "path": "/lists",
+      "ssr": true,
+      "fields": {}
+    },
+    {
+      "name": "ChecklistIndex",
+      "path": "/checklists",
+      "ssr": true,
+      "fields": {}
     }
   ]
 }
