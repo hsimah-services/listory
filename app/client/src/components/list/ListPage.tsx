@@ -98,6 +98,8 @@ function ListPage_Results({
 }
 
 // At 1000px the detail occupies a 24rem end column; below it, details lead a single column.
+// These values match clog's location/LocationPage.tsx (lines 104-116) on purpose; keep them in sync.
+// --color-border is defined in src/theme/ListoryTheme.ts.
 const styles = stylex.create({
   content: { minWidth: 0 },
   withDetail: {
