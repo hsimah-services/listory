@@ -1,10 +1,12 @@
 import { lazyResource, type RouteEntryPoint } from "@tsquid/routes/entrypoint";
 import {
+  RouteName,
   ListIndexRouteQuery,
   type ListEntryPointParams,
 } from "../../routes/__generated__/routes";
 import type { ListRouteQueries } from "./ListRoute";
 import PAGE_QUERY from "./__generated__/ListPageQuery.graphql";
+import RECORD_QUERY from "./__generated__/ListRecordQuery.graphql";
 
 export const LIST_ENTRY_POINT: RouteEntryPoint<
   ListEntryPointParams,
@@ -19,6 +21,10 @@ export const LIST_ENTRY_POINT: RouteEntryPoint<
         parameters: PAGE_QUERY,
         variables: ListIndexRouteQuery.getVariables(route.input),
       },
+      record:
+        route.currentRoute === RouteName.ListDetail
+          ? { parameters: RECORD_QUERY, variables: { id: route.input.id } }
+          : undefined,
     },
   }),
 };

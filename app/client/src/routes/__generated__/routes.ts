@@ -5,6 +5,7 @@ import { createRouteContextRegistry, type RouteContextValue } from "@tsquid/rout
 export enum RouteName {
   Home = "Home",
   ListIndex = "ListIndex",
+  ListDetail = "ListDetail",
   ChecklistIndex = "ChecklistIndex",
 }
 
@@ -31,6 +32,21 @@ export const ListIndexRouteQuery = {
   }),
 } as const;
 
+export type ListDetailInputType = {
+  id: string;
+  term?: string;
+};
+export const ListDetailURI = createURI<ListDetailInputType>("/lists/:id", {"id":{"kind":"string","optional":false},"term":{"kind":"string","optional":true}});
+
+export const ListDetailRouteQuery = {
+  operation: "ListPageQuery",
+  getVariables: <I extends ListDetailInputType>(input: I) : {
+    "term": NonNullable<(I & ListDetailInputType)["term"]> | "";
+  } => ({
+    "term": input.term ?? ("" as const),
+  }),
+} as const;
+
 export type ChecklistIndexInputType = {
 };
 export const ChecklistIndexURI = createURI<ChecklistIndexInputType>("/checklists", {});
@@ -39,11 +55,13 @@ export const ChecklistIndexURI = createURI<ChecklistIndexInputType>("/checklists
 export type RouteContextType =
   RouteContextValue<HomeInputType, RouteName.Home>
   | RouteContextValue<ListIndexInputType, RouteName.ListIndex>
+  | RouteContextValue<ListDetailInputType, RouteName.ListDetail>
   | RouteContextValue<ChecklistIndexInputType, RouteName.ChecklistIndex>;
 
 const ROUTE_CONTEXT = createRouteContextRegistry<RouteContextType>();
 export const HomeRouteContext = ROUTE_CONTEXT.forRoute(RouteName.Home);
 export const ListIndexRouteContext = ROUTE_CONTEXT.forRoute(RouteName.ListIndex);
+export const ListDetailRouteContext = ROUTE_CONTEXT.forRoute(RouteName.ListDetail);
 export const ChecklistIndexRouteContext = ROUTE_CONTEXT.forRoute(RouteName.ChecklistIndex);
 
 export type ChecklistEntryPointParams =
@@ -77,14 +95,16 @@ export function useHomeRouteContext(): HomeRouteContextType {
 }
 
 export type ListEntryPointParams =
-  { currentRoute: RouteName.ListIndex; input: ListIndexInputType };
+  { currentRoute: RouteName.ListIndex; input: ListIndexInputType }
+  | { currentRoute: RouteName.ListDetail; input: ListDetailInputType };
 
-export type ListRouteContextType = Extract<RouteContextType, { currentRoute: RouteName.ListIndex }>;
+export type ListRouteContextType = Extract<RouteContextType, { currentRoute: RouteName.ListIndex | RouteName.ListDetail }>;
 export function useListRouteContext(): ListRouteContextType {
   const context = ROUTE_CONTEXT.useRouteContext();
   const currentRoute = context.currentRoute;
   switch (context.currentRoute) {
     case RouteName.ListIndex:
+    case RouteName.ListDetail:
       return context;
     default:
       throw new Error('useListRouteContext requires the List entrypoint; current route is ' + currentRoute);
