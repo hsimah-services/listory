@@ -16,9 +16,31 @@
       "query": "ListPageQuery"
     },
     {
+      "name": "ListNew",
+      "entryPoint": "src/components/list/List.entrypoint.ts",
+      "path": "/lists/new",
+      "fields": { "term": { "kind": "string", "optional": true } },
+      "query": "ListPageQuery"
+    },
+    {
       "name": "ListDetail",
       "entryPoint": "src/components/list/List.entrypoint.ts",
       "path": "/lists/:id",
+      "fields": {
+        "term": {
+          "kind": "string",
+          "optional": true
+        },
+        "id": {
+          "kind": "string"
+        }
+      },
+      "query": "ListPageQuery"
+    },
+    {
+      "name": "ListEdit",
+      "entryPoint": "src/components/list/List.entrypoint.ts",
+      "path": "/lists/:id/edit",
       "fields": {
         "term": {
           "kind": "string",

@@ -5,7 +5,9 @@ import { createRouteContextRegistry, type RouteContextValue } from "@tsquid/rout
 export enum RouteName {
   Home = "Home",
   ListIndex = "ListIndex",
+  ListNew = "ListNew",
   ListDetail = "ListDetail",
+  ListEdit = "ListEdit",
   ChecklistIndex = "ChecklistIndex",
 }
 
@@ -32,6 +34,20 @@ export const ListIndexRouteQuery = {
   }),
 } as const;
 
+export type ListNewInputType = {
+  term?: string;
+};
+export const ListNewURI = createURI<ListNewInputType>("/lists/new", {"term":{"kind":"string","optional":true}});
+
+export const ListNewRouteQuery = {
+  operation: "ListPageQuery",
+  getVariables: <I extends ListNewInputType>(input: I) : {
+    "term": NonNullable<(I & ListNewInputType)["term"]> | "";
+  } => ({
+    "term": input.term ?? ("" as const),
+  }),
+} as const;
+
 export type ListDetailInputType = {
   id: string;
   term?: string;
@@ -47,6 +63,21 @@ export const ListDetailRouteQuery = {
   }),
 } as const;
 
+export type ListEditInputType = {
+  id: string;
+  term?: string;
+};
+export const ListEditURI = createURI<ListEditInputType>("/lists/:id/edit", {"id":{"kind":"string","optional":false},"term":{"kind":"string","optional":true}});
+
+export const ListEditRouteQuery = {
+  operation: "ListPageQuery",
+  getVariables: <I extends ListEditInputType>(input: I) : {
+    "term": NonNullable<(I & ListEditInputType)["term"]> | "";
+  } => ({
+    "term": input.term ?? ("" as const),
+  }),
+} as const;
+
 export type ChecklistIndexInputType = {
 };
 export const ChecklistIndexURI = createURI<ChecklistIndexInputType>("/checklists", {});
@@ -55,13 +86,17 @@ export const ChecklistIndexURI = createURI<ChecklistIndexInputType>("/checklists
 export type RouteContextType =
   RouteContextValue<HomeInputType, RouteName.Home>
   | RouteContextValue<ListIndexInputType, RouteName.ListIndex>
+  | RouteContextValue<ListNewInputType, RouteName.ListNew>
   | RouteContextValue<ListDetailInputType, RouteName.ListDetail>
+  | RouteContextValue<ListEditInputType, RouteName.ListEdit>
   | RouteContextValue<ChecklistIndexInputType, RouteName.ChecklistIndex>;
 
 const ROUTE_CONTEXT = createRouteContextRegistry<RouteContextType>();
 export const HomeRouteContext = ROUTE_CONTEXT.forRoute(RouteName.Home);
 export const ListIndexRouteContext = ROUTE_CONTEXT.forRoute(RouteName.ListIndex);
+export const ListNewRouteContext = ROUTE_CONTEXT.forRoute(RouteName.ListNew);
 export const ListDetailRouteContext = ROUTE_CONTEXT.forRoute(RouteName.ListDetail);
+export const ListEditRouteContext = ROUTE_CONTEXT.forRoute(RouteName.ListEdit);
 export const ChecklistIndexRouteContext = ROUTE_CONTEXT.forRoute(RouteName.ChecklistIndex);
 
 export type ChecklistEntryPointParams =
@@ -96,15 +131,19 @@ export function useHomeRouteContext(): HomeRouteContextType {
 
 export type ListEntryPointParams =
   { currentRoute: RouteName.ListIndex; input: ListIndexInputType }
-  | { currentRoute: RouteName.ListDetail; input: ListDetailInputType };
+  | { currentRoute: RouteName.ListNew; input: ListNewInputType }
+  | { currentRoute: RouteName.ListDetail; input: ListDetailInputType }
+  | { currentRoute: RouteName.ListEdit; input: ListEditInputType };
 
-export type ListRouteContextType = Extract<RouteContextType, { currentRoute: RouteName.ListIndex | RouteName.ListDetail }>;
+export type ListRouteContextType = Extract<RouteContextType, { currentRoute: RouteName.ListIndex | RouteName.ListNew | RouteName.ListDetail | RouteName.ListEdit }>;
 export function useListRouteContext(): ListRouteContextType {
   const context = ROUTE_CONTEXT.useRouteContext();
   const currentRoute = context.currentRoute;
   switch (context.currentRoute) {
     case RouteName.ListIndex:
+    case RouteName.ListNew:
     case RouteName.ListDetail:
+    case RouteName.ListEdit:
       return context;
     default:
       throw new Error('useListRouteContext requires the List entrypoint; current route is ' + currentRoute);

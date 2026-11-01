@@ -37,8 +37,59 @@
       }
     },
     {
+      "name": "ListNew",
+      "path": "/lists/new",
+      "ssr": true,
+      "fields": {
+        "term": {
+          "kind": "string",
+          "optional": true,
+          "in": "query"
+        }
+      },
+      "query": {
+        "operation": "ListPageQuery",
+        "id": "20016724b03ebfd4e622133f9f66b6ee",
+        "text": "query ListPageQuery(\n  $term: String = \"\"\n) {\n  ...ListList_query_4hh6ED\n}\n\nfragment ListList_query_4hh6ED on RootQuery {\n  listoryListSearch(first: 25, where: {term: $term}) {\n    totalCount\n    edges {\n      node {\n        id\n        title\n        items {\n          totalCount\n        }\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n",
+        "variables": {
+          "term": {
+            "input": "term",
+            "default": ""
+          }
+        }
+      }
+    },
+    {
       "name": "ListDetail",
       "path": "/lists/:id",
+      "ssr": true,
+      "fields": {
+        "id": {
+          "kind": "string",
+          "optional": false,
+          "in": "path"
+        },
+        "term": {
+          "kind": "string",
+          "optional": true,
+          "in": "query"
+        }
+      },
+      "query": {
+        "operation": "ListPageQuery",
+        "id": "20016724b03ebfd4e622133f9f66b6ee",
+        "text": "query ListPageQuery(\n  $term: String = \"\"\n) {\n  ...ListList_query_4hh6ED\n}\n\nfragment ListList_query_4hh6ED on RootQuery {\n  listoryListSearch(first: 25, where: {term: $term}) {\n    totalCount\n    edges {\n      node {\n        id\n        title\n        items {\n          totalCount\n        }\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n",
+        "variables": {
+          "term": {
+            "input": "term",
+            "default": ""
+          }
+        }
+      }
+    },
+    {
+      "name": "ListEdit",
+      "path": "/lists/:id/edit",
       "ssr": true,
       "fields": {
         "id": {
