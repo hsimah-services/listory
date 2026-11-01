@@ -18,9 +18,18 @@ export const HomeRouteQuery = {
 } as const;
 
 export type ListIndexInputType = {
+  term?: string;
 };
-export const ListIndexURI = createURI<ListIndexInputType>("/lists", {});
+export const ListIndexURI = createURI<ListIndexInputType>("/lists", {"term":{"kind":"string","optional":true}});
 
+export const ListIndexRouteQuery = {
+  operation: "ListPageQuery",
+  getVariables: <I extends ListIndexInputType>(input: I) : {
+    "term": NonNullable<(I & ListIndexInputType)["term"]> | "";
+  } => ({
+    "term": input.term ?? ("" as const),
+  }),
+} as const;
 
 export type ChecklistIndexInputType = {
 };

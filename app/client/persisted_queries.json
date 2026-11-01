@@ -1,3 +1,5 @@
 {
-  "16d39c6c5035435c9980c4131011b209": "query HomePageQuery {\n  listoryLists(first: 1) {\n    totalCount\n  }\n}\n"
+  "02015e20d830640fb94f1f2de13d05c5": "query ListListPaginationQuery(\n  $count: Int = 25\n  $cursor: String\n  $term: String\n) {\n  ...ListList_query_4j0hnM\n}\n\nfragment ListList_query_4j0hnM on RootQuery {\n  listoryListSearch(first: $count, after: $cursor, where: {term: $term}) {\n    totalCount\n    edges {\n      node {\n        id\n        title\n        items {\n          totalCount\n        }\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n",
+  "16d39c6c5035435c9980c4131011b209": "query HomePageQuery {\n  listoryLists(first: 1) {\n    totalCount\n  }\n}\n",
+  "20016724b03ebfd4e622133f9f66b6ee": "query ListPageQuery(\n  $term: String = \"\"\n) {\n  ...ListList_query_4hh6ED\n}\n\nfragment ListList_query_4hh6ED on RootQuery {\n  listoryListSearch(first: 25, where: {term: $term}) {\n    totalCount\n    edges {\n      node {\n        id\n        title\n        items {\n          totalCount\n        }\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n"
 }
