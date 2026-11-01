@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<abfa3c0e3823cf8bb6a6d947df2875ef>>
+ * @generated SignedSource<<c7829bbf0a8b5aadd59d9a0ccbd8c140>>
  * @lightSyntaxTransform
  */
 
@@ -13,9 +13,11 @@ export type ListDetails_list$data = {
   readonly createdAt: string;
   readonly id: string;
   readonly items: {
-    readonly nodes: ReadonlyArray<{
-      readonly id: string;
-      readonly name: string;
+    readonly edges: ReadonlyArray<{
+      readonly node: {
+        readonly id: string;
+        readonly name: string;
+      } | null | undefined;
     } | null | undefined> | null | undefined;
   } | null | undefined;
   readonly title: string;
@@ -37,7 +39,18 @@ var v0 = {
 return {
   "argumentDefinitions": [],
   "kind": "Fragment",
-  "metadata": null,
+  "metadata": {
+    "connection": [
+      {
+        "count": null,
+        "cursor": null,
+        "direction": "forward",
+        "path": [
+          "items"
+        ]
+      }
+    ]
+  },
   "name": "ListDetails_list",
   "selections": [
     (v0/*:: as any*/),
@@ -56,40 +69,84 @@ return {
       "storageKey": null
     },
     {
-      "alias": null,
-      "args": [
-        {
-          "kind": "Literal",
-          "name": "first",
-          "value": 100
-        }
-      ],
+      "alias": "items",
+      "args": null,
       "concreteType": "ListoryListToListoryListItemConnection",
       "kind": "LinkedField",
-      "name": "items",
+      "name": "__ListDetails_items_connection",
       "plural": false,
       "selections": [
         {
           "alias": null,
           "args": null,
-          "concreteType": "ListoryListItem",
+          "concreteType": "ListoryListToListoryListItemConnectionEdge",
           "kind": "LinkedField",
-          "name": "nodes",
+          "name": "edges",
           "plural": true,
           "selections": [
-            (v0/*:: as any*/),
+            {
+              "alias": null,
+              "args": null,
+              "concreteType": "ListoryListItem",
+              "kind": "LinkedField",
+              "name": "node",
+              "plural": false,
+              "selections": [
+                (v0/*:: as any*/),
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "name",
+                  "storageKey": null
+                },
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "__typename",
+                  "storageKey": null
+                }
+              ],
+              "storageKey": null
+            },
             {
               "alias": null,
               "args": null,
               "kind": "ScalarField",
-              "name": "name",
+              "name": "cursor",
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": "PageInfo",
+          "kind": "LinkedField",
+          "name": "pageInfo",
+          "plural": false,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "endCursor",
+              "storageKey": null
+            },
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "hasNextPage",
               "storageKey": null
             }
           ],
           "storageKey": null
         }
       ],
-      "storageKey": "items(first:100)"
+      "storageKey": null
     }
   ],
   "type": "ListoryList",
@@ -97,6 +154,6 @@ return {
 };
 })();
 
-(node as any).hash = "fe26730ecbccbea3e98766c19aa6d26c";
+(node as any).hash = "3e3ed60f177ba89ee5c3111547a383e1";
 
 export default node;
