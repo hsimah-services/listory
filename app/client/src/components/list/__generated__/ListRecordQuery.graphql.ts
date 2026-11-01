@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<3abc0c2c217a9e22ef1918212a1e7c32>>
- * @relayHash 1161a0fb5d3f3f0e92f0202b4b363695
+ * @generated SignedSource<<79bd1c858d122bd60a8d99ca2654022e>>
+ * @relayHash 1d7efba54f45566476ff9c68f3feb9eb
  * @lightSyntaxTransform
  */
 
@@ -8,7 +8,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 1161a0fb5d3f3f0e92f0202b4b363695
+// @relayRequestID 1d7efba54f45566476ff9c68f3feb9eb
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -18,7 +18,7 @@ export type ListRecordQuery$variables = {
 export type ListRecordQuery$data = {
   readonly listoryList: {
     readonly id: string;
-    readonly " $fragmentSpreads": FragmentRefs<"ListDetails_list">;
+    readonly " $fragmentSpreads": FragmentRefs<"ListDetails_list" | "ListForm_list">;
   } | null | undefined;
 };
 export type ListRecordQuery = {
@@ -68,6 +68,11 @@ return {
             "args": null,
             "kind": "FragmentSpread",
             "name": "ListDetails_list"
+          },
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "ListForm_list"
           }
         ],
         "storageKey": null
@@ -147,16 +152,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "1161a0fb5d3f3f0e92f0202b4b363695",
-    "id": "1161a0fb5d3f3f0e92f0202b4b363695",
+    "cacheID": "1d7efba54f45566476ff9c68f3feb9eb",
+    "id": "1d7efba54f45566476ff9c68f3feb9eb",
     "metadata": {},
     "name": "ListRecordQuery",
     "operationKind": "query",
-    "text": "query ListRecordQuery(\n  $id: ID!\n) {\n  listoryList(id: $id) {\n    id\n    ...ListDetails_list\n  }\n}\n\nfragment ListDetails_list on ListoryList {\n  id\n  title\n  createdAt\n  items(first: 100) {\n    nodes {\n      id\n      name\n    }\n  }\n}\n"
+    "text": "query ListRecordQuery(\n  $id: ID!\n) {\n  listoryList(id: $id) {\n    id\n    ...ListDetails_list\n    ...ListForm_list\n  }\n}\n\nfragment ListDetails_list on ListoryList {\n  id\n  title\n  createdAt\n  items(first: 100) {\n    nodes {\n      id\n      name\n    }\n  }\n}\n\nfragment ListForm_list on ListoryList {\n  id\n  title\n}\n"
   }
 };
 })();
 
-(node as any).hash = "e0979dfa64e5b582ac01e1f2340a722e";
+(node as any).hash = "7f74140d848d2624621ac5fe5716b1f6";
 
 export default node;

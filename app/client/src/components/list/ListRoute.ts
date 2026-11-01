@@ -8,13 +8,17 @@ import type { ListPageQuery } from "./__generated__/ListPageQuery.graphql";
 import type { ListRecordQuery } from "./__generated__/ListRecordQuery.graphql";
 import { ListPage } from "./ListPage";
 import { ListRecord } from "./ListRecord";
+import { ListForm } from "./ListForm";
 
 export function ListRoute({ queries }: ListRouteProps) {
   const route = useListRouteContext();
+  const edit = route.currentRoute === RouteName.ListEdit;
   const detail =
-    route.currentRoute === RouteName.ListDetail && queries.record
-      ? createElement(ListRecord, { reference: queries.record })
-      : null;
+    route.currentRoute === RouteName.ListNew
+      ? createElement(ListForm, {})
+      : queries.record
+        ? createElement(ListRecord, { reference: queries.record, edit })
+        : null;
   return createElement(ListPage, { reference: queries.page, detail });
 }
 

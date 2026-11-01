@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   tsquid-manifest.php
- * digest: sha256:98cb83e55c6bc5e025b5936e573d1d49cbe9c749a37eecb21e81e76857f098e5
+ * digest: sha256:58c6fb227b21d81706e1bff5f1e4d96259d205620d196099d785aab1ba9efd13
  */
 
 return new \Eleph\Tsquid\Manifest((object) ['routes' => [(object) ['fields' => (object) [], 'name' => 'Home', 'path' => '/', 'query' => (object) ['id' => '16d39c6c5035435c9980c4131011b209', 'operation' => 'HomePageQuery', 'text' => 'query HomePageQuery {
@@ -43,7 +43,59 @@ fragment ListList_query_4hh6ED on RootQuery {
     }
   }
 }
+', 'variables' => (object) ['term' => (object) ['default' => '', 'input' => 'term']]], 'ssr' => true], (object) ['fields' => (object) ['term' => (object) ['in' => 'query', 'kind' => 'string', 'optional' => true]], 'name' => 'ListNew', 'path' => '/lists/new', 'query' => (object) ['id' => '20016724b03ebfd4e622133f9f66b6ee', 'operation' => 'ListPageQuery', 'text' => 'query ListPageQuery(
+  $term: String = ""
+) {
+  ...ListList_query_4hh6ED
+}
+
+fragment ListList_query_4hh6ED on RootQuery {
+  listoryListSearch(first: 25, where: {term: $term}) {
+    totalCount
+    edges {
+      node {
+        id
+        title
+        items {
+          totalCount
+        }
+        __typename
+      }
+      cursor
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+  }
+}
 ', 'variables' => (object) ['term' => (object) ['default' => '', 'input' => 'term']]], 'ssr' => true], (object) ['fields' => (object) ['id' => (object) ['in' => 'path', 'kind' => 'string', 'optional' => false], 'term' => (object) ['in' => 'query', 'kind' => 'string', 'optional' => true]], 'name' => 'ListDetail', 'path' => '/lists/:id', 'query' => (object) ['id' => '20016724b03ebfd4e622133f9f66b6ee', 'operation' => 'ListPageQuery', 'text' => 'query ListPageQuery(
+  $term: String = ""
+) {
+  ...ListList_query_4hh6ED
+}
+
+fragment ListList_query_4hh6ED on RootQuery {
+  listoryListSearch(first: 25, where: {term: $term}) {
+    totalCount
+    edges {
+      node {
+        id
+        title
+        items {
+          totalCount
+        }
+        __typename
+      }
+      cursor
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+  }
+}
+', 'variables' => (object) ['term' => (object) ['default' => '', 'input' => 'term']]], 'ssr' => true], (object) ['fields' => (object) ['id' => (object) ['in' => 'path', 'kind' => 'string', 'optional' => false], 'term' => (object) ['in' => 'query', 'kind' => 'string', 'optional' => true]], 'name' => 'ListEdit', 'path' => '/lists/:id/edit', 'query' => (object) ['id' => '20016724b03ebfd4e622133f9f66b6ee', 'operation' => 'ListPageQuery', 'text' => 'query ListPageQuery(
   $term: String = ""
 ) {
   ...ListList_query_4hh6ED

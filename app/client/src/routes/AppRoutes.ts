@@ -7,8 +7,12 @@ import {
   HomeRouteContext,
   ListIndexURI,
   ListIndexRouteContext,
+  ListNewURI,
+  ListNewRouteContext,
   ListDetailURI,
   ListDetailRouteContext,
+  ListEditURI,
+  ListEditRouteContext,
   ChecklistIndexURI,
   ChecklistIndexRouteContext,
 } from "./__generated__/routes";
@@ -25,8 +29,18 @@ export const APP_ROUTES = [
     entryPoint: LIST_ENTRY_POINT,
   }),
   defineRoute({
+    uri: ListNewURI,
+    context: ListNewRouteContext,
+    entryPoint: LIST_ENTRY_POINT,
+  }),
+  defineRoute({
     uri: ListDetailURI,
     context: ListDetailRouteContext,
+    entryPoint: LIST_ENTRY_POINT,
+  }),
+  defineRoute({
+    uri: ListEditURI,
+    context: ListEditRouteContext,
     entryPoint: LIST_ENTRY_POINT,
   }),
   defineRoute({

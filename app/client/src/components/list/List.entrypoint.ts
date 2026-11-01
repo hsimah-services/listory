@@ -22,8 +22,9 @@ export const LIST_ENTRY_POINT: RouteEntryPoint<
         variables: ListIndexRouteQuery.getVariables(route.input),
       },
       record:
-        route.currentRoute === RouteName.ListDetail
-          ? { parameters: RECORD_QUERY, variables: { id: route.input.id } }
+        route.currentRoute === RouteName.ListDetail ||
+        route.currentRoute === RouteName.ListEdit
+          ?{ parameters: RECORD_QUERY, variables: { id: route.input.id } }
           : undefined,
     },
   }),
