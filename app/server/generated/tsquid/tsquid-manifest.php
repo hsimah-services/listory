@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   tsquid-manifest.php
- * digest: sha256:dcecf635881298aaca4fd7d535e3bd4512cda0c926acf5d0e6b614646d4f76ed
+ * digest: sha256:fb35edab754569a8e047d4b5328babaae731358cc558a1334a9d269dc18b87f3
  */
 
 return new \Eleph\Tsquid\Manifest((object) ['routes' => [(object) ['fields' => (object) [], 'name' => 'Home', 'path' => '/', 'query' => (object) ['id' => '16d39c6c5035435c9980c4131011b209', 'operation' => 'HomePageQuery', 'text' => 'query HomePageQuery {
@@ -17,4 +17,4 @@ return new \Eleph\Tsquid\Manifest((object) ['routes' => [(object) ['fields' => (
     totalCount
   }
 }
-', 'variables' => (object) []], 'ssr' => true]], 'version' => 1]);
+', 'variables' => (object) []], 'ssr' => true], (object) ['fields' => (object) [], 'name' => 'ListIndex', 'path' => '/lists', 'ssr' => true], (object) ['fields' => (object) [], 'name' => 'ChecklistIndex', 'path' => '/checklists', 'ssr' => true]], 'version' => 1]);

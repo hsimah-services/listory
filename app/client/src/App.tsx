@@ -1,28 +1,35 @@
-import { BrowserRouter, Route, Routes, useLocation } from "react-router";
+import { BrowserRouter, Route, Routes, useMatch } from "react-router";
 import { RelayEnvironmentProvider } from "react-relay";
 import { Text } from "@astryxdesign/core/Text";
 import { ENVIRONMENT } from "./relay/environment";
+import { NavigationShell } from "./components/navigation/NavigationShell";
+import { SessionBoundary } from "./components/session/SessionBoundary";
 import { QueryBoundary } from "./relay/QueryBoundary";
 import { APP_ROUTES } from "./routes/AppRoutes";
 import { useState } from "react";
 
 export function App() {
   return (
-    <RelayEnvironmentProvider environment={ENVIRONMENT}>
-      <BrowserRouter>
-        <App_Routes />
-      </BrowserRouter>
-    </RelayEnvironmentProvider>
+    <SessionBoundary>
+      <RelayEnvironmentProvider environment={ENVIRONMENT}>
+        <BrowserRouter>
+          <NavigationShell>
+            <App_Routes />
+          </NavigationShell>
+        </BrowserRouter>
+      </RelayEnvironmentProvider>
+    </SessionBoundary>
   );
 }
 
 function App_Routes() {
-  const location = useLocation();
+  // Any page change clears a previous error; the full pathname is the reset key.
+  const current = useMatch("/*");
   const [attempt, setAttempt] = useState(0);
   return (
     <QueryBoundary
       key={attempt}
-      resetKey={location.pathname + location.search}
+      resetKey={current?.pathname ?? ""}
       retry={() => setAttempt((value) => value + 1)}
     >
       <Routes>

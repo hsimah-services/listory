@@ -4,6 +4,8 @@ import { createRouteContextRegistry, type RouteContextValue } from "@tsquid/rout
 
 export enum RouteName {
   Home = "Home",
+  ListIndex = "ListIndex",
+  ChecklistIndex = "ChecklistIndex",
 }
 
 export type HomeInputType = {
@@ -15,11 +17,40 @@ export const HomeRouteQuery = {
   getVariables: (_input?: HomeInputType) => ({}),
 } as const;
 
+export type ListIndexInputType = {
+};
+export const ListIndexURI = createURI<ListIndexInputType>("/lists", {});
+
+
+export type ChecklistIndexInputType = {
+};
+export const ChecklistIndexURI = createURI<ChecklistIndexInputType>("/checklists", {});
+
+
 export type RouteContextType =
-  RouteContextValue<HomeInputType, RouteName.Home>;
+  RouteContextValue<HomeInputType, RouteName.Home>
+  | RouteContextValue<ListIndexInputType, RouteName.ListIndex>
+  | RouteContextValue<ChecklistIndexInputType, RouteName.ChecklistIndex>;
 
 const ROUTE_CONTEXT = createRouteContextRegistry<RouteContextType>();
 export const HomeRouteContext = ROUTE_CONTEXT.forRoute(RouteName.Home);
+export const ListIndexRouteContext = ROUTE_CONTEXT.forRoute(RouteName.ListIndex);
+export const ChecklistIndexRouteContext = ROUTE_CONTEXT.forRoute(RouteName.ChecklistIndex);
+
+export type ChecklistEntryPointParams =
+  { currentRoute: RouteName.ChecklistIndex; input: ChecklistIndexInputType };
+
+export type ChecklistRouteContextType = Extract<RouteContextType, { currentRoute: RouteName.ChecklistIndex }>;
+export function useChecklistRouteContext(): ChecklistRouteContextType {
+  const context = ROUTE_CONTEXT.useRouteContext();
+  const currentRoute = context.currentRoute;
+  switch (context.currentRoute) {
+    case RouteName.ChecklistIndex:
+      return context;
+    default:
+      throw new Error('useChecklistRouteContext requires the Checklist entrypoint; current route is ' + currentRoute);
+  }
+}
 
 export type HomeEntryPointParams =
   { currentRoute: RouteName.Home; input: HomeInputType };
@@ -33,5 +64,20 @@ export function useHomeRouteContext(): HomeRouteContextType {
       return context;
     default:
       throw new Error('useHomeRouteContext requires the Home entrypoint; current route is ' + currentRoute);
+  }
+}
+
+export type ListEntryPointParams =
+  { currentRoute: RouteName.ListIndex; input: ListIndexInputType };
+
+export type ListRouteContextType = Extract<RouteContextType, { currentRoute: RouteName.ListIndex }>;
+export function useListRouteContext(): ListRouteContextType {
+  const context = ROUTE_CONTEXT.useRouteContext();
+  const currentRoute = context.currentRoute;
+  switch (context.currentRoute) {
+    case RouteName.ListIndex:
+      return context;
+    default:
+      throw new Error('useListRouteContext requires the List entrypoint; current route is ' + currentRoute);
   }
 }
