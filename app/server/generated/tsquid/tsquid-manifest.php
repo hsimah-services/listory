@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   tsquid-manifest.php
- * digest: sha256:5fd7cbd1cea3c99a14299c74487d02004fe786580da00f3e9dc45522f2203ead
+ * digest: sha256:98cb83e55c6bc5e025b5936e573d1d49cbe9c749a37eecb21e81e76857f098e5
  */
 
 return new \Eleph\Tsquid\Manifest((object) ['routes' => [(object) ['fields' => (object) [], 'name' => 'Home', 'path' => '/', 'query' => (object) ['id' => '16d39c6c5035435c9980c4131011b209', 'operation' => 'HomePageQuery', 'text' => 'query HomePageQuery {
@@ -18,6 +18,32 @@ return new \Eleph\Tsquid\Manifest((object) ['routes' => [(object) ['fields' => (
   }
 }
 ', 'variables' => (object) []], 'ssr' => true], (object) ['fields' => (object) ['term' => (object) ['in' => 'query', 'kind' => 'string', 'optional' => true]], 'name' => 'ListIndex', 'path' => '/lists', 'query' => (object) ['id' => '20016724b03ebfd4e622133f9f66b6ee', 'operation' => 'ListPageQuery', 'text' => 'query ListPageQuery(
+  $term: String = ""
+) {
+  ...ListList_query_4hh6ED
+}
+
+fragment ListList_query_4hh6ED on RootQuery {
+  listoryListSearch(first: 25, where: {term: $term}) {
+    totalCount
+    edges {
+      node {
+        id
+        title
+        items {
+          totalCount
+        }
+        __typename
+      }
+      cursor
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+  }
+}
+', 'variables' => (object) ['term' => (object) ['default' => '', 'input' => 'term']]], 'ssr' => true], (object) ['fields' => (object) ['id' => (object) ['in' => 'path', 'kind' => 'string', 'optional' => false], 'term' => (object) ['in' => 'query', 'kind' => 'string', 'optional' => true]], 'name' => 'ListDetail', 'path' => '/lists/:id', 'query' => (object) ['id' => '20016724b03ebfd4e622133f9f66b6ee', 'operation' => 'ListPageQuery', 'text' => 'query ListPageQuery(
   $term: String = ""
 ) {
   ...ListList_query_4hh6ED

@@ -16,6 +16,21 @@
       "query": "ListPageQuery"
     },
     {
+      "name": "ListDetail",
+      "entryPoint": "src/components/list/List.entrypoint.ts",
+      "path": "/lists/:id",
+      "fields": {
+        "term": {
+          "kind": "string",
+          "optional": true
+        },
+        "id": {
+          "kind": "string"
+        }
+      },
+      "query": "ListPageQuery"
+    },
+    {
       "name": "ChecklistIndex",
       "entryPoint": "src/components/checklist/Checklist.entrypoint.ts",
       "path": "/checklists",
