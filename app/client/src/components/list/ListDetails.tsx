@@ -5,7 +5,11 @@ import { Stack } from "@astryxdesign/core/Stack";
 import { Text } from "@astryxdesign/core/Text";
 import type { ListDetails_list$key } from "./__generated__/ListDetails_list.graphql";
 
-export function ListDetails({ listRef }: { listRef: ListDetails_list$key }) {
+export type ListDetailsProps = {
+  listRef: ListDetails_list$key;
+};
+
+export function ListDetails({ listRef }: ListDetailsProps) {
   const { list, heading, items } = useListDetails({ listRef });
   return (
     <Stack gap={4}>

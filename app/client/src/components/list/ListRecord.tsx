@@ -12,11 +12,11 @@ const QUERY = graphql`
   }
 `;
 
-export function ListRecord({
-  reference,
-}: {
+export type ListRecordProps = {
   reference: PreloadedQuery<ListRecordQuery>;
-}) {
+};
+
+export function ListRecord({ reference }: ListRecordProps) {
   const { listoryList } = usePreloadedQuery<ListRecordQuery>(QUERY, reference);
   if (!listoryList) return <Text>List not found</Text>;
   return <ListDetails listRef={listoryList} />;
