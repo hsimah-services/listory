@@ -12,8 +12,8 @@
       "name": "ListIndex",
       "entryPoint": "src/components/list/List.entrypoint.ts",
       "path": "/lists",
-      "fields": {},
-      "query": null
+      "fields": { "term": { "kind": "string", "optional": true } },
+      "query": "ListPageQuery"
     },
     {
       "name": "ChecklistIndex",
