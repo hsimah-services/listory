@@ -118,8 +118,19 @@
     {
       "name": "ChecklistIndex",
       "path": "/checklists",
-      "ssr": true,
-      "fields": {}
+      "ssr": false,
+      "fields": {
+        "status": {
+          "kind": "string",
+          "optional": true,
+          "in": "query"
+        },
+        "term": {
+          "kind": "string",
+          "optional": true,
+          "in": "query"
+        }
+      }
     }
   ]
 }

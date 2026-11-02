@@ -79,8 +79,10 @@ export const ListEditRouteQuery = {
 } as const;
 
 export type ChecklistIndexInputType = {
+  status?: string;
+  term?: string;
 };
-export const ChecklistIndexURI = createURI<ChecklistIndexInputType>("/checklists", {});
+export const ChecklistIndexURI = createURI<ChecklistIndexInputType>("/checklists", {"status":{"kind":"string","optional":true},"term":{"kind":"string","optional":true}});
 
 
 export type RouteContextType =
