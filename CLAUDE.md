@@ -8,11 +8,6 @@ Listory is a React + TypeScript checklist app built around composable lists. Use
 `app/` holds the WordPress-free rebuild. Anything under `app/` follows `app/AGENTS.md`,
 not the rules in this file. Do not change `server/` or `client/` while working on `app/`.
 
-## Deployment
-
-- **space-needle**: The production home server running a self-hosted GitHub Actions runner
-- **pupyrus**: The WordPress Docker container running on space-needle, deployed via `deploy@pupyrus-*` release tags
-
 ## Code Organization
 
 ### Directory Structure
@@ -25,8 +20,6 @@ not the rules in this file. Do not change `server/` or `client/` while working o
 - `src/context/` - React Context for global state (DataContext)
 - `src/types/` - TypeScript type definitions
 - `src/lib/` - Utility functions
-
-The repository also contains a `server/` directory hosting a WordPress plugin; Docker Compose (`docker-compose.yml`) is used to wire together a local WordPress instance, database, Redis, and the React development server.
 
 ## Naming Conventions
 
