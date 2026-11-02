@@ -1,6 +1,7 @@
 import type { Locator, Page } from '@playwright/test';
 import { test, expect } from './fixtures';
 import { login } from './session';
+import { CHECKLIST_TARGET, deleteAllTitled } from './cleanup';
 
 // Astryx renders a Button with href as a link and one without href as a button. A control
 // counts as present if either role matches, so an absence check cannot pass by role mismatch.
@@ -49,19 +50,8 @@ test('reader1 sees lists and checklists with no write controls', async ({ page, 
     await expect(control(details, 'Add', true)).toHaveCount(0);
     await expect(control(details, /^Remove /)).toHaveCount(0);
   } finally {
-    // Cleanup: the editor removes the checklist it made, even if an assertion above failed.
-    // Removes every copy of the checklist, including ones left by an earlier failed run.
-    for (;;) {
-      await editor.goto('/checklists');
-      // Wait for the loaded page (its New checklist button appears with the rows) before counting.
-      await expect(editor.getByRole('link', { name: 'New checklist', exact: true })).toBeVisible();
-      const row = editor.getByRole('link', { name: 'Reader trip', exact: true });
-      if ((await row.count()) === 0) break;
-      await row.first().click();
-      editor.once('dialog', (dialog) => dialog.accept());
-      await editor.getByRole('button', { name: 'Delete' }).click();
-      await expect(editor).toHaveURL(/\/checklists$/);
-    }
+    // Cleanup: the editor removes every copy of the checklist it made, even if an assertion failed.
+    await deleteAllTitled(editor, CHECKLIST_TARGET, 'Reader trip');
     await editorContext.close();
   }
 });

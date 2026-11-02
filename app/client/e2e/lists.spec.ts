@@ -1,5 +1,6 @@
 import type { Page } from '@playwright/test';
 import { test, expect } from './fixtures';
+import { LIST_TARGET, deleteAllTitled } from './cleanup';
 
 // Every list these tests can create. Each test removes them, even when it fails part way.
 const CREATED_TITLES = ['Picnic', 'Park picnic'];
@@ -13,29 +14,13 @@ async function createList(page: Page, title: string) {
 
 async function addItem(page: Page, name: string) {
   await page.getByLabel('New item').fill(name);
-  await page.getByRole('button', { name: 'Add' }).click();
+  await page.getByRole('button', { name: 'Add', exact: true }).click();
   await expect(page.getByText(name, { exact: true })).toBeVisible();
-}
-
-// Removes every list with this title, including copies left by an earlier failed run.
-async function deleteListsTitled(page: Page, title: string) {
-  for (;;) {
-    await page.goto('/lists');
-    // Wait for the loaded page (its New list button appears with the rows) before counting.
-    await expect(page.getByRole('link', { name: 'New list', exact: true })).toBeVisible();
-    const row = page.getByRole('link', { name: title, exact: true });
-    if ((await row.count()) === 0) return;
-    await row.first().click();
-    await expect(page.getByRole('heading', { name: title, level: 2 })).toBeVisible();
-    page.once('dialog', (dialog) => dialog.accept());
-    await page.getByRole('button', { name: 'Delete' }).click();
-    await expect(page).toHaveURL(/\/lists$/);
-  }
 }
 
 test.afterEach(async ({ page }) => {
   for (const title of CREATED_TITLES) {
-    await deleteListsTitled(page, title);
+    await deleteAllTitled(page, LIST_TARGET, title);
   }
 });
 

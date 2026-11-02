@@ -1,5 +1,6 @@
 import type { Page } from '@playwright/test';
 import { test, expect } from './fixtures';
+import { CHECKLIST_TARGET, deleteAllTitled } from './cleanup';
 
 // Every checklist these tests can create. Each test removes them, even when it fails part way.
 const CREATED_TITLES = ['Trip', 'Weekend trip', 'Done trip', 'Open trip'];
@@ -16,25 +17,9 @@ async function createChecklist(page: Page, title: string, lists: string[]) {
   await expect(page.getByRole('heading', { name: title, level: 2 })).toBeVisible();
 }
 
-// Removes every checklist with this title, including copies left by an earlier failed run.
-async function deleteChecklistsTitled(page: Page, title: string) {
-  for (;;) {
-    await page.goto('/checklists');
-    // Wait for the loaded page (its New checklist button appears with the rows) before counting.
-    await expect(page.getByRole('link', { name: 'New checklist', exact: true })).toBeVisible();
-    const row = page.getByRole('link', { name: title, exact: true });
-    if ((await row.count()) === 0) return;
-    await row.first().click();
-    await expect(page.getByRole('heading', { name: title, level: 2 })).toBeVisible();
-    page.once('dialog', (dialog) => dialog.accept());
-    await page.getByRole('button', { name: 'Delete' }).click();
-    await expect(page).toHaveURL(/\/checklists$/);
-  }
-}
-
 test.afterEach(async ({ page }) => {
   for (const title of CREATED_TITLES) {
-    await deleteChecklistsTitled(page, title);
+    await deleteAllTitled(page, CHECKLIST_TARGET, title);
   }
 });
 
