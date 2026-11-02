@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   tsquid-manifest.php
- * digest: sha256:58c6fb227b21d81706e1bff5f1e4d96259d205620d196099d785aab1ba9efd13
+ * digest: sha256:925ce3ffaeb1cc3648c44e08735a408498cb58f5b33641289587fec91690d7ee
  */
 
 return new \Eleph\Tsquid\Manifest((object) ['routes' => [(object) ['fields' => (object) [], 'name' => 'Home', 'path' => '/', 'query' => (object) ['id' => '16d39c6c5035435c9980c4131011b209', 'operation' => 'HomePageQuery', 'text' => 'query HomePageQuery {
@@ -121,4 +121,28 @@ fragment ListList_query_4hh6ED on RootQuery {
     }
   }
 }
-', 'variables' => (object) ['term' => (object) ['default' => '', 'input' => 'term']]], 'ssr' => true], (object) ['fields' => (object) [], 'name' => 'ChecklistIndex', 'path' => '/checklists', 'ssr' => true]], 'version' => 1]);
+', 'variables' => (object) ['term' => (object) ['default' => '', 'input' => 'term']]], 'ssr' => true], (object) ['fields' => (object) ['status' => (object) ['in' => 'query', 'kind' => 'string', 'optional' => true], 'term' => (object) ['in' => 'query', 'kind' => 'string', 'optional' => true]], 'name' => 'ChecklistIndex', 'path' => '/checklists', 'query' => (object) ['id' => 'd010336eabd43fefd05a4e9de0e87d92', 'operation' => 'ChecklistPageQuery', 'text' => 'query ChecklistPageQuery(
+  $term: String = ""
+  $completed: Boolean
+) {
+  ...ChecklistList_query_2c7s9g
+}
+
+fragment ChecklistList_query_2c7s9g on RootQuery {
+  listoryChecklistSearch(first: 100, where: {term: $term, completed: $completed}) {
+    totalCount
+    nodes {
+      id
+      title
+      completedAt
+      items(first: 100) {
+        totalCount
+        nodes {
+          checked
+          id
+        }
+      }
+    }
+  }
+}
+', 'variables' => (object) ['completed' => (object) [], 'term' => (object) ['default' => '', 'input' => 'term']]], 'ssr' => true]], 'version' => 1]);

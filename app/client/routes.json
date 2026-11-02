@@ -56,8 +56,11 @@
       "name": "ChecklistIndex",
       "entryPoint": "src/components/checklist/Checklist.entrypoint.ts",
       "path": "/checklists",
-      "fields": {},
-      "query": null
+      "fields": {
+        "term": { "kind": "string", "optional": true },
+        "status": { "kind": "string", "optional": true }
+      },
+      "query": "ChecklistPageQuery"
     }
   ],
   "persistedQueries": "persisted_queries.json"
