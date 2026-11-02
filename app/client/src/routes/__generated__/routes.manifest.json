@@ -118,7 +118,7 @@
     {
       "name": "ChecklistIndex",
       "path": "/checklists",
-      "ssr": true,
+      "ssr": false,
       "fields": {
         "status": {
           "kind": "string",
@@ -129,18 +129,6 @@
           "kind": "string",
           "optional": true,
           "in": "query"
-        }
-      },
-      "query": {
-        "operation": "ChecklistPageQuery",
-        "id": "d010336eabd43fefd05a4e9de0e87d92",
-        "text": "query ChecklistPageQuery(\n  $term: String = \"\"\n  $completed: Boolean\n) {\n  ...ChecklistList_query_2c7s9g\n}\n\nfragment ChecklistList_query_2c7s9g on RootQuery {\n  listoryChecklistSearch(first: 100, where: {term: $term, completed: $completed}) {\n    totalCount\n    nodes {\n      id\n      title\n      completedAt\n      items(first: 100) {\n        totalCount\n        nodes {\n          checked\n          id\n        }\n      }\n    }\n  }\n}\n",
-        "variables": {
-          "completed": {},
-          "term": {
-            "input": "term",
-            "default": ""
-          }
         }
       }
     }

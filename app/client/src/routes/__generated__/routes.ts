@@ -84,16 +84,6 @@ export type ChecklistIndexInputType = {
 };
 export const ChecklistIndexURI = createURI<ChecklistIndexInputType>("/checklists", {"status":{"kind":"string","optional":true},"term":{"kind":"string","optional":true}});
 
-export const ChecklistIndexRouteQuery = {
-  operation: "ChecklistPageQuery",
-  getVariables: <I extends ChecklistIndexInputType>(input: I) : {
-    "completed": null;
-    "term": NonNullable<(I & ChecklistIndexInputType)["term"]> | "";
-  } => ({
-    "completed": null,
-    "term": input.term ?? ("" as const),
-  }),
-} as const;
 
 export type RouteContextType =
   RouteContextValue<HomeInputType, RouteName.Home>

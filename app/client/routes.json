@@ -60,7 +60,7 @@
         "term": { "kind": "string", "optional": true },
         "status": { "kind": "string", "optional": true }
       },
-      "query": "ChecklistPageQuery"
+      "ssr": false
     }
   ],
   "persistedQueries": "persisted_queries.json"

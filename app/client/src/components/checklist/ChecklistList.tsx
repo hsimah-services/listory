@@ -64,7 +64,7 @@ export function ChecklistList({
         <TableBody>
           {checklists.map((checklist) => {
             if (!checklist) return null;
-            const completed = checklist.completedAt !== null && checklist.completedAt !== undefined;
+            const completed = checklist.completedAt != null;
             const progress = checklistProgress(checklist.items);
             return (
               <TableRow key={checklist.id}>
