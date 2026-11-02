@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<04a0c043a8614b5401635e746df3d8f3>>
+ * @generated SignedSource<<7ee6be63da96c71a4bbed684c7e35d1d>>
  * @lightSyntaxTransform
  */
 
@@ -24,6 +24,7 @@ export type ChecklistDetails_checklist$data = {
   } | null | undefined;
   readonly sourceLists: {
     readonly nodes: ReadonlyArray<{
+      readonly id: string;
       readonly title: string;
     } | null | undefined> | null | undefined;
   } | null | undefined;
@@ -49,10 +50,7 @@ v1 = {
   "kind": "ScalarField",
   "name": "title",
   "storageKey": null
-},
-v2 = [
-  (v1/*:: as any*/)
-];
+};
 return {
   "argumentDefinitions": [],
   "kind": "Fragment",
@@ -112,7 +110,9 @@ return {
               "kind": "LinkedField",
               "name": "sourceList",
               "plural": false,
-              "selections": (v2/*:: as any*/),
+              "selections": [
+                (v1/*:: as any*/)
+              ],
               "storageKey": null
             }
           ],
@@ -136,7 +136,10 @@ return {
           "kind": "LinkedField",
           "name": "nodes",
           "plural": true,
-          "selections": (v2/*:: as any*/),
+          "selections": [
+            (v0/*:: as any*/),
+            (v1/*:: as any*/)
+          ],
           "storageKey": null
         }
       ],
@@ -148,6 +151,6 @@ return {
 };
 })();
 
-(node as any).hash = "4b055896d5d82c720e7585d09313d33f";
+(node as any).hash = "1f394f1873cbea892d70772728d61115";
 
 export default node;

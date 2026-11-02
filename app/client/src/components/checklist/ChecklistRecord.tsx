@@ -9,6 +9,7 @@ const QUERY = graphql`
       id
       ...ChecklistDetails_checklist
     }
+    ...ChecklistDetails_lists
   }
 `;
 
@@ -17,10 +18,9 @@ export type ChecklistRecordProps = {
 };
 
 export function ChecklistRecord({ reference }: ChecklistRecordProps) {
-  const { listoryChecklist } = usePreloadedQuery<ChecklistRecordQuery>(
-    QUERY,
-    reference,
+  const data = usePreloadedQuery<ChecklistRecordQuery>(QUERY, reference);
+  if (!data.listoryChecklist) return <Text>Checklist not found</Text>;
+  return (
+    <ChecklistDetails checklistRef={data.listoryChecklist} listsRef={data} />
   );
-  if (!listoryChecklist) return <Text>Checklist not found</Text>;
-  return <ChecklistDetails checklistRef={listoryChecklist} />;
 }
