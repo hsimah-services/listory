@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<79bd1c858d122bd60a8d99ca2654022e>>
- * @relayHash 1d7efba54f45566476ff9c68f3feb9eb
+ * @generated SignedSource<<9c4bef190217b0f7e178ead65dc970f5>>
+ * @relayHash 4341d8e027f25151d3e3ddb9d03c2062
  * @lightSyntaxTransform
  */
 
@@ -8,7 +8,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 1d7efba54f45566476ff9c68f3feb9eb
+// @relayRequestID 4341d8e027f25151d3e3ddb9d03c2062
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -47,7 +47,14 @@ v2 = {
   "kind": "ScalarField",
   "name": "id",
   "storageKey": null
-};
+},
+v3 = [
+  {
+    "kind": "Literal",
+    "name": "first",
+    "value": 100
+  }
+];
 return {
   "fragment": {
     "argumentDefinitions": (v0/*:: as any*/),
@@ -112,13 +119,7 @@ return {
           },
           {
             "alias": null,
-            "args": [
-              {
-                "kind": "Literal",
-                "name": "first",
-                "value": 100
-              }
-            ],
+            "args": (v3/*:: as any*/),
             "concreteType": "ListoryListToListoryListItemConnection",
             "kind": "LinkedField",
             "name": "items",
@@ -127,17 +128,67 @@ return {
               {
                 "alias": null,
                 "args": null,
-                "concreteType": "ListoryListItem",
+                "concreteType": "ListoryListToListoryListItemConnectionEdge",
                 "kind": "LinkedField",
-                "name": "nodes",
+                "name": "edges",
                 "plural": true,
                 "selections": [
-                  (v2/*:: as any*/),
+                  {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": "ListoryListItem",
+                    "kind": "LinkedField",
+                    "name": "node",
+                    "plural": false,
+                    "selections": [
+                      (v2/*:: as any*/),
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "name",
+                        "storageKey": null
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "__typename",
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  },
                   {
                     "alias": null,
                     "args": null,
                     "kind": "ScalarField",
-                    "name": "name",
+                    "name": "cursor",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": "PageInfo",
+                "kind": "LinkedField",
+                "name": "pageInfo",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "endCursor",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "hasNextPage",
                     "storageKey": null
                   }
                 ],
@@ -145,6 +196,15 @@ return {
               }
             ],
             "storageKey": "items(first:100)"
+          },
+          {
+            "alias": null,
+            "args": (v3/*:: as any*/),
+            "filters": null,
+            "handle": "connection",
+            "key": "ListDetails_items",
+            "kind": "LinkedHandle",
+            "name": "items"
           }
         ],
         "storageKey": null
@@ -152,12 +212,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "1d7efba54f45566476ff9c68f3feb9eb",
-    "id": "1d7efba54f45566476ff9c68f3feb9eb",
+    "cacheID": "4341d8e027f25151d3e3ddb9d03c2062",
+    "id": "4341d8e027f25151d3e3ddb9d03c2062",
     "metadata": {},
     "name": "ListRecordQuery",
     "operationKind": "query",
-    "text": "query ListRecordQuery(\n  $id: ID!\n) {\n  listoryList(id: $id) {\n    id\n    ...ListDetails_list\n    ...ListForm_list\n  }\n}\n\nfragment ListDetails_list on ListoryList {\n  id\n  title\n  createdAt\n  items(first: 100) {\n    nodes {\n      id\n      name\n    }\n  }\n}\n\nfragment ListForm_list on ListoryList {\n  id\n  title\n}\n"
+    "text": "query ListRecordQuery(\n  $id: ID!\n) {\n  listoryList(id: $id) {\n    id\n    ...ListDetails_list\n    ...ListForm_list\n  }\n}\n\nfragment ListDetails_list on ListoryList {\n  id\n  title\n  createdAt\n  items(first: 100) {\n    edges {\n      node {\n        id\n        name\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n\nfragment ListForm_list on ListoryList {\n  id\n  title\n}\n"
   }
 };
 })();
