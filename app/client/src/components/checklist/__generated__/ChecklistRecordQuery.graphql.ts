@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<09912d30b3aa3cf04c572ad97c1303f8>>
- * @relayHash 0e44acdf9a7a4f51fe55baf811601f7f
+ * @generated SignedSource<<9443718e578d843d9901175caedc3ca2>>
+ * @relayHash 026aba392d24fd9dd6afc2a15fab79a9
  * @lightSyntaxTransform
  */
 
@@ -8,7 +8,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 0e44acdf9a7a4f51fe55baf811601f7f
+// @relayRequestID 026aba392d24fd9dd6afc2a15fab79a9
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -20,6 +20,7 @@ export type ChecklistRecordQuery$data = {
     readonly id: string;
     readonly " $fragmentSpreads": FragmentRefs<"ChecklistDetails_checklist">;
   } | null | undefined;
+  readonly " $fragmentSpreads": FragmentRefs<"ChecklistDetails_lists">;
 };
 export type ChecklistRecordQuery = {
   response: ChecklistRecordQuery$data;
@@ -56,8 +57,26 @@ v3 = {
   "storageKey": null
 },
 v4 = [
-  (v3/*:: as any*/),
-  (v2/*:: as any*/)
+  {
+    "kind": "Literal",
+    "name": "first",
+    "value": 100
+  }
+],
+v5 = [
+  {
+    "alias": null,
+    "args": null,
+    "concreteType": "ListoryList",
+    "kind": "LinkedField",
+    "name": "nodes",
+    "plural": true,
+    "selections": [
+      (v2/*:: as any*/),
+      (v3/*:: as any*/)
+    ],
+    "storageKey": null
+  }
 ];
 return {
   "fragment": {
@@ -82,6 +101,11 @@ return {
           }
         ],
         "storageKey": null
+      },
+      {
+        "args": null,
+        "kind": "FragmentSpread",
+        "name": "ChecklistDetails_lists"
       }
     ],
     "type": "RootQuery",
@@ -112,13 +136,7 @@ return {
           },
           {
             "alias": null,
-            "args": [
-              {
-                "kind": "Literal",
-                "name": "first",
-                "value": 100
-              }
-            ],
+            "args": (v4/*:: as any*/),
             "concreteType": "ListoryChecklistToListoryChecklistItemConnection",
             "kind": "LinkedField",
             "name": "items",
@@ -154,7 +172,10 @@ return {
                     "kind": "LinkedField",
                     "name": "sourceList",
                     "plural": false,
-                    "selections": (v4/*:: as any*/),
+                    "selections": [
+                      (v3/*:: as any*/),
+                      (v2/*:: as any*/)
+                    ],
                     "storageKey": null
                   }
                 ],
@@ -170,36 +191,35 @@ return {
             "kind": "LinkedField",
             "name": "sourceLists",
             "plural": false,
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "concreteType": "ListoryList",
-                "kind": "LinkedField",
-                "name": "nodes",
-                "plural": true,
-                "selections": (v4/*:: as any*/),
-                "storageKey": null
-              }
-            ],
+            "selections": (v5/*:: as any*/),
             "storageKey": null
           }
         ],
         "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": (v4/*:: as any*/),
+        "concreteType": "RootQueryToListoryListSearchConnection",
+        "kind": "LinkedField",
+        "name": "listoryListSearch",
+        "plural": false,
+        "selections": (v5/*:: as any*/),
+        "storageKey": "listoryListSearch(first:100)"
       }
     ]
   },
   "params": {
-    "cacheID": "0e44acdf9a7a4f51fe55baf811601f7f",
-    "id": "0e44acdf9a7a4f51fe55baf811601f7f",
+    "cacheID": "026aba392d24fd9dd6afc2a15fab79a9",
+    "id": "026aba392d24fd9dd6afc2a15fab79a9",
     "metadata": {},
     "name": "ChecklistRecordQuery",
     "operationKind": "query",
-    "text": "query ChecklistRecordQuery(\n  $id: ID!\n) {\n  listoryChecklist(id: $id) {\n    id\n    ...ChecklistDetails_checklist\n  }\n}\n\nfragment ChecklistDetails_checklist on ListoryChecklist {\n  id\n  title\n  completedAt\n  items(first: 100) {\n    nodes {\n      id\n      name\n      checked\n      sourceList {\n        title\n        id\n      }\n    }\n  }\n  sourceLists {\n    nodes {\n      title\n      id\n    }\n  }\n}\n"
+    "text": "query ChecklistRecordQuery(\n  $id: ID!\n) {\n  listoryChecklist(id: $id) {\n    id\n    ...ChecklistDetails_checklist\n  }\n  ...ChecklistDetails_lists\n}\n\nfragment ChecklistDetails_checklist on ListoryChecklist {\n  id\n  title\n  completedAt\n  items(first: 100) {\n    nodes {\n      id\n      name\n      checked\n      sourceList {\n        title\n        id\n      }\n    }\n  }\n  sourceLists {\n    nodes {\n      id\n      title\n    }\n  }\n}\n\nfragment ChecklistDetails_lists on RootQuery {\n  listoryListSearch(first: 100) {\n    nodes {\n      id\n      title\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "942fbf3af4e551f69eb4b0d2f94e4c48";
+(node as any).hash = "452750027427d331a9ff47ae01be94a4";
 
 export default node;
