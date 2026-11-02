@@ -6,7 +6,7 @@ require dirname(__DIR__) . '/bootstrap.php';
 use Listory\Standalone\Schema;
 use Eleph\SQLite\Database;
 
-// Needs a built client (app/client/dist). Run with `composer test:spa`, not as part of `composer test`.
+// Needs a built client (client/dist). Run with `composer test:spa`, not as part of `composer test`.
 function ensure(bool $ok, string $label): void { if (!$ok) throw new RuntimeException($label); }
 $cookies = [];
 function request(string $address, string $path, string $method = 'GET', ?string $body = null, array $headers = []): array {

@@ -32,6 +32,12 @@ dist-ssr
 /client/blob-report/
 /client/playwright/.cache/
 
+# Server
+server/vendor/
+
+# Local SQLite database and sessions
+.standalone/
+
 # Environment
 .env
 .env.prod
