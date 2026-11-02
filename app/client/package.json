@@ -16,7 +16,7 @@
     "routes": "tsquid-codegen routes.json src/routes/__generated__/routes.ts",
     "routes:check": "tsquid-codegen routes.json src/routes/__generated__/routes.ts --check",
     "lint:fix": "eslint src --fix --max-warnings 0 && tsquid-check-architecture",
-    "check": "npm run routes:check && npm run lint && npm run relay:check && npm run build",
+    "check": "npm run routes:check && npm run lint && npm run relay:check && npm run build && tsc -p tsconfig.e2e.json",
     "theme": "astryx theme build src/theme/ListoryTheme.ts --out src/theme/__generated__/listory.css"
   },
   "dependencies": {
