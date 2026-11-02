@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<9443718e578d843d9901175caedc3ca2>>
- * @relayHash 026aba392d24fd9dd6afc2a15fab79a9
+ * @generated SignedSource<<44c0509954e7746666ee46ab8886ab9e>>
+ * @relayHash 19dd8491e9ae7156371c0391ead8820f
  * @lightSyntaxTransform
  */
 
@@ -8,7 +8,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 026aba392d24fd9dd6afc2a15fab79a9
+// @relayRequestID 19dd8491e9ae7156371c0391ead8820f
 
 import { ConcreteRequest } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
@@ -18,7 +18,7 @@ export type ChecklistRecordQuery$variables = {
 export type ChecklistRecordQuery$data = {
   readonly listoryChecklist: {
     readonly id: string;
-    readonly " $fragmentSpreads": FragmentRefs<"ChecklistDetails_checklist">;
+    readonly " $fragmentSpreads": FragmentRefs<"ChecklistDetails_checklist" | "ChecklistForm_checklist">;
   } | null | undefined;
   readonly " $fragmentSpreads": FragmentRefs<"ChecklistDetails_lists">;
 };
@@ -98,6 +98,11 @@ return {
             "args": null,
             "kind": "FragmentSpread",
             "name": "ChecklistDetails_checklist"
+          },
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "ChecklistForm_checklist"
           }
         ],
         "storageKey": null
@@ -210,16 +215,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "026aba392d24fd9dd6afc2a15fab79a9",
-    "id": "026aba392d24fd9dd6afc2a15fab79a9",
+    "cacheID": "19dd8491e9ae7156371c0391ead8820f",
+    "id": "19dd8491e9ae7156371c0391ead8820f",
     "metadata": {},
     "name": "ChecklistRecordQuery",
     "operationKind": "query",
-    "text": "query ChecklistRecordQuery(\n  $id: ID!\n) {\n  listoryChecklist(id: $id) {\n    id\n    ...ChecklistDetails_checklist\n  }\n  ...ChecklistDetails_lists\n}\n\nfragment ChecklistDetails_checklist on ListoryChecklist {\n  id\n  title\n  completedAt\n  items(first: 100) {\n    nodes {\n      id\n      name\n      checked\n      sourceList {\n        title\n        id\n      }\n    }\n  }\n  sourceLists {\n    nodes {\n      id\n      title\n    }\n  }\n}\n\nfragment ChecklistDetails_lists on RootQuery {\n  listoryListSearch(first: 100) {\n    nodes {\n      id\n      title\n    }\n  }\n}\n"
+    "text": "query ChecklistRecordQuery(\n  $id: ID!\n) {\n  listoryChecklist(id: $id) {\n    id\n    ...ChecklistDetails_checklist\n    ...ChecklistForm_checklist\n  }\n  ...ChecklistDetails_lists\n}\n\nfragment ChecklistDetails_checklist on ListoryChecklist {\n  id\n  title\n  completedAt\n  items(first: 100) {\n    nodes {\n      id\n      name\n      checked\n      sourceList {\n        title\n        id\n      }\n    }\n  }\n  sourceLists {\n    nodes {\n      id\n      title\n    }\n  }\n}\n\nfragment ChecklistDetails_lists on RootQuery {\n  listoryListSearch(first: 100) {\n    nodes {\n      id\n      title\n    }\n  }\n}\n\nfragment ChecklistForm_checklist on ListoryChecklist {\n  id\n  title\n}\n"
   }
 };
 })();
 
-(node as any).hash = "452750027427d331a9ff47ae01be94a4";
+(node as any).hash = "e0fe357c7380b650f4442c3b69380d81";
 
 export default node;

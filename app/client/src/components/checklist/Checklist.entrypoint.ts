@@ -25,7 +25,8 @@ export const CHECKLIST_ENTRY_POINT: RouteEntryPoint<
         },
       },
       record:
-        route.currentRoute === RouteName.ChecklistDetail
+        route.currentRoute === RouteName.ChecklistDetail ||
+        route.currentRoute === RouteName.ChecklistEdit
           ? { parameters: RECORD_QUERY, variables: { id: route.input.id } }
           : undefined,
     },

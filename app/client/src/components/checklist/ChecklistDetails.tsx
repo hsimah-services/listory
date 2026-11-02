@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import { graphql, useFragment } from "react-relay";
 import { Button } from "@astryxdesign/core/Button";
 import { CheckboxListItem } from "@astryxdesign/core/CheckboxList";
@@ -9,6 +10,11 @@ import { Stack } from "@astryxdesign/core/Stack";
 import { Text } from "@astryxdesign/core/Text";
 import * as stylex from "@stylexjs/stylex";
 import { useCanWrite } from "../../relay/useCanWrite";
+import {
+  ChecklistEditURI,
+  ChecklistIndexURI,
+} from "../../routes/__generated__/routes";
+import { useChecklistDetailsDeleteMutation } from "./details/useChecklistDetailsDeleteMutation";
 import { useChecklistDetailsSourceListsMutation } from "./details/useChecklistDetailsSourceListsMutation";
 import { useChecklistDetailsToggleItemMutation } from "./details/useChecklistDetailsToggleItemMutation";
 import type { ChecklistDetails_checklist$key } from "./__generated__/ChecklistDetails_checklist.graphql";
@@ -30,6 +36,18 @@ export function ChecklistDetails({ checklistRef, listsRef }: ChecklistDetailsPro
         </Text>
         <Text>{state.summary}</Text>
       </Stack>
+      {canWrite && (
+        <Stack direction="horizontal" gap={2}>
+          <Button label="Edit" href={ChecklistEditURI.getURI({ id: checklist.id })} />
+          <Button
+            label="Delete"
+            variant="destructive"
+            isLoading={state.deleting}
+            isDisabled={state.deleting}
+            onClick={state.deleteChecklist}
+          />
+        </Stack>
+      )}
       {state.error && <Text role="alert">{state.error}</Text>}
       {canWrite && (
         <Stack gap={2}>
@@ -176,6 +194,8 @@ function useChecklistDetails({
   const canWrite = useCanWrite();
   const toggler = useChecklistDetailsToggleItemMutation();
   const sourceMutation = useChecklistDetailsSourceListsMutation();
+  const deleter = useChecklistDetailsDeleteMutation();
+  const navigate = useNavigate();
   // Checkbox values requested but not yet confirmed by the server, keyed by item id.
   const [pending, setPending] = useState<ReadonlyMap<string, boolean>>(
     () => new Map(),
@@ -213,6 +233,30 @@ function useChecklistDetails({
       { input: { id: checklist.id, sourceLists: nextIds } },
       completed,
       (problem) => setSourceError(`${failure} ${problem.message}`),
+    );
+  }
+
+  function deleteChecklist() {
+    if (!canWrite || deleter.pending) return;
+    if (
+      !window.confirm(
+        `Delete "${checklist.title}"? Your permanent lists are not affected.`,
+      )
+    )
+      return;
+    setError("");
+    deleter.save(
+      { input: { id: checklist.id } },
+      (response) => {
+        if (!response.deleteListoryChecklist?.deletedId) {
+          setError(
+            "The server did not confirm deletion. Check the checklists before retrying.",
+          );
+          return;
+        }
+        navigate(ChecklistIndexURI.getURI({}));
+      },
+      (failure) => setError(`Could not delete the checklist. ${failure.message}`),
     );
   }
 
@@ -255,6 +299,8 @@ function useChecklistDetails({
     setPicked,
     removeSourceList,
     addSourceList,
+    deleting: deleter.pending,
+    deleteChecklist,
   };
 }
 

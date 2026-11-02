@@ -9,8 +9,13 @@ import { ChecklistRecord } from "./ChecklistRecord";
 export function ChecklistRoute({ queries }: ChecklistRouteProps) {
   const route = useChecklistRouteContext();
   const detail =
-    route.currentRoute === RouteName.ChecklistDetail && queries.record
-      ? createElement(ChecklistRecord, { reference: queries.record })
+    (route.currentRoute === RouteName.ChecklistDetail ||
+      route.currentRoute === RouteName.ChecklistEdit) &&
+    queries.record
+      ? createElement(ChecklistRecord, {
+          reference: queries.record,
+          edit: route.currentRoute === RouteName.ChecklistEdit,
+        })
       : null;
   return createElement(ChecklistPage, {
     reference: queries.page,
