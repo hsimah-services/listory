@@ -15,6 +15,10 @@ import {
   ListEditRouteContext,
   ChecklistIndexURI,
   ChecklistIndexRouteContext,
+  ChecklistNewURI,
+  ChecklistNewRouteContext,
+  ChecklistDetailURI,
+  ChecklistDetailRouteContext,
 } from "./__generated__/routes";
 
 export const APP_ROUTES = [
@@ -46,6 +50,16 @@ export const APP_ROUTES = [
   defineRoute({
     uri: ChecklistIndexURI,
     context: ChecklistIndexRouteContext,
+    entryPoint: CHECKLIST_ENTRY_POINT,
+  }),
+  defineRoute({
+    uri: ChecklistNewURI,
+    context: ChecklistNewRouteContext,
+    entryPoint: CHECKLIST_ENTRY_POINT,
+  }),
+  defineRoute({
+    uri: ChecklistDetailURI,
+    context: ChecklistDetailRouteContext,
     entryPoint: CHECKLIST_ENTRY_POINT,
   }),
 ];

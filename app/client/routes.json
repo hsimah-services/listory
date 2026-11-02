@@ -61,6 +61,27 @@
         "status": { "kind": "string", "optional": true }
       },
       "ssr": false
+    },
+    {
+      "name": "ChecklistNew",
+      "entryPoint": "src/components/checklist/Checklist.entrypoint.ts",
+      "path": "/checklists/new",
+      "fields": {
+        "term": { "kind": "string", "optional": true },
+        "status": { "kind": "string", "optional": true }
+      },
+      "ssr": false
+    },
+    {
+      "name": "ChecklistDetail",
+      "entryPoint": "src/components/checklist/Checklist.entrypoint.ts",
+      "path": "/checklists/:id",
+      "fields": {
+        "term": { "kind": "string", "optional": true },
+        "status": { "kind": "string", "optional": true },
+        "id": { "kind": "string" }
+      },
+      "ssr": false
     }
   ],
   "persistedQueries": "persisted_queries.json"

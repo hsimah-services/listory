@@ -131,6 +131,45 @@
           "in": "query"
         }
       }
+    },
+    {
+      "name": "ChecklistNew",
+      "path": "/checklists/new",
+      "ssr": false,
+      "fields": {
+        "status": {
+          "kind": "string",
+          "optional": true,
+          "in": "query"
+        },
+        "term": {
+          "kind": "string",
+          "optional": true,
+          "in": "query"
+        }
+      }
+    },
+    {
+      "name": "ChecklistDetail",
+      "path": "/checklists/:id",
+      "ssr": false,
+      "fields": {
+        "id": {
+          "kind": "string",
+          "optional": false,
+          "in": "path"
+        },
+        "status": {
+          "kind": "string",
+          "optional": true,
+          "in": "query"
+        },
+        "term": {
+          "kind": "string",
+          "optional": true,
+          "in": "query"
+        }
+      }
     }
   ]
 }

@@ -7,6 +7,7 @@ import { ToggleButton } from "@astryxdesign/core/ToggleButton";
 import { Stack } from "@astryxdesign/core/Stack";
 import { Text } from "@astryxdesign/core/Text";
 import { TextInput } from "@astryxdesign/core/TextInput";
+import { ChecklistForm } from "./ChecklistForm";
 import { ChecklistList } from "./ChecklistList";
 import { CHECKLIST_STATUS, type ChecklistStatus } from "./ChecklistStatus";
 import { QueryBoundary } from "../../relay/QueryBoundary";
@@ -18,6 +19,7 @@ import type { ChecklistPageQuery } from "./__generated__/ChecklistPageQuery.grap
 const QUERY = graphql`
   query ChecklistPageQuery($term: String = "", $completed: Boolean) {
     ...ChecklistList_query @arguments(term: $term, completed: $completed)
+    ...ChecklistForm_query
   }
 `;
 
@@ -29,10 +31,13 @@ const STATUS_LABELS: Record<ChecklistStatus, string> = {
 
 export function ChecklistPage({
   reference,
+  creating = false,
 }: {
   reference: PreloadedQuery<ChecklistPageQuery>;
+  creating?: boolean;
 }) {
   const state = useChecklistPage(reference);
+  if (creating) return <ChecklistPage_New reference={reference} />;
   return (
     <Stack gap={4}>
       <Text as="h1" type="display-2">
@@ -122,4 +127,20 @@ function ChecklistPage_Results({
 }) {
   const data = usePreloadedQuery<ChecklistPageQuery>(QUERY, reference);
   return <ChecklistList queryRef={data} emptyMessage={emptyMessage} />;
+}
+
+function ChecklistPage_New({
+  reference,
+}: {
+  reference: PreloadedQuery<ChecklistPageQuery>;
+}) {
+  const data = usePreloadedQuery<ChecklistPageQuery>(QUERY, reference);
+  return (
+    <Stack gap={4}>
+      <Text as="h1" type="display-2">
+        New checklist
+      </Text>
+      <ChecklistForm queryRef={data} />
+    </Stack>
+  );
 }
