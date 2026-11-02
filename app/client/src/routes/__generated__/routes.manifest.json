@@ -170,6 +170,28 @@
           "in": "query"
         }
       }
+    },
+    {
+      "name": "ChecklistEdit",
+      "path": "/checklists/:id/edit",
+      "ssr": false,
+      "fields": {
+        "id": {
+          "kind": "string",
+          "optional": false,
+          "in": "path"
+        },
+        "status": {
+          "kind": "string",
+          "optional": true,
+          "in": "query"
+        },
+        "term": {
+          "kind": "string",
+          "optional": true,
+          "in": "query"
+        }
+      }
     }
   ]
 }

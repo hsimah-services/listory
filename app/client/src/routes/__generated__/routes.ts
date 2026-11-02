@@ -11,6 +11,7 @@ export enum RouteName {
   ChecklistIndex = "ChecklistIndex",
   ChecklistNew = "ChecklistNew",
   ChecklistDetail = "ChecklistDetail",
+  ChecklistEdit = "ChecklistEdit",
 }
 
 export type HomeInputType = {
@@ -102,6 +103,14 @@ export type ChecklistDetailInputType = {
 export const ChecklistDetailURI = createURI<ChecklistDetailInputType>("/checklists/:id", {"id":{"kind":"string","optional":false},"status":{"kind":"string","optional":true},"term":{"kind":"string","optional":true}});
 
 
+export type ChecklistEditInputType = {
+  id: string;
+  status?: string;
+  term?: string;
+};
+export const ChecklistEditURI = createURI<ChecklistEditInputType>("/checklists/:id/edit", {"id":{"kind":"string","optional":false},"status":{"kind":"string","optional":true},"term":{"kind":"string","optional":true}});
+
+
 export type RouteContextType =
   RouteContextValue<HomeInputType, RouteName.Home>
   | RouteContextValue<ListIndexInputType, RouteName.ListIndex>
@@ -110,7 +119,8 @@ export type RouteContextType =
   | RouteContextValue<ListEditInputType, RouteName.ListEdit>
   | RouteContextValue<ChecklistIndexInputType, RouteName.ChecklistIndex>
   | RouteContextValue<ChecklistNewInputType, RouteName.ChecklistNew>
-  | RouteContextValue<ChecklistDetailInputType, RouteName.ChecklistDetail>;
+  | RouteContextValue<ChecklistDetailInputType, RouteName.ChecklistDetail>
+  | RouteContextValue<ChecklistEditInputType, RouteName.ChecklistEdit>;
 
 const ROUTE_CONTEXT = createRouteContextRegistry<RouteContextType>();
 export const HomeRouteContext = ROUTE_CONTEXT.forRoute(RouteName.Home);
@@ -121,13 +131,15 @@ export const ListEditRouteContext = ROUTE_CONTEXT.forRoute(RouteName.ListEdit);
 export const ChecklistIndexRouteContext = ROUTE_CONTEXT.forRoute(RouteName.ChecklistIndex);
 export const ChecklistNewRouteContext = ROUTE_CONTEXT.forRoute(RouteName.ChecklistNew);
 export const ChecklistDetailRouteContext = ROUTE_CONTEXT.forRoute(RouteName.ChecklistDetail);
+export const ChecklistEditRouteContext = ROUTE_CONTEXT.forRoute(RouteName.ChecklistEdit);
 
 export type ChecklistEntryPointParams =
   { currentRoute: RouteName.ChecklistIndex; input: ChecklistIndexInputType }
   | { currentRoute: RouteName.ChecklistNew; input: ChecklistNewInputType }
-  | { currentRoute: RouteName.ChecklistDetail; input: ChecklistDetailInputType };
+  | { currentRoute: RouteName.ChecklistDetail; input: ChecklistDetailInputType }
+  | { currentRoute: RouteName.ChecklistEdit; input: ChecklistEditInputType };
 
-export type ChecklistRouteContextType = Extract<RouteContextType, { currentRoute: RouteName.ChecklistIndex | RouteName.ChecklistNew | RouteName.ChecklistDetail }>;
+export type ChecklistRouteContextType = Extract<RouteContextType, { currentRoute: RouteName.ChecklistIndex | RouteName.ChecklistNew | RouteName.ChecklistDetail | RouteName.ChecklistEdit }>;
 export function useChecklistRouteContext(): ChecklistRouteContextType {
   const context = ROUTE_CONTEXT.useRouteContext();
   const currentRoute = context.currentRoute;
@@ -135,6 +147,7 @@ export function useChecklistRouteContext(): ChecklistRouteContextType {
     case RouteName.ChecklistIndex:
     case RouteName.ChecklistNew:
     case RouteName.ChecklistDetail:
+    case RouteName.ChecklistEdit:
       return context;
     default:
       throw new Error('useChecklistRouteContext requires the Checklist entrypoint; current route is ' + currentRoute);

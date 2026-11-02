@@ -9,7 +9,7 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   tsquid-manifest.php
- * digest: sha256:dfbcd55206b0a701eb2dd0307c2d8a2b8fe61cb79cdbfeca913420fb0198c4a7
+ * digest: sha256:5b81047c78f0628fa8fa764a8471716f49b397160266ce78ca15c457de1730c1
  */
 
 return new \Eleph\Tsquid\Manifest((object) ['routes' => [(object) ['fields' => (object) [], 'name' => 'Home', 'path' => '/', 'query' => (object) ['id' => '16d39c6c5035435c9980c4131011b209', 'operation' => 'HomePageQuery', 'text' => 'query HomePageQuery {
@@ -121,4 +121,4 @@ fragment ListList_query_4hh6ED on RootQuery {
     }
   }
 }
-', 'variables' => (object) ['term' => (object) ['default' => '', 'input' => 'term']]], 'ssr' => true], (object) ['fields' => (object) ['status' => (object) ['in' => 'query', 'kind' => 'string', 'optional' => true], 'term' => (object) ['in' => 'query', 'kind' => 'string', 'optional' => true]], 'name' => 'ChecklistIndex', 'path' => '/checklists', 'ssr' => false], (object) ['fields' => (object) ['status' => (object) ['in' => 'query', 'kind' => 'string', 'optional' => true], 'term' => (object) ['in' => 'query', 'kind' => 'string', 'optional' => true]], 'name' => 'ChecklistNew', 'path' => '/checklists/new', 'ssr' => false], (object) ['fields' => (object) ['id' => (object) ['in' => 'path', 'kind' => 'string', 'optional' => false], 'status' => (object) ['in' => 'query', 'kind' => 'string', 'optional' => true], 'term' => (object) ['in' => 'query', 'kind' => 'string', 'optional' => true]], 'name' => 'ChecklistDetail', 'path' => '/checklists/:id', 'ssr' => false]], 'version' => 1]);
+', 'variables' => (object) ['term' => (object) ['default' => '', 'input' => 'term']]], 'ssr' => true], (object) ['fields' => (object) ['status' => (object) ['in' => 'query', 'kind' => 'string', 'optional' => true], 'term' => (object) ['in' => 'query', 'kind' => 'string', 'optional' => true]], 'name' => 'ChecklistIndex', 'path' => '/checklists', 'ssr' => false], (object) ['fields' => (object) ['status' => (object) ['in' => 'query', 'kind' => 'string', 'optional' => true], 'term' => (object) ['in' => 'query', 'kind' => 'string', 'optional' => true]], 'name' => 'ChecklistNew', 'path' => '/checklists/new', 'ssr' => false], (object) ['fields' => (object) ['id' => (object) ['in' => 'path', 'kind' => 'string', 'optional' => false], 'status' => (object) ['in' => 'query', 'kind' => 'string', 'optional' => true], 'term' => (object) ['in' => 'query', 'kind' => 'string', 'optional' => true]], 'name' => 'ChecklistDetail', 'path' => '/checklists/:id', 'ssr' => false], (object) ['fields' => (object) ['id' => (object) ['in' => 'path', 'kind' => 'string', 'optional' => false], 'status' => (object) ['in' => 'query', 'kind' => 'string', 'optional' => true], 'term' => (object) ['in' => 'query', 'kind' => 'string', 'optional' => true]], 'name' => 'ChecklistEdit', 'path' => '/checklists/:id/edit', 'ssr' => false]], 'version' => 1]);
