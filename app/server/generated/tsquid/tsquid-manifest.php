@@ -9,12 +9,31 @@ declare(strict_types=1);
  * detected by the build and rejected.
  *
  * path:   tsquid-manifest.php
- * digest: sha256:5b81047c78f0628fa8fa764a8471716f49b397160266ce78ca15c457de1730c1
+ * digest: sha256:2279ce65d35cc3a66aed1b498531978bf20541de32c7e800c0c00d68b50469a5
  */
 
-return new \Eleph\Tsquid\Manifest((object) ['routes' => [(object) ['fields' => (object) [], 'name' => 'Home', 'path' => '/', 'query' => (object) ['id' => '16d39c6c5035435c9980c4131011b209', 'operation' => 'HomePageQuery', 'text' => 'query HomePageQuery {
-  listoryLists(first: 1) {
+return new \Eleph\Tsquid\Manifest((object) ['routes' => [(object) ['fields' => (object) [], 'name' => 'Home', 'path' => '/', 'query' => (object) ['id' => '85f67a6e82e24c867b459ceddabf0683', 'operation' => 'HomePageQuery', 'text' => 'query HomePageQuery {
+  active: listoryChecklistSearch(where: {completed: false}, first: 5) {
     totalCount
+    nodes {
+      id
+      ...HomePage_checklist
+    }
+  }
+  lists: listoryListSearch(first: 1) {
+    totalCount
+  }
+}
+
+fragment HomePage_checklist on ListoryChecklist {
+  id
+  title
+  items(first: 100) {
+    totalCount
+    nodes {
+      checked
+      id
+    }
   }
 }
 ', 'variables' => (object) []], 'ssr' => true], (object) ['fields' => (object) ['term' => (object) ['in' => 'query', 'kind' => 'string', 'optional' => true]], 'name' => 'ListIndex', 'path' => '/lists', 'query' => (object) ['id' => '20016724b03ebfd4e622133f9f66b6ee', 'operation' => 'ListPageQuery', 'text' => 'query ListPageQuery(

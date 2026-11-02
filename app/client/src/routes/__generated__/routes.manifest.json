@@ -8,8 +8,8 @@
       "fields": {},
       "query": {
         "operation": "HomePageQuery",
-        "id": "16d39c6c5035435c9980c4131011b209",
-        "text": "query HomePageQuery {\n  listoryLists(first: 1) {\n    totalCount\n  }\n}\n",
+        "id": "85f67a6e82e24c867b459ceddabf0683",
+        "text": "query HomePageQuery {\n  active: listoryChecklistSearch(where: {completed: false}, first: 5) {\n    totalCount\n    nodes {\n      id\n      ...HomePage_checklist\n    }\n  }\n  lists: listoryListSearch(first: 1) {\n    totalCount\n  }\n}\n\nfragment HomePage_checklist on ListoryChecklist {\n  id\n  title\n  items(first: 100) {\n    totalCount\n    nodes {\n      checked\n      id\n    }\n  }\n}\n",
         "variables": {}
       }
     },
