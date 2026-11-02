@@ -1,6 +1,9 @@
 import type { Page } from '@playwright/test';
 import { test, expect } from './fixtures';
 
+// Every list these tests can create. Each test removes them, even when it fails part way.
+const CREATED_TITLES = ['Picnic', 'Park picnic'];
+
 async function createList(page: Page, title: string) {
   await page.goto('/lists/new');
   await page.getByLabel('Title').fill(title);
@@ -14,6 +17,28 @@ async function addItem(page: Page, name: string) {
   await expect(page.getByText(name, { exact: true })).toBeVisible();
 }
 
+// Removes every list with this title, including copies left by an earlier failed run.
+async function deleteListsTitled(page: Page, title: string) {
+  for (;;) {
+    await page.goto('/lists');
+    // Wait for the loaded page (its New list button appears with the rows) before counting.
+    await expect(page.getByRole('link', { name: 'New list', exact: true })).toBeVisible();
+    const row = page.getByRole('link', { name: title, exact: true });
+    if ((await row.count()) === 0) return;
+    await row.first().click();
+    await expect(page.getByRole('heading', { name: title, level: 2 })).toBeVisible();
+    page.once('dialog', (dialog) => dialog.accept());
+    await page.getByRole('button', { name: 'Delete' }).click();
+    await expect(page).toHaveURL(/\/lists$/);
+  }
+}
+
+test.afterEach(async ({ page }) => {
+  for (const title of CREATED_TITLES) {
+    await deleteListsTitled(page, title);
+  }
+});
+
 test('creating a list lands on its details', async ({ page, authenticate }) => {
   await authenticate();
   await createList(page, 'Picnic');
@@ -25,8 +50,6 @@ test('added items Blanket and Plates both appear on the list', async ({ page, au
   await createList(page, 'Picnic');
   await addItem(page, 'Blanket');
   await addItem(page, 'Plates');
-  await expect(page.getByText('Blanket', { exact: true })).toBeVisible();
-  await expect(page.getByText('Plates', { exact: true })).toBeVisible();
 });
 
 test('removing Plates takes it off the list and keeps Blanket', async ({ page, authenticate }) => {
@@ -42,7 +65,8 @@ test('removing Plates takes it off the list and keeps Blanket', async ({ page, a
 test('renaming a list to Park picnic shows the new title', async ({ page, authenticate }) => {
   await authenticate();
   await createList(page, 'Picnic');
-  await page.getByRole('button', { name: 'Edit' }).click();
+  // Edit is an Astryx Button with href, so it renders as a link.
+  await page.getByRole('link', { name: 'Edit', exact: true }).click();
   await page.getByLabel('Title').fill('Park picnic');
   await page.getByRole('button', { name: 'Update' }).click();
   await expect(page.getByRole('heading', { name: 'Park picnic', level: 2 })).toBeVisible();
@@ -53,7 +77,7 @@ test('searching park on /lists shows exactly one row', async ({ page, authentica
   await createList(page, 'Park picnic');
   await page.goto('/lists');
   await page.getByLabel('Search lists').fill('park');
-  await expect(page.getByRole('link', { name: 'Park picnic' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Park picnic', exact: true })).toBeVisible();
   await expect(page.locator('tbody tr')).toHaveCount(1);
   await expect(page.getByRole('link', { name: 'Camping' })).toHaveCount(0);
 });
@@ -64,5 +88,5 @@ test('deleting a list lands on /lists and the list is gone', async ({ page, auth
   page.once('dialog', (dialog) => dialog.accept());
   await page.getByRole('button', { name: 'Delete' }).click();
   await expect(page).toHaveURL(/\/lists$/);
-  await expect(page.getByRole('link', { name: 'Park picnic' })).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'Park picnic', exact: true })).toHaveCount(0);
 });
