@@ -87,9 +87,8 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            app/server/vendor/elephentity/*/target
             server/vendor/elephentity/*/target
-          key: ${{ runner.os }}-eleph-generators-${{ hashFiles('app/server/composer.lock', 'server/composer.lock') }}
+          key: ${{ runner.os }}-eleph-generators-${{ hashFiles('server/composer.lock') }}
           restore-keys: ${{ runner.os }}-eleph-generators-
 
       - uses: actions/checkout@v4

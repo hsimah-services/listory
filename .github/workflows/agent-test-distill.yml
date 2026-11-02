@@ -54,13 +54,12 @@ jobs:
             echo "skip=true" >> "$GITHUB_OUTPUT"
           fi
 
-      # The standalone app lives under app/ during the rebuild, then at the root.
+      # The standalone app lives at the repository root.
       - name: Locate test suites
         id: app
         if: steps.gate.outputs.skip != 'true'
         run: |
-          if [[ -f app/server/composer.json ]]; then root=app/
-          elif [[ -f server/composer.json ]]; then root=
+          if [[ -f server/composer.json ]]; then root=
           else echo "No standalone app; skipping."; echo "skip=true" >> "$GITHUB_OUTPUT"; exit 0
           fi
           if ! compgen -G "${root}server/standalone/tests/*.php" >/dev/null && ! compgen -G "${root}client/e2e/*.spec.ts" >/dev/null; then

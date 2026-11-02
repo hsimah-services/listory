@@ -28,4 +28,4 @@ COPY --from=docker.io/library/composer:2 /usr/bin/composer /usr/bin/composer
 # user to root inside the container.
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
-WORKDIR /work/listory/app/server
+WORKDIR /work/listory/server

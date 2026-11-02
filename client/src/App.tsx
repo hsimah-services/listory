@@ -1,41 +1,49 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { Suspense } from 'react';
-import { ApolloProvider } from '@apollo/client/react';
-import { client } from '@/lib/apollo';
-import { DataProvider } from '@/context/DataContext';
-import { Layout } from '@/components/layout/Layout';
-import { routeMap } from '@/lib/route-map';
+import { BrowserRouter, Route, Routes, useMatch } from "react-router";
+import { RelayEnvironmentProvider } from "react-relay";
+import { Text } from "@astryxdesign/core/Text";
+import { ENVIRONMENT } from "./relay/environment";
+import { NavigationShell } from "./components/navigation/NavigationShell";
+import { SessionBoundary } from "./components/session/SessionBoundary";
+import { QueryBoundary } from "./relay/QueryBoundary";
+import { APP_ROUTES } from "./routes/AppRoutes";
+import { useState } from "react";
 
-function App() {
+export function App() {
   return (
-    <ApolloProvider client={client}>
-      <DataProvider>
-        <BrowserRouter basename='/listory'>
-          <Layout>
-            <Suspense fallback={<div className="p-4">Loading...</div>}>
-              <Routes>
-                {routeMap.map((route) => (
-                  <Route
-                    key={route.path}
-                    path={route.path}
-                    element={<route.element />}
-                  >
-                    {route.children?.map((child) => (
-                      <Route
-                        key={`${route.path}/${child.path}`}
-                        path={child.path}
-                        element={<child.element />}
-                      />
-                    ))}
-                  </Route>
-                ))}
-              </Routes>
-            </Suspense>
-          </Layout>
+    <SessionBoundary>
+      <RelayEnvironmentProvider environment={ENVIRONMENT}>
+        <BrowserRouter>
+          <NavigationShell>
+            <App_Routes />
+          </NavigationShell>
         </BrowserRouter>
-      </DataProvider>
-    </ApolloProvider>
+      </RelayEnvironmentProvider>
+    </SessionBoundary>
   );
 }
 
-export default App;
+function App_Routes() {
+  // Any page change clears a previous error; the full pathname is the reset key.
+  const current = useMatch("/*");
+  const [attempt, setAttempt] = useState(0);
+  return (
+    <QueryBoundary
+      key={attempt}
+      resetKey={current?.pathname ?? ""}
+      retry={() => setAttempt((value) => value + 1)}
+    >
+      <Routes>
+        {APP_ROUTES.map((route) => (
+          <Route
+            key={route.path}
+            path={route.path}
+            element={
+              <route.Root fallback={<Text role="status">Loading…</Text>} />
+            }
+          />
+        ))}
+        <Route path="*" element={<Text>Page not found.</Text>} />
+      </Routes>
+    </QueryBoundary>
+  );
+}

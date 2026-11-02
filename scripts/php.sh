@@ -2,22 +2,22 @@
 #
 # Run a build-time PHP command against Listory's PHP application, in a throwaway container.
 #
-#   app/scripts/php.sh composer install
-#   app/scripts/php.sh vendor/bin/eleph-codegen doctor --project .
-#   app/scripts/php.sh vendor/bin/eleph generate --project .
-#   app/scripts/php.sh bash                   # interactive shell
+#   scripts/php.sh composer install
+#   scripts/php.sh vendor/bin/eleph-codegen doctor --project .
+#   scripts/php.sh vendor/bin/eleph generate --project .
+#   scripts/php.sh bash                   # interactive shell
 #
 # There is no host PHP and generation needs 8.3, so this is how the eleph commands
 # get run. Generation is a build step and requires no running application. The container is
 # removed on exit (--rm) and podman has no daemon, so nothing is left running.
 #
-# The working directory inside the container is `app/server/`, which is where eleph.json
+# The working directory inside the container is `server/`, which is where eleph.json
 # lives and where every command in the build loop is run from. The whole repository is
-# mounted rather than only `app/`, because eleph.json will reference paths in `app/client`.
+# mounted rather than only `server/`, because eleph.json references paths in `client/`.
 
 set -euo pipefail
 
-REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 IMAGE="listory-php:8.3-rust"
 CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/listory/composer"
@@ -27,14 +27,14 @@ if command -v podman >/dev/null 2>&1; then
 elif command -v docker >/dev/null 2>&1; then
     ENGINE=docker
 else
-    echo "app/scripts/php.sh: needs podman or docker." >&2
+    echo "scripts/php.sh: needs podman or docker." >&2
     echo "  Fedora:  sudo dnf install podman" >&2
     exit 1
 fi
 
 if ! "$ENGINE" image inspect "$IMAGE" >/dev/null 2>&1; then
     echo "Building $IMAGE (first run only)..." >&2
-    "$ENGINE" build -t "$IMAGE" -f "$REPO/app/.docker/php/Dockerfile" "$REPO/app/.docker/php"
+    "$ENGINE" build -t "$IMAGE" -f "$REPO/.docker/php/Dockerfile" "$REPO/.docker/php"
 fi
 
 # Run as the host user so nothing in the working tree ends up owned by root.
@@ -64,5 +64,5 @@ exec "$ENGINE" run --rm \
     -e COMPOSER_HOME=/composer \
     `# An arbitrary UID has no passwd entry, so HOME is unset and some tools fall over.` \
     -e HOME=/tmp \
-    -w /work/listory/app/server \
+    -w /work/listory/server \
     "$IMAGE" "$@"

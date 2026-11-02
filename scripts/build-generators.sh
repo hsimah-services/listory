@@ -1,5 +1,5 @@
 #!/bin/sh
-# Build every Elephentity Rust generator that Composer installed. Run from app/server.
+# Build every Elephentity Rust generator that Composer installed. Run from server/.
 set -eu
 
 for package_dir in vendor/elephentity/codegen*/; do

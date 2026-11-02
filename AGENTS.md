@@ -2,14 +2,10 @@
 
 Listory is a checklist app. Users keep **permanent lists**, which are reusable templates of
 items. They create **checklists** by merging one or more permanent lists into a single
-list they tick off. This folder is the WordPress-free rebuild:
+list they tick off. It has two parts:
 
-- **Server:** PHP 8.3, SQLite and Elephentity, under `app/server/`.
-- **Client:** React with tsquid, Relay, Astryx and StyleX, under `app/client/`.
-
-`server/` (the WordPress plugin) and `client/` (the Apollo client) at the repository root
-are legacy. Read them to learn existing behaviour, but never change them unless the
-issue says so.
+- **Server:** PHP 8.3, SQLite and Elephentity, under `server/`.
+- **Client:** React with tsquid, Relay, Astryx and StyleX, under `client/`.
 
 ## Reference implementation
 
@@ -28,17 +24,17 @@ last section).
 ## Layout
 
 ```
-app/server/spec/          Elephentity specs. The source of truth for the data model.
-app/server/generated/     Generated and signed. Committed. NEVER edit by hand.
-app/server/src/           Handlers, policies, queries, runtime wiring    (Listory\)
-app/server/standalone/    HTTP, CLI, sessions, schema install, tests    (Listory\Standalone\)
-app/client/               React client
-app/scripts/              Container wrappers for local development
+server/spec/          Elephentity specs. The source of truth for the data model.
+server/generated/     Generated and signed. Committed. NEVER edit by hand.
+server/src/           Handlers, policies, queries, runtime wiring    (Listory\)
+server/standalone/    HTTP, CLI, sessions, schema install, tests    (Listory\Standalone\)
+client/               React client
+scripts/              Container wrappers for local development
 ```
 
 ## Commands
 
-Run server commands from `app/server/`. CI has `php` and `composer` on PATH; locally,
+Run server commands from `server/`. CI has `php` and `composer` on PATH; locally,
 prefix each command with `../scripts/php.sh`.
 
 | What | Command |
@@ -50,15 +46,15 @@ prefix each command with `../scripts/php.sh`.
 | Prove specs and generated code agree | `composer check-generated` |
 | Server tests | `composer test` |
 
-After changing client queries or routes: `npm run relay && npm run routes` in `app/client`, then `vendor/bin/eleph generate` in `app/server`, then commit both.
+After changing client queries or routes: `npm run relay && npm run routes` in `client`, then `vendor/bin/eleph generate` in `server`, then commit both.
 
-Run client commands from `app/client/`: `npm ci`, then `npm run check`.
+Run client commands from `client/`: `npm ci`, then `npm run check`.
 
 ## Definition of done (every PR)
 
 1. Every command in the issue's **Acceptance criteria** passes. List each one in the PR
    body with its result.
-2. If anything under `app/server/` exists, `composer check-generated` and `composer test`
+2. If anything under `server/` exists, `composer check-generated` and `composer test`
    pass, and `git status` shows no uncommitted generated files.
 3. The root `client/` still passes `npm run lint` and `npm run build`. The agent workflow
    checks this.
@@ -113,13 +109,12 @@ must never be renamed to `List`.
 
 ## Database during the rebuild
 
-Nothing under `app/` is deployed yet, so there is no data to preserve. `Schema::VERSION`
-stays `1`. After a spec change, delete your local `app/.standalone/*.sqlite` and run
-`install` again. Do not write migrations.
+`Schema::VERSION` stays `1`. After a spec change, delete your local `.standalone/*.sqlite`
+and run `install` again. Do not write migrations.
 
 ## Server tests
 
-- Tests are plain PHP scripts in `app/server/standalone/tests/`, listed in the `test`
+- Tests are plain PHP scripts in `server/standalone/tests/`, listed in the `test`
   script in `composer.json`.
 - Each script requires `../bootstrap.php`, uses its own `new Database(':memory:')`, and
   uses `check(bool, string)` / `fails(callable, string)` helpers like clog's tests.

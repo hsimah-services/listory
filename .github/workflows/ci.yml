@@ -27,8 +27,7 @@ jobs:
         env:
           VITE_GRAPHQL_URL: /graphql
 
-  # The Elephentity app, wherever it lives: app/ during the rebuild, the
-  # repository root after it is promoted. Skips until it exists.
+  # The Elephentity app at the repository root. Skips if it is missing.
   standalone:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -38,8 +37,7 @@ jobs:
       - name: Locate the standalone app
         id: app
         run: |
-          if [[ -f app/server/composer.json ]]; then root=app/
-          elif [[ -f server/composer.json ]]; then root=
+          if [[ -f server/composer.json ]]; then root=
           else echo "No standalone app yet; skipping."; echo "found=false" >> "$GITHUB_OUTPUT"; exit 0
           fi
           has_client=false
@@ -69,7 +67,7 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             ${{ steps.app.outputs.server }}/vendor/elephentity/*/target
-          key: ${{ runner.os }}-eleph-generators-${{ hashFiles('app/server/composer.lock', 'server/composer.lock') }}
+          key: ${{ runner.os }}-eleph-generators-${{ hashFiles('server/composer.lock') }}
           restore-keys: ${{ runner.os }}-eleph-generators-
 
       - name: Install locked PHP dependencies
