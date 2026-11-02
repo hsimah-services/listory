@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useNavigate } from "react-router";
 import { graphql, useFragment } from "react-relay";
 import { Button } from "@astryxdesign/core/Button";
 import { List, ListItem } from "@astryxdesign/core/List";
@@ -6,8 +7,9 @@ import { Stack } from "@astryxdesign/core/Stack";
 import { Text } from "@astryxdesign/core/Text";
 import { TextInput } from "@astryxdesign/core/TextInput";
 import { useCanWrite } from "../../relay/useCanWrite";
-import { ListEditURI } from "../../routes/__generated__/routes";
+import { ListEditURI, ListIndexURI } from "../../routes/__generated__/routes";
 import { useListDetailsAddItemMutation } from "./details/useListDetailsAddItemMutation";
+import { useListDetailsDeleteMutation } from "./details/useListDetailsDeleteMutation";
 import { useListDetailsRemoveItemMutation } from "./details/useListDetailsRemoveItemMutation";
 import type { ListDetails_list$key } from "./__generated__/ListDetails_list.graphql";
 
@@ -29,6 +31,13 @@ export function ListDetails({ listRef }: ListDetailsProps) {
       {canWrite && (
         <Stack direction="horizontal" gap={2}>
           <Button label="Edit" href={ListEditURI.getURI({ id: list.id })} />
+          <Button
+            label="Delete"
+            variant="destructive"
+            isLoading={state.deleting}
+            isDisabled={state.deleting}
+            onClick={state.deleteList}
+          />
         </Stack>
       )}
       {state.error && <Text role="alert">{state.error}</Text>}
@@ -113,11 +122,12 @@ function useListDetails({ listRef }: { listRef: ListDetails_list$key }) {
     heading.current?.focus();
   }, [list.id]);
   const items =
-    list.items?.edges?.flatMap((edge) => (edge?.node ? [edge.node] : [])) ??
-    [];
+    list.items?.edges?.flatMap((edge) => (edge?.node ? [edge.node] : [])) ?? [];
   const canWrite = useCanWrite();
   const add = useListDetailsAddItemMutation(list.id);
   const remove = useListDetailsRemoveItemMutation(list.id);
+  const deleter = useListDetailsDeleteMutation();
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [removingIds, setRemovingIds] = useState<ReadonlySet<string>>(
@@ -147,13 +157,33 @@ function useListDetails({ listRef }: { listRef: ListDetails_list$key }) {
         next.delete(id);
         return next;
       });
-    remove.save(
-      id,
-      settle,
-      (failure) => {
-        settle();
-        setError(`Could not remove the item. ${failure.message}`);
+    remove.save(id, settle, (failure) => {
+      settle();
+      setError(`Could not remove the item. ${failure.message}`);
+    });
+  }
+
+  function deleteList() {
+    if (!canWrite || deleter.pending) return;
+    if (
+      !window.confirm(
+        `Delete "${list.title}"? Checklists made from it keep their items.`,
+      )
+    )
+      return;
+    setError("");
+    deleter.save(
+      { input: { id: list.id } },
+      (response) => {
+        if (!response.deleteListoryList?.deletedId) {
+          setError(
+            "The server did not confirm deletion. Check the lists before retrying.",
+          );
+          return;
+        }
+        navigate(ListIndexURI.getURI({}));
       },
+      (failure) => setError(`Could not delete the list. ${failure.message}`),
     );
   }
 
@@ -167,6 +197,8 @@ function useListDetails({ listRef }: { listRef: ListDetails_list$key }) {
     trimmed,
     tooLong,
     pending: add.pending,
+    deleting: deleter.pending,
+    deleteList,
     error,
     removingIds,
     remove: removeItem,
