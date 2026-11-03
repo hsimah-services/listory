@@ -38,7 +38,8 @@ server/vendor/
 # Local SQLite database and sessions
 .standalone/
 
+# TypeScript
+client/tsconfig.e2e.tsbuildinfo
+
 # Environment
 .env
-.env.prod
-client/tsconfig.e2e.tsbuildinfo
