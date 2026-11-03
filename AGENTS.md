@@ -1,4 +1,4 @@
-# Listory standalone: rules for agents
+# Listory: rules for agents
 
 Listory is a checklist app. Users keep **permanent lists**, which are reusable templates of
 items. They create **checklists** by merging one or more permanent lists into a single
@@ -54,10 +54,9 @@ Run client commands from `client/`: `npm ci`, then `npm run check`.
 
 1. Every command in the issue's **Acceptance criteria** passes. List each one in the PR
    body with its result.
-2. If anything under `server/` exists, `composer check-generated` and `composer test`
-   pass, and `git status` shows no uncommitted generated files.
-3. The root `client/` still passes `npm run lint` and `npm run build`. The agent workflow
-   checks this.
+2. In `server/`, `composer check-generated` and `composer test` pass, and `git status`
+   shows no uncommitted generated files.
+3. In `client/`, `npm run check` passes.
 4. Only the files the issue names changed, plus `generated/`, `composer.lock` and
    `package-lock.json` when the issue's commands rewrite them.
 
@@ -107,7 +106,7 @@ must never be renamed to `List`.
   read.
 - Do not add Composer or npm packages unless the issue says to.
 
-## Database during the rebuild
+## Database
 
 `Schema::VERSION` stays `1`. After a spec change, delete your local `.standalone/*.sqlite`
 and run `install` again. Do not write migrations.

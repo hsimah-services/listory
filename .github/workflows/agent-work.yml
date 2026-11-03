@@ -93,7 +93,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Toolchain for the standalone app (issues reference these). Keep these
+      # Toolchain for the app (issues reference these). Keep these
       # steps inline: a local composite action would be editable from PR branches.
       - uses: actions/setup-node@v4
         with:
@@ -155,7 +155,7 @@ jobs:
             1. `git switch -c claude/issue-${{ needs.gate.outputs.number }}` from master.
             2. Make the smallest change that satisfies the issue.
             3. Run every command in the issue's Acceptance criteria; all must pass.
-               In client/: `npm ci`, `npm run lint` and `npm run build` must also pass.
+               In client/: `npm ci` and `npm run check` must also pass.
             4. Commit as `type: description`, push, then open the PR:
                `gh pr create --base master --title "<type: description>" --body "Closes #${{ needs.gate.outputs.number }}<blank line><what changed and how you verified it>"`
             5. `gh issue edit ${{ needs.gate.outputs.number }} --remove-label agent:ready`

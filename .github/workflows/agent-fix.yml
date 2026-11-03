@@ -125,9 +125,9 @@ jobs:
             checkout of hsimah/clog; never edit or commit it.
 
             Fix every required change. Every command in the issue's Acceptance
-            criteria must still pass, and in client/: `npm ci`, `npm run lint` and
-            `npm run build` must pass. Commit as `type: description` and push to
-            the same branch. Don't open a new PR.
+            criteria must still pass, and in client/: `npm ci` and `npm run check`
+            must pass. Commit as `type: description` and push to the same branch.
+            Don't open a new PR.
           claude_args: >-
             --model haiku
             --max-turns 100
