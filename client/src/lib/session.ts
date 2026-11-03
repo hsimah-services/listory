@@ -1,7 +1,7 @@
 export const SESSION = createSession();
 
 function createSession() {
-  // Same-origin transport for the standalone PHP backend.
+  // Same-origin transport for the PHP backend.
   interface Session {
     userId: string;
     nonce: string | null;

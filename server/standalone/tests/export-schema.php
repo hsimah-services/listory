@@ -9,5 +9,5 @@ $schema->assertValid();
 $printed = rtrim(preg_replace('/[ \t]+$/m', '', GraphQL\Utils\SchemaPrinter::doPrint($schema))) . "\n";
 $target = dirname(__DIR__, 3) . '/client/schema.graphql';
 if (in_array('--check', $argv, true)) {
-    if (!is_file($target) || file_get_contents($target) !== $printed) { fwrite(STDERR, "Standalone GraphQL schema has drifted.\n"); exit(1); }
+    if (!is_file($target) || file_get_contents($target) !== $printed) { fwrite(STDERR, "client/schema.graphql has drifted from the server's GraphQL schema.\n"); exit(1); }
 } else { file_put_contents($target, $printed); }

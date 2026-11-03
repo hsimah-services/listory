@@ -150,13 +150,12 @@ From the repository root:
 ```bash
 scripts/node.sh npm run lint       # ESLint + complete source import graph
 scripts/node.sh npm run lint:fix   # safe fixes, then architecture check
-scripts/node.sh npm run test:routes  # typed URI regression tests
-scripts/node.sh npm run check      # route tests + route freshness + lint + Relay/TypeScript/Vite build
+scripts/node.sh npm run check      # route freshness + lint + Relay checks + TypeScript/Vite build + browser-test types
 ```
 
 Every violation fails lint. There is no baseline suppressing existing violations.
-`npm run check` is required before review/merge. The Standalone SQLite workflow runs it
-on pull requests and pushes to main. Generated files are excluded.
+`npm run check` is required before review/merge. The `client` job in CI runs it on
+pull requests. Generated files are excluded.
 `main.tsx` is the bootstrap exception to constant casing, declaration ordering,
 and local component naming; it performs imperative app initialization.
 
@@ -178,7 +177,7 @@ for a real exception, document its reason narrowly and add regression coverage
 when the rule must distinguish a valid pattern. Architectural judgment remains a
 review responsibility even when the mechanical checks pass.
 
-Rules and fixer tests are maintained upstream in `@tsquid/eslint-plugin`; Clog runs the published rules and architecture checker. The implementation uses [ESLint's rule/fixer API](https://eslint.org/docs/latest/extend/custom-rules)
+Rules and fixer tests are maintained upstream in `@tsquid/eslint-plugin`; Listory runs the published rules and architecture checker. The implementation uses [ESLint's rule/fixer API](https://eslint.org/docs/latest/extend/custom-rules)
 and [RuleTester](https://eslint.org/docs/latest/integrate/nodejs-api#ruletester).
 The parser needs the JavaScript compiler API, so dependencies follow the official
 [TypeScript 6/7 side-by-side setup](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/#running-side-by-side-with-typescript-6.0):

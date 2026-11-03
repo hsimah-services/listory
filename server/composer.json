@@ -1,6 +1,6 @@
 {
     "name": "hsimah-services/listory",
-    "description": "Listory: standalone checklist application using Elephentity, SQLite and GraphQL.",
+    "description": "Listory: checklist application using Elephentity, SQLite and GraphQL.",
     "type": "project",
     "license": "MIT",
     "require": {
